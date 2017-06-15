@@ -3,6 +3,7 @@ import numba
 import numpy as np
 import vmodel
 import asdf
+import copy
 
 # define type of vmodel.model1d
 model_type = numba.deferred_type()
@@ -11,28 +12,28 @@ model_type.define(vmodel.model1d.class_type.instance_type)
 #--------------------------------------------------------------------------------------------------
 #- fundamental array manipulations
 #--------------------------------------------------------------------------------------------------
-@numba.jit(numba.float64[:](numba.float64, numba.float64, numba.float64))
+@numba.jit(numba.float32[:](numba.float32, numba.float32, numba.float32))
 def _get_array(xmin, xmax, dx):
     xlst= []
     Nx  = int((xmax - xmin)/dx + 1)
     for i in xrange(Nx): xlst.append(dx*i+xmin)
-    return np.array(xlst, dtype=np.float64)
+    return np.array(xlst, dtype=np.float32)
 
-@numba.jit(numba.float64[:](numba.float64, numba.float64[:]))
+@numba.jit(numba.float32[:](numba.float32, numba.float32[:]))
 def _value_divide_array(value, array):
-    outArr  = np.zeros(array.size, dtype=np.float64)
+    outArr  = np.zeros(array.size, dtype=np.float32)
     for i in xrange(array.size): outArr[i] = value/array[i]
     return outArr
 
-@numba.jit(numba.float64[:](numba.float64, numba.float64[:]))
+@numba.jit(numba.float32[:](numba.float32, numba.float32[:]))
 def _array_divide_value(value, array):
-    outArr  = np.zeros(array.size, dtype=np.float64)
+    outArr  = np.zeros(array.size, dtype=np.float32)
     for i in xrange(array.size): outArr[i] = array[i]/value
     return outArr
 
-@numba.jit(numba.float64[:](numba.float64[:], numba.float64[:]))
+@numba.jit(numba.float32[:](numba.float32[:], numba.float32[:]))
 def _merge_array(a1, a2):
-    a3  = np.zeros(a1.size+a2.size, dtype=np.float64)
+    a3  = np.zeros(a1.size+a2.size, dtype=np.float32)
     Na1 = a1.size
     for i in xrange(a3.size):
         if i <= Na1-1:
@@ -41,7 +42,7 @@ def _merge_array(a1, a2):
             a3[i] = a2[i-Na1]
     return a3
 
-@numba.jit(numba.float64(numba.float64[:]))
+@numba.jit(numba.float32(numba.float32[:]))
 def _abs_max_(array):
     mvalue=np.abs(array[0])
     for i in xrange(array.size):
@@ -51,22 +52,22 @@ def _abs_max_(array):
 #--------------------------------------------------------------------------------------------------
 #- fundamental functions for integrate_psv_alt
 #--------------------------------------------------------------------------------------------------
-@numba.jit(numba.float64(numba.float64, numba.float64, numba.float64, numba.float64))
+@numba.jit(numba.float32(numba.float32, numba.float32, numba.float32, numba.float32))
 def f1_psv_alt(C,L,r4,r5): return (r4 / L - r5 / C)
 
-@numba.jit(numba.float64(numba.float64, numba.float64, numba.float64, numba.float64, numba.float64,
-        numba.float64, numba.float64, numba.float64))
+@numba.jit(numba.float32(numba.float32, numba.float32, numba.float32, numba.float32, numba.float32,
+        numba.float32, numba.float32, numba.float32))
 def f2_psv_alt(rho,A,C,F,omega,k,r4,r5): return (-omega**2 * rho * r4 + (omega**2 * rho - k**2 * (A - F**2 / C)) * r5)
 
-@numba.jit(numba.float64(numba.float64, numba.float64, numba.float64, numba.float64, numba.float64))
+@numba.jit(numba.float32(numba.float32, numba.float32, numba.float32, numba.float32, numba.float32))
 def f3_psv_alt(C,F,k,r4,r5): return (k * r4 + k * F * r5 / C)
 
-@numba.jit(numba.float64(numba.float64, numba.float64, numba.float64, numba.float64, numba.float64,
-        numba.float64, numba.float64, numba.float64, numba.float64))
+@numba.jit(numba.float32(numba.float32, numba.float32, numba.float32, numba.float32, numba.float32,
+        numba.float32, numba.float32, numba.float32, numba.float32))
 def f4_psv_alt(rho,A,C,F,omega,k,r1,r2,r3): return ((-omega**2 * rho + k**2 * (A - F**2 / C)) * r1 + r2 / C - 2 * k * F * r3 / C)
 
-@numba.jit(numba.float64(numba.float64, numba.float64, numba.float64, numba.float64, numba.float64,
-        numba.float64, numba.float64))
+@numba.jit(numba.float32(numba.float32, numba.float32, numba.float32, numba.float32, numba.float32,
+        numba.float32, numba.float32))
 def f5_psv_alt(rho,L,omega,k,r1,r2,r3):
 	return (omega**2 * rho * r1 - r2 / L - 2 * k * r3)
 
@@ -76,9 +77,9 @@ def f5_psv_alt(rho,L,omega,k,r1,r2,r3):
 #--------------------------------------------------------------------------------------------------
 
     
-@numba.njit( numba.types.UniTuple(numba.float64[:], 5) (model_type, numba.float64[:], numba.float64, numba.float64, numba.float64) )
+@numba.njit( numba.types.UniTuple(numba.float32[:], 5) (model_type, numba.float32[:], numba.float32, numba.float32, numba.float32) )
 def integrate_psv_alt(model, r, dr, omega, k):
-# # # @numba.jit( numba.types.UniTuple(numba.float64[:], 5) (model_type, numba.float64[:], numba.float64[:], numba.float64, numba.float64) )
+# # # @numba.jit( numba.types.UniTuple(numba.float32[:], 5) (model_type, numba.float32[:], numba.float32[:], numba.float32, numba.float32) )
 # # # def integrate_psv_alt(model, r, drArr, omega, k):
     """
     Integrate first-order system for a fixed circular frequency omega and a fixed wavenumber k.
@@ -97,11 +98,11 @@ def integrate_psv_alt(model, r, dr, omega, k):
     #- initialisation -----------------------------------------------------------------------------
     
     # r   = _get_array(rmin, 6371000., dr)
-    r1  = np.zeros(r.size, dtype=np.float64)
-    r2  = np.zeros(r.size, dtype=np.float64)
-    r3  = np.zeros(r.size, dtype=np.float64)
-    r4  = np.zeros(r.size, dtype=np.float64)
-    r5  = np.zeros(r.size, dtype=np.float64)
+    r1  = np.zeros(r.size, dtype=np.float32)
+    r2  = np.zeros(r.size, dtype=np.float32)
+    r3  = np.zeros(r.size, dtype=np.float32)
+    r4  = np.zeros(r.size, dtype=np.float32)
+    r5  = np.zeros(r.size, dtype=np.float32)
     
     rho, A, C, F, L, N = model.get_ind_Love_parameters(0)
 
@@ -179,28 +180,28 @@ def integrate_psv_alt(model, r, dr, omega, k):
 #--------------------------------------------------------------------------------------------------
 #- fundamental functions for integrate_psv
 #--------------------------------------------------------------------------------------------------
-@numba.jit(numba.float64 (numba.float64, numba.float64, numba.float64, numba.float64, numba.float64) )
+@numba.jit(numba.float32 (numba.float32, numba.float32, numba.float32, numba.float32, numba.float32) )
 def f1_psv(C,F,k,r2,r3):
 	return (r2 / C + k * F * r3 / C)
 
-@numba.jit(numba.float64 (numba.float64, numba.float64, numba.float64, numba.float64, numba.float64) )
+@numba.jit(numba.float32 (numba.float32, numba.float32, numba.float32, numba.float32, numba.float32) )
 def f2_psv(rho,omega,k,r1,r4):
 	return (-rho * omega**2 * r1 + k * r4)
 
-@numba.jit(numba.float64 (numba.float64, numba.float64, numba.float64, numba.float64) )
+@numba.jit(numba.float32 (numba.float32, numba.float32, numba.float32, numba.float32) )
 def f3_psv(L,k,r1,r4):
 	return (r4 / L - k * r1)
 
-@numba.jit(numba.float64 (numba.float64, numba.float64, numba.float64, numba.float64, numba.float64,
-         numba.float64, numba.float64, numba.float64) )
+@numba.jit(numba.float32 (numba.float32, numba.float32, numba.float32, numba.float32, numba.float32,
+         numba.float32, numba.float32, numba.float32) )
 def f4_psv(rho,A,C,F,omega,k,r2,r3):
 	return (-k * F * r2 / C + (k**2 * (A - F**2 / C) - rho * omega**2) * r3)
 
 # 
-@numba.jit( numba.types.UniTuple(numba.float64[:], 4) (model_type, numba.float64[:], numba.float64, numba.float64, numba.float64, numba.int32) )
+@numba.jit( numba.types.UniTuple(numba.float32[:], 4) (model_type, numba.float32[:], numba.float32, numba.float32, numba.float32, numba.int32) )
 def integrate_psv(model, r, dr, omega, k, initial_condition):
 
-# @numba.jit( numba.types.UniTuple(numba.float64[:], 4) (model_type, numba.float64[:], numba.float64[:], numba.float64, numba.float64, numba.int32) )
+# @numba.jit( numba.types.UniTuple(numba.float32[:], 4) (model_type, numba.float32[:], numba.float32[:], numba.float32, numba.float32, numba.int32) )
 # def integrate_psv(model, r, drArr, omega, k, initial_condition):
     """
     Integrate first-order system for a fixed circular frequency omega and a fixed wavenumber k.
@@ -219,10 +220,10 @@ def integrate_psv(model, r, dr, omega, k, initial_condition):
     #- initialisation -----------------------------------------------------------------------------
     # initial_condition=1
     # r = np.arange(r_min, 6371000.0 + dr, dr, dtype=float)
-    r1  = np.zeros(r.size, dtype=np.float64)
-    r2  = np.zeros(r.size, dtype=np.float64)
-    r3  = np.zeros(r.size, dtype=np.float64)
-    r4  = np.zeros(r.size, dtype=np.float64)
+    r1  = np.zeros(r.size, dtype=np.float32)
+    r2  = np.zeros(r.size, dtype=np.float32)
+    r3  = np.zeros(r.size, dtype=np.float32)
+    r4  = np.zeros(r.size, dtype=np.float32)
     rho, A, C, F, L, N = model.get_ind_Love_parameters(0)
     
     #- check if phase velocity is below S velocity ------------------------------------------------
@@ -289,9 +290,9 @@ def integrate_psv(model, r, dr, omega, k, initial_condition):
     
     return r1, r2, r3, r4
 
-@numba.jit( numba.types.UniTuple(numba.float64, 3) (numba.float64[:], numba.float64[:],numba.float64[:], numba.float64[:],\
-    numba.float64[:], numba.float64, numba.float64, numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:], \
-    numba.float64[:], numba.float64[:]) )
+@numba.jit( numba.types.UniTuple(numba.float32, 3) (numba.float32[:], numba.float32[:],numba.float32[:], numba.float32[:],\
+    numba.float32[:], numba.float32, numba.float32, numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:], \
+    numba.float32[:], numba.float32[:]) )
 def group_velocity_psv(r1, r2, r3, r4, r, k, phase_velocity, rho, A, C, F, L, N):
     """
     Compute Rayleigh wave group velocity for a given set of eigenfunctions (l1, l2), and
@@ -313,7 +314,88 @@ def group_velocity_psv(r1, r2, r3, r4, r, k, phase_velocity, rho, A, C, F, L, N)
     U = I3 / (phase_velocity * I1)
     return U, I1, I3
 
-
+def kernels_psv(r, r1, r2, r3, r4, _omega, _k, I3, rho, A, C, F, L, N, write_output, output_directory, tag):
+    """
+    Compute and write sensitivity kernels for Love waves.
+    
+    kernels_psv(r, r1, r2, r3, r4, _omega, _k, I3, rho, A, C, F, L, N, write_output, output_directory, tag)
+    """    
+    #- initialisations ----------------------------------------------------------------------------
+    
+    K_rho_0 = np.zeros(len(r))
+    K_A_0 = np.zeros(len(r))
+    K_C_0 = np.zeros(len(r))
+    K_F_0 = np.zeros(len(r))
+    K_L_0 = np.zeros(len(r))
+    K_N_0 = np.zeros(len(r))
+    
+    K_rho = np.zeros(len(r))
+    K_vph = np.zeros(len(r))
+    K_vpv = np.zeros(len(r))
+    K_vsh = np.zeros(len(r))
+    K_vsv = np.zeros(len(r))
+    K_eta = np.zeros(len(r))
+    
+    #- phase velocity
+    
+    v = _omega / _k
+    
+    #- velocities and eta
+    
+    vpv = np.sqrt(A/rho)
+    vph = np.sqrt(C/rho)
+    vsh = np.sqrt(N/rho)
+    vsv = np.sqrt(L/rho)
+    eta = F / (A-2*L)
+    
+    #- compute fundamental kernels ----------------------------------------------------------------
+    
+    if (I3!=0.0):
+    
+        K_rho_0 = -v**2 * _omega * (r1**2 + r3**2)
+        K_A_0 = _omega * r3**2
+        K_C_0 = v * (r2 + _k*F*r3)**2 / (_k*C**2)
+        K_F_0 = -2*v * (r2 + _k*F*r3) * r3/C
+        K_L_0 = (v/_k) * (r4/L)**2 
+        K_N_0 = np.zeros(len(r))
+    
+        K_rho_0 = K_rho_0 / (2*_k*I3)
+        K_A_0 = K_A_0 / (2*_k*I3)
+        K_C_0 = K_C_0 / (2*_k*I3)
+        K_F_0 = K_F_0 / (2*_k*I3)
+        K_L_0 = K_L_0 / (2*_k*I3)
+        K_N_0 = K_N_0 / (2*_k*I3)
+    
+    #- compute relative kernels in velocity parametrisation ---------------------------------------
+    
+    K_vph = 2*A*K_A_0 + 2*A*eta*K_F_0
+    K_vpv = 2*C*K_C_0
+    K_vsh = 2*N*K_N_0
+    K_vsv = 2*L*K_L_0 - 4*L*eta*K_F_0
+    K_rho = rho*K_rho_0 + A*K_A_0 + C*K_C_0 + N*K_N_0 + L*K_L_0 + (A-2*L)*eta*K_F_0 
+    K_eta = F*K_F_0
+    
+    #- convert to relative kernels ----------------------------------------------------------------
+    
+    K_rho_0 = rho*K_rho_0
+    K_A_0 = A*K_A_0
+    K_C_0 = C*K_C_0
+    K_F_0 = F*K_F_0
+    K_L_0 = L*K_L_0
+    K_N_0 = N*K_N_0
+    
+    #- write results to file ----------------------------------------------------------------------
+    
+    if write_output:
+    
+        identifier = "T="+str(2*np.pi/_omega)+".c="+str(_omega / _k)
+        fid = open(output_directory+"kernels_psv."+tag+"."+identifier,"w")
+        fid.write("number of vertical sampling points\n")
+        fid.write(str(len(r))+"\n")
+        fid.write("radius K_rho_0 K_A_0 K_C_0 K_F_0 K_L_0 K_N_0 K_rho K_vph K_vpv K_vsv K_vsh K_eta\n")
+        for idx in np.arange(len(r)):
+            fid.write(str(r[idx])+" "+str(K_rho_0[idx])+" "+str(K_A_0[idx])+" "+str(K_C_0[idx])+" "+str(K_F_0[idx])+" "+str(K_L_0[idx])+" "+str(K_N_0[idx])+" "+str(K_rho[idx])+" "+str(K_vph[idx])+" "+str(K_vpv[idx])+" "+str(K_vsh[idx])+" "+str(K_vsv[idx])+" "+str(K_eta[idx])+"\n")
+        fid.close()
 
 ###################################################################################
 #
@@ -321,22 +403,36 @@ def group_velocity_psv(r1, r2, r3, r4, r, k, phase_velocity, rho, A, C, F, L, N)
 
 
 spec = [('model', model_type),
-        ('Tmin', numba.float64),
-        ('Tmax', numba.float64),
-        ('dT', numba.float64),
-        ('cmin', numba.float64),
-        ('cmax', numba.float64),
-        ('dc', numba.float64),
-        ('dr', numba.float64),
-        ('rmin', numba.float64),
-        ('r', numba.float64[:]),
-        ('T', numba.float64[:]),
-        ('c', numba.float64[:]),
-        ('CR', numba.float64[:]),
-        ('CL', numba.float64[:]),
-        ('UR', numba.float64[:]),
-        ('CL', numba.float64[:]),
-        ('omega', numba.float64[:]),
+        ('Tmin', numba.float32),
+        ('Tmax', numba.float32),
+        ('dT', numba.float32),
+        ('cmin', numba.float32),
+        ('cmax', numba.float32),
+        ('dc', numba.float32),
+        ('dr', numba.float32),
+        ('rmin', numba.float32),
+        ('r', numba.float32[:]),
+        ('T', numba.float32[:]),
+        ('c', numba.float32[:]),
+        ('Vph', numba.float32[:, :]),
+        ('Vgr', numba.float32[:, :]),
+        ('eArr', numba.int32[:, :]),
+        ('r1data', numba.float32[:, :, :]),
+        ('r2data', numba.float32[:, :, :]),
+        ('r3data', numba.float32[:, :, :]),
+        ('r4data', numba.float32[:, :, :]),
+        ('Kadata', numba.float32[:, :, :]),
+        ('Kcdata', numba.float32[:, :, :]),
+        ('Kfdata', numba.float32[:, :, :]),
+        ('Kldata', numba.float32[:, :, :]),
+        ('Kndata', numba.float32[:, :, :]),
+        ('Kvphdata', numba.float32[:, :, :]),
+        ('Kvpvdata', numba.float32[:, :, :]),
+        ('Kvshdata', numba.float32[:, :, :]),
+        ('Kvsvdata', numba.float32[:, :, :]),
+        ('Ketadata', numba.float32[:, :, :]),
+        ('Krhodata', numba.float32[:, :, :]),
+        ('omega', numba.float32[:]),
         ('nmodes', numba.int32)
         ]
 
@@ -357,8 +453,8 @@ class eigen_solver(object):
         return
     
     # def initialization(self):
-    #     self.T      = np.arange(self.Tmin,self.Tmax + self.dT, self.dT, dtype=np.float64)
-    #     self.c      = np.arange(self.cmin,self.cmax + self.dc ,self.dc , dtype=np.float64)
+    #     self.T      = np.arange(self.Tmin,self.Tmax + self.dT, self.dT, dtype=np.float32)
+    #     self.c      = np.arange(self.cmin,self.cmax + self.dc ,self.dc , dtype=np.float32)
     #     self.omega  = 2 * np.pi / T
     
     def initialization(self):
@@ -368,9 +464,9 @@ class eigen_solver(object):
         self.omega  = _value_divide_array(2.*np.pi, self.T)
         self.r      = _get_array(self.rmin, 6371000., self.dr)
         # r1          = _get_array(6171000., 6371000., 1000.)
-        # dr1         = np.ones(r1.size, dtype=np.float64)
+        # dr1         = np.ones(r1.size, dtype=np.float32)
         # r2          = _get_array(self.rmin, 6171000.-5000., 5000.)
-        # dr2         = np.ones(r2.size, dtype=np.float64)*5.
+        # dr2         = np.ones(r2.size, dtype=np.float32)*5.
         # self.r      = _merge_array(r2, r1)
         # ###
         # self.dr     = _merge_array(dr2, dr1)
@@ -389,19 +485,37 @@ class eigen_solver(object):
     
     def solve_PSV(self):
         #- root-finding algorithm ---------------------------------------------------------------------
-        mode = []
-        phase_velocities = []
-        group_velocities = []
-        rho = np.zeros(self.r.size, dtype=np.float64)
-        A   = np.zeros(self.r.size, dtype=np.float64)
-        C   = np.zeros(self.r.size, dtype=np.float64)
-        F   = np.zeros(self.r.size, dtype=np.float64)
-        L   = np.zeros(self.r.size, dtype=np.float64)
-        N   = np.zeros(self.r.size, dtype=np.float64)
+        mode    = []
+        Nt      = self.T.size
+        Nz      = self.r.size
+        Vph     = np.zeros(self.nmodes*Nt, np.float32)
+        self.Vph     = Vph.reshape(self.nmodes, Nt)
+        self.Vgr     = self.Vph.copy()
+        eArr    = np.zeros(self.nmodes*Nt, np.int32)
+        self.eArr    = eArr.reshape(self.nmodes, Nt)
+        r1data  = np.zeros(self.nmodes*Nt*Nz, np.float32)
+        self.r1data  = r1data.reshape(self.nmodes, Nt, Nz)
+        self.r2data  = self.r1data.copy()
+        self.r3data  = self.r1data.copy()
+        self.r4data  = self.r1data.copy()
+        self.Kadata  = self.r1data.copy()
+        self.Kcdata  = self.r1data.copy()
+        self.Kfdata  = self.r1data.copy()
+        self.Kldata  = self.r1data.copy()
+        self.Kndata  = self.r1data.copy()
+        self.Krhodata= self.r1data.copy()
+        
+        rho = np.zeros(self.r.size, dtype=np.float32)
+        A   = np.zeros(self.r.size, dtype=np.float32)
+        C   = np.zeros(self.r.size, dtype=np.float32)
+        F   = np.zeros(self.r.size, dtype=np.float32)
+        L   = np.zeros(self.r.size, dtype=np.float32)
+        N   = np.zeros(self.r.size, dtype=np.float32)
     
         for n in xrange(self.r.size): rho[n], A[n], C[n], F[n], L[n], N[n] = self.model.get_r_love_parameters(self.r[n])
         #- loop over angular frequencies
-        for omega in self.omega:
+        for it in xrange(self.omega.size):
+            omega       = self.omega[it]
             mode_count  = 0
             k           = _value_divide_array(omega, self.c)
             #- loop over trial wavenumbers
@@ -415,7 +529,6 @@ class eigen_solver(object):
                 if r_left * r_right < 0.0:
                     mode_count += 1
                     mode.append(mode_count)
-                
                     #- start bisection algorithm
                     rr_left     = r_left
                     rr_right    = r_right
@@ -454,19 +567,24 @@ class eigen_solver(object):
                     r2 = r2 / mm
                     r3 = r3 / mm
                     r4 = r4 / mm
-                    
+                    # - store eigenfunction data
+                    self.r1data[mode_count-1, it, :] = r1[:]
+                    self.r2data[mode_count-1, it, :] = r2[:]
+                    self.r3data[mode_count-1, it, :] = r3[:]
+                    self.r4data[mode_count-1, it, :] = r4[:]
+                    # -
+                    self.eArr[mode_count-1, it] = 1
                     #- phase velocity
-                    # periods.append(2*np.pi/_omega)
-                    phase_velocities.append(omega / k_new)
+                    self.Vph[mode_count-1, it] = omega / k_new
                     #- group velocity
                     U, I1, I3 = group_velocity_psv(r1, r2, r3, r4, self.r, k_new, omega/k_new, rho, A, C, F, L, N)
-                    group_velocities.append(U)
+                    self.Vgr[mode_count-1, it] = U
                     #- kernels
                     # kpsv.kernels_psv(r, r1, r2, r3, r4, _omega, k_new, I3, rho, A, C, F, L, N, write_output, output_directory, tag)
                 r_left = r_right # in the loop over k
-        self.CR = np.array(phase_velocities, dtype=np.float64)
-        self.UR = np.array(group_velocities, dtype=np.float64)
-        return
+        # self.CR = np.array(phase_velocities, dtype=np.float32)
+        # self.UR = np.array(group_velocities, dtype=np.float32)
+        return 
     
 class eigenASDF(asdf.AsdfFile):
     """
@@ -485,7 +603,7 @@ class eigenASDF(asdf.AsdfFile):
         self.love       = love
         self.rayleigh   = rayleigh
         if zArr !=None:
-            r = np.float64(6371000. - zArr*1000.)
+            r = np.float32(6371000. - zArr*1000.)
         self.eigen.assign(T, c, r, dr, )
         
             

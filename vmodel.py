@@ -3,25 +3,25 @@ import numpy as np
 import numba
 
 
-@numba.jit(numba.float64[:](numba.float64, numba.float64, numba.float64))
+@numba.jit(numba.float32[:](numba.float32, numba.float32, numba.float32))
 def _get_array(xmin, xmax, dx):
     xlst= []
     Nx  = int((xmax - xmin)/dx + 1)
     for i in xrange(Nx): xlst.append(dx*i+xmin)
-    return np.array(xlst, dtype=np.float64)
+    return np.array(xlst, dtype=np.float32)
 
-spec = [('VsvArr', numba.float64[:]),
-        ('VpvArr', numba.float64[:]),
-        ('VshArr', numba.float64[:]),
-        ('VphArr', numba.float64[:]),
-        ('etaArr', numba.float64[:]),
-        ('rhoArr', numba.float64[:]),
-        ('rArr', numba.float64[:]),
-        ('AArr', numba.float64[:]),
-        ('CArr', numba.float64[:]),
-        ('LArr', numba.float64[:]),
-        ('FArr', numba.float64[:]),
-        ('NArr', numba.float64[:])]
+spec = [('VsvArr', numba.float32[:]),
+        ('VpvArr', numba.float32[:]),
+        ('VshArr', numba.float32[:]),
+        ('VphArr', numba.float32[:]),
+        ('etaArr', numba.float32[:]),
+        ('rhoArr', numba.float32[:]),
+        ('rArr', numba.float32[:]),
+        ('AArr', numba.float32[:]),
+        ('CArr', numba.float32[:]),
+        ('LArr', numba.float32[:]),
+        ('FArr', numba.float32[:]),
+        ('NArr', numba.float32[:])]
 
 @numba.jitclass(spec)
 class model1d(object):
@@ -34,13 +34,13 @@ class model1d(object):
     """
     def __init__(self):
         
-        self.VsvArr     = np.array([0], dtype=np.float64)
-        self.VpvArr     = np.array([0], dtype=np.float64)
-        self.VshArr     = np.array([0], dtype=np.float64)
-        self.VphArr     = np.array([0], dtype=np.float64)
-        self.etaArr     = np.array([0], dtype=np.float64)
-        self.rhoArr     = np.array([0], dtype=np.float64)
-        self.rArr       = np.array([0], dtype=np.float64)
+        self.VsvArr     = np.array([0], dtype=np.float32)
+        self.VpvArr     = np.array([0], dtype=np.float32)
+        self.VshArr     = np.array([0], dtype=np.float32)
+        self.VphArr     = np.array([0], dtype=np.float32)
+        self.etaArr     = np.array([0], dtype=np.float32)
+        self.rhoArr     = np.array([0], dtype=np.float32)
+        self.rArr       = np.array([0], dtype=np.float32)
         return
     
     def get_radius(self, zmax, dz):
@@ -51,7 +51,7 @@ class model1d(object):
         # # Nr      = int((6371. - rmin)/dz + 1)
         # # rlst    = []
         # # for i in xrange(Nr): rlst.append(1000.*(i+rmin)*dz)
-        # # self.rArr   = np.array(rlst, dtype=np.float64)
+        # # self.rArr   = np.array(rlst, dtype=np.float32)
         self.rArr   = _get_array(rmin*1000., 6371000., dz*1000.)
         return
     
@@ -196,12 +196,12 @@ class model1d(object):
             FLst.append(F)
             NLst.append(N)
             rhoLst.append(rho)
-        self.AArr   = np.array(ALst, dtype=np.float64)
-        self.CArr   = np.array(CLst, dtype=np.float64)
-        self.LArr   = np.array(LLst, dtype=np.float64)
-        self.FArr   = np.array(FLst, dtype=np.float64)
-        self.NArr   = np.array(NLst, dtype=np.float64)
-        self.rhoArr = np.array(rhoLst, dtype=np.float64)
+        self.AArr   = np.array(ALst, dtype=np.float32)
+        self.CArr   = np.array(CLst, dtype=np.float32)
+        self.LArr   = np.array(LLst, dtype=np.float32)
+        self.FArr   = np.array(FLst, dtype=np.float32)
+        self.NArr   = np.array(NLst, dtype=np.float32)
+        self.rhoArr = np.array(rhoLst, dtype=np.float32)
         return
     
     def get_ind_Love_parameters(self, i):
