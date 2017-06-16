@@ -204,6 +204,8 @@ class model1d(object):
         self.rhoArr = np.array(rhoLst, dtype=np.float32)
         return
     
+    # def model_ak135(self):
+    
     def get_ind_Love_parameters(self, i):
         return self.rhoArr[i], self.AArr[i], self.CArr[i], self.FArr[i], self.LArr[i], self.NArr[i]
     
