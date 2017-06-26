@@ -4,8 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 m=vmodel.model1d()
-m.get_radius(400., 1.)
-m.model_prem()
+# m.get_radius(4000., 1.)
+# m.model_prem()
+m=vmodel.model1d()
+m=vmodel.read_model(m, 'ak135.txt')
 eig1 = eigen.eigen_solver(m)
 eig1.initialization()
 # eig1.solve_PSV()

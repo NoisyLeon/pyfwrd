@@ -44,7 +44,7 @@ class eigenASDF(asdf.AsdfFile):
     
     
     def init_dbase(self, inmodel=None, love=True, rayleigh=True, T=None, Tmin=10., Tmax=50., dT=5.,
-            c=None, cmin=2000., cmax=5500., dc=50., nmodes=1, zmax=200., dz=1.):
+            c=None, cmin=2000., cmax=5500., dc=50., nmodes=1, zmax=1000., dz=1.):
         self.love       = love
         self.rayleigh   = rayleigh
         if not isinstance(T, np.ndarray):
@@ -120,6 +120,23 @@ class eigenASDF(asdf.AsdfFile):
         ax.tick_params(axis='y', labelsize=20)
         plt.legend(numpoints=1, fontsize=20, loc=0)
         if showfig: plt.show()
+        return
+    
+    def write_disp(self, outfname, wavetype='ray', mode=0, dtype='C'):
+        wavetype=wavetype.lower()
+        if wavetype == 'rayleigh': wavetype='ray'
+        root    = self.tree[wavetype]['root'][mode, :]
+        if not np.all(root):
+            print 'WARNING: Some root NOT found!'
+        ind     = root.astype(bool)
+        T       = self.tree[wavetype]['T'][ind]
+        if T.size == 0:
+            print 'WARNING: No datapoint!'
+            return
+        vel     = self.tree[wavetype]['disp'][dtype][mode, ind]/1000.
+        outArr  = np.append(T, vel)
+        outArr  = (outArr.reshape(2, vel.size)).T
+        np.savetxt(outfname, outArr, fmt='%g')
         return
         
         

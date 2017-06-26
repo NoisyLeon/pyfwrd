@@ -121,13 +121,12 @@ def integrate_psv_alt(model, r, dr, omega, k):
             # # # dr = drArr[n]
             #- compute Runge-Kutta coeficients for l1 and l2
             rho, A, C, F, L, N = model.get_r_love_parameters(r[n])
-            
             K1_1 = f1_psv_alt(C,L,r4[n],r5[n])
             K2_1 = f2_psv_alt(rho,A,C,F,omega,k,r4[n],r5[n])
             K3_1 = f3_psv_alt(C,F,k,r4[n],r5[n])
             K4_1 = f4_psv_alt(rho,A,C,F,omega,k,r1[n],r2[n],r3[n])
             K5_1 = f5_psv_alt(rho,L,omega,k,r1[n],r2[n],r3[n]) 
-        
+            
             rho, A, C, F, L, N = model.get_r_love_parameters(r[n]+dr/2.0)
             
             K1_2 = f1_psv_alt(C,L,r4[n]+0.5*K4_1*dr,r5[n]+0.5*K5_1*dr)
@@ -135,7 +134,7 @@ def integrate_psv_alt(model, r, dr, omega, k):
             K3_2 = f3_psv_alt(C,F,k,r4[n]+0.5*K4_1*dr,r5[n]+0.5*K5_1*dr)
             K4_2 = f4_psv_alt(rho,A,C,F,omega,k,r1[n]+0.5*K1_1*dr,r2[n]+0.5*K2_1*dr,r3[n]+0.5*K3_1*dr)
             K5_2 = f5_psv_alt(rho,L,omega,k,r1[n]+0.5*K1_1*dr,r2[n]+0.5*K2_1*dr,r3[n]+0.5*K3_1*dr) 
-        
+            
             K1_3 = f1_psv_alt(C,L,r4[n]+0.5*K4_2*dr,r5[n]+0.5*K5_2*dr)
             K2_3 = f2_psv_alt(rho,A,C,F,omega,k,r4[n]+0.5*K4_2*dr,r5[n]+0.5*K5_2*dr)
             K3_3 = f3_psv_alt(C,F,k,r4[n]+0.5*K4_2*dr,r5[n]+0.5*K5_2*dr)
@@ -149,15 +148,14 @@ def integrate_psv_alt(model, r, dr, omega, k):
             K3_4 = f3_psv_alt(C,F,k,r4[n]+K4_3*dr,r5[n]+K5_3*dr)
             K4_4 = f4_psv_alt(rho,A,C,F,omega,k,r1[n]+K1_3*dr,r2[n]+K2_3*dr,r3[n]+K3_3*dr)
             K5_4 = f5_psv_alt(rho,L,omega,k,r1[n]+K1_3*dr,r2[n]+K2_3*dr,r3[n]+K3_3*dr) 
-    
+            
             #- update
-    
+            
             r1[n + 1] = r1[n] + dr * (K1_1 + 2 * K1_2 + 2 * K1_3 + K1_4) / 6.0
             r2[n + 1] = r2[n] + dr * (K2_1 + 2 * K2_2 + 2 * K2_3 + K2_4) / 6.0
             r3[n + 1] = r3[n] + dr * (K3_1 + 2 * K3_2 + 2 * K3_3 + K3_4) / 6.0
             r4[n + 1] = r4[n] + dr * (K4_1 + 2 * K4_2 + 2 * K4_3 + K4_4) / 6.0
             r5[n + 1] = r5[n] + dr * (K5_1 + 2 * K5_2 + 2 * K5_3 + K5_4) / 6.0
-    
             #- rescale to maximum to prevent overflow
             mm  = np.max(np.abs(r2))
             
@@ -269,7 +267,6 @@ def integrate_psv(model, r, dr, omega, k, initial_condition):
             r4[n + 1] = r4[n] + dr * (K4_1 + 2 * K4_2 + 2 * K4_3 + K4_4) / 6.0
     
             #- rescale to maximum to prevent overflow
-    
             if initial_condition == 1:
                 mm = np.max(np.abs(r2))
             else:
