@@ -1,8 +1,20 @@
+# -*- coding: utf-8 -*-
+"""
+Module for surface wave eigenfunction and dispersion computation
+
+The code is based on the surf package by Andreas Fichtner.
+Numba is used for speeding up of the code.
+
+:Copyright:
+    Author: Lili Feng
+    Graduate Research Assistant
+    CIEI, Department of Physics, University of Colorado Boulder
+    email: lili.feng@colorado.edu
+"""
 
 import numba
 import numpy as np
 import vmodel
-import asdf
 import copy
 
 # define type of vmodel.model1d
@@ -71,63 +83,55 @@ def f4_psv_alt(rho,A,C,F,omega,k,r1,r2,r3): return ((-omega**2 * rho + k**2 * (A
 def f5_psv_alt(rho,L,omega,k,r1,r2,r3):
 	return (omega**2 * rho * r1 - r2 / L - 2 * k * r3)
 
-
 #--------------------------------------------------------------------------------------------------
 #- numerical integration
 #--------------------------------------------------------------------------------------------------
 
-    
 @numba.njit( numba.types.UniTuple(numba.float32[:], 5) (model_type, numba.float32[:], numba.float32, numba.float32, numba.float32) )
 def integrate_psv_alt(model, r, dr, omega, k):
-# # # @numba.jit( numba.types.UniTuple(numba.float32[:], 5) (model_type, numba.float32[:], numba.float32[:], numba.float32, numba.float32) )
-# # # def integrate_psv_alt(model, r, drArr, omega, k):
     """
-    Integrate first-order system for a fixed circular frequency omega and a fixed wavenumber k.
-    r1, r2, r3, r4, r5, r = integrate_psv_alt(r_min, dr, omega, k, model)
-    
-    r_min:		minimum radius in m
-    dr:			radius increment in m
-    omega:		circular frequency in Hz
-    k:			wave number in 1/m
-    model:		Earth model, e.g. "PREM", "GUTENBERG", ... .
-    
-    r1, ...:	variables of the alternative Rayleigh wave system
-    r:			radius vector in m
+    Integrate first-order P-SV system for a fixed angular frequency omega and a fixed wavenumber k.
+    =================================================================================================
+    Input Parameters:
+    model   - input model1d object
+    r       - radius array in m
+    dr      - radius increment in m
+    omege   - angular frequency in Hz
+    k       - wave number in 1/m
+    -------------------------------------------------------------------------------------------------
+    Output:
+    r1, ... -	variables of the alternative Rayleigh wave system
+    =================================================================================================
     """
-    
-    #- initialisation -----------------------------------------------------------------------------
-    
-    # r   = _get_array(rmin, 6371000., dr)
+    #- initialization -----------------------------------------------------------------------------
     r1  = np.zeros(r.size, dtype=np.float32)
     r2  = np.zeros(r.size, dtype=np.float32)
     r3  = np.zeros(r.size, dtype=np.float32)
     r4  = np.zeros(r.size, dtype=np.float32)
     r5  = np.zeros(r.size, dtype=np.float32)
-    
-    rho, A, C, F, L, N = model.get_ind_Love_parameters(0)
+    rho, A, C, F, L, N = model.get_ind_Love_parameters_PSV(0)
 
     #- check if phase velocity is below S velocity ------------------------------------------------
-    if (k**2 - (omega**2 * rho / L)) > 0.0:
-    
+    if (k**2 - (omega**2 * rho / L)) > 0.0:  
         #- set initial values
         r1[0] = 0.0	
         r2[0] = 1.0 
         r3[0] = 0.0
         r4[0] = 0.0
         r5[0] = 0.0
-    
         #- integrate upwards with 4th-order Runge-Kutta--------------------------------------------
         for n in xrange(r.size-1):
             # # # dr = drArr[n]
             #- compute Runge-Kutta coeficients for l1 and l2
-            rho, A, C, F, L, N = model.get_r_love_parameters(r[n])
+            rho, A, C, F, L, N = model.get_r_love_parameters_PSV(r[n])
+            
             K1_1 = f1_psv_alt(C,L,r4[n],r5[n])
             K2_1 = f2_psv_alt(rho,A,C,F,omega,k,r4[n],r5[n])
             K3_1 = f3_psv_alt(C,F,k,r4[n],r5[n])
             K4_1 = f4_psv_alt(rho,A,C,F,omega,k,r1[n],r2[n],r3[n])
             K5_1 = f5_psv_alt(rho,L,omega,k,r1[n],r2[n],r3[n]) 
             
-            rho, A, C, F, L, N = model.get_r_love_parameters(r[n]+dr/2.0)
+            rho, A, C, F, L, N = model.get_r_love_parameters_PSV(r[n]+dr/2.0)
             
             K1_2 = f1_psv_alt(C,L,r4[n]+0.5*K4_1*dr,r5[n]+0.5*K5_1*dr)
             K2_2 = f2_psv_alt(rho,A,C,F,omega,k,r4[n]+0.5*K4_1*dr,r5[n]+0.5*K5_1*dr)
@@ -141,7 +145,7 @@ def integrate_psv_alt(model, r, dr, omega, k):
             K4_3 = f4_psv_alt(rho,A,C,F,omega,k,r1[n]+0.5*K1_2*dr,r2[n]+0.5*K2_2*dr,r3[n]+0.5*K3_2*dr)
             K5_3 = f5_psv_alt(rho,L,omega,k,r1[n]+0.5*K1_2*dr,r2[n]+0.5*K2_2*dr,r3[n]+0.5*K3_2*dr)
             
-            rho, A, C, F, L, N = model.get_r_love_parameters(r[n]+dr)
+            rho, A, C, F, L, N = model.get_r_love_parameters_PSV(r[n]+dr)
             
             K1_4 = f1_psv_alt(C,L,r4[n]+K4_3*dr,r5[n]+K5_3*dr)
             K2_4 = f2_psv_alt(rho,A,C,F,omega,k,r4[n]+K4_3*dr,r5[n]+K5_3*dr)
@@ -150,7 +154,6 @@ def integrate_psv_alt(model, r, dr, omega, k):
             K5_4 = f5_psv_alt(rho,L,omega,k,r1[n]+K1_3*dr,r2[n]+K2_3*dr,r3[n]+K3_3*dr) 
             
             #- update
-            
             r1[n + 1] = r1[n] + dr * (K1_1 + 2 * K1_2 + 2 * K1_3 + K1_4) / 6.0
             r2[n + 1] = r2[n] + dr * (K2_1 + 2 * K2_2 + 2 * K2_3 + K2_4) / 6.0
             r3[n + 1] = r3[n] + dr * (K3_1 + 2 * K3_2 + 2 * K3_3 + K3_4) / 6.0
@@ -158,15 +161,11 @@ def integrate_psv_alt(model, r, dr, omega, k):
             r5[n + 1] = r5[n] + dr * (K5_1 + 2 * K5_2 + 2 * K5_3 + K5_4) / 6.0
             #- rescale to maximum to prevent overflow
             mm  = np.max(np.abs(r2))
-            
             r1  = r1 / mm
             r2  = r2 / mm
             r3  = r3 / mm
             r4  = r4 / mm
             r5  = r5 / mm
-    
-    #- return -------------------------------------------------------------------------------------
-    
     return r1, r2, r3, r4, r5
 
 #--------------------------------------------------------------------------------------------------
@@ -192,35 +191,30 @@ def f4_psv(rho,A,C,F,omega,k,r2,r3):
 # 
 @numba.jit( numba.types.UniTuple(numba.float32[:], 4) (model_type, numba.float32[:], numba.float32, numba.float32, numba.float32, numba.int32) )
 def integrate_psv(model, r, dr, omega, k, initial_condition):
-
-# @numba.jit( numba.types.UniTuple(numba.float32[:], 4) (model_type, numba.float32[:], numba.float32[:], numba.float32, numba.float32, numba.int32) )
-# def integrate_psv(model, r, drArr, omega, k, initial_condition):
     """
-    Integrate first-order system for a fixed circular frequency omega and a fixed wavenumber k.
-    r1, r2, r3, r4, r = integrate_psv(r_min, dr, omega, k, model)
-    
-    r_min:		minimum radius in m
-    dr:			radius increment in m
-    omega:		circular frequency in Hz
-    k:			wave number in 1/m
-    model:		Earth model, e.g. "PREM", "GUTENBERG", ... .
-    
-    r1, ...:	variables of the Rayleigh wave system
-    r:			radius vector in m
+    Integrate first-order P-SV system for a fixed angular frequency omega and a fixed wavenumber k.
+    =================================================================================================
+    Input Parameters:
+    model               - input model1d object
+    r                   - radius array in m
+    dr                  - radius increment in m
+    omege               - angular frequency in Hz
+    k                   - wave number in 1/m
+    initial_condition   - initial condition for eigenfunctions
+    -------------------------------------------------------------------------------------------------
+    Output:
+    r1, ... -	variables of the alternative Rayleigh wave system
+    =================================================================================================
     """
-    
-    #- initialisation -----------------------------------------------------------------------------
-    # initial_condition=1
-    # r = np.arange(r_min, 6371000.0 + dr, dr, dtype=float)
+    #- initialization -----------------------------------------------------------------------------
     r1  = np.zeros(r.size, dtype=np.float32)
     r2  = np.zeros(r.size, dtype=np.float32)
     r3  = np.zeros(r.size, dtype=np.float32)
     r4  = np.zeros(r.size, dtype=np.float32)
-    rho, A, C, F, L, N = model.get_ind_Love_parameters(0)
+    rho, A, C, F, L, N = model.get_ind_Love_parameters_PSV(0)
     
     #- check if phase velocity is below S velocity ------------------------------------------------
     if (1==1): #(k**2 - (omega**2 * rho / L)) > 0.0:
-    
         #- set initial values
         if initial_condition == 1:
             r1[0] = 0.0	
@@ -234,15 +228,14 @@ def integrate_psv(model, r, dr, omega, k, initial_condition):
             r4[0] = 1.0
         #- integrate upwards with 4th-order Runge-Kutta--------------------------------------------
         for n in xrange(r.size-1):
-            # # # dr=drArr[n]
             #- compute Runge-Kutta coeficients for l1 and l2
-            rho, A, C, F, L, N = model.get_r_love_parameters(r[n])
+            rho, A, C, F, L, N = model.get_r_love_parameters_PSV(r[n])
             K1_1 = f1_psv(C,F,k,r2[n],r3[n])
             K2_1 = f2_psv(rho,omega,k,r1[n],r4[n])
             K3_1 = f3_psv(L,k,r1[n],r4[n])
             K4_1 = f4_psv(rho,A,C,F,omega,k,r2[n],r3[n])
     
-            rho, A, C, F, L, N = model.get_r_love_parameters(r[n] + dr/2.0)
+            rho, A, C, F, L, N = model.get_r_love_parameters_PSV(r[n] + dr/2.0)
             K1_2 = f1_psv(C,F,k,r2[n]+0.5*K2_1*dr,r3[n]+0.5*K3_1*dr)
             K2_2 = f2_psv(rho,omega,k,r1[n]+0.5*K1_1*dr,r4[n]+0.5*K4_1*dr)
             K3_2 = f3_psv(L,k,r1[n]+0.5*K1_1*dr,r4[n]+0.5*K4_1*dr)
@@ -253,14 +246,13 @@ def integrate_psv(model, r, dr, omega, k, initial_condition):
             K3_3 = f3_psv(L,k,r1[n]+0.5*K1_2*dr,r4[n]+0.5*K4_2*dr)
             K4_3 = f4_psv(rho,A,C,F,omega,k,r2[n]+0.5*K2_2*dr,r3[n]+0.5*K3_2*dr)
             
-            rho, A, C, F, L, N = model.get_r_love_parameters(r[n] + dr)
+            rho, A, C, F, L, N = model.get_r_love_parameters_PSV(r[n] + dr)
             K1_4 = f1_psv(C,F,k,r2[n]+K2_3*dr,r3[n]+K3_3*dr)
             K2_4 = f2_psv(rho,omega,k,r1[n]+K1_3*dr,r4[n]+K4_3*dr)
             K3_4 = f3_psv(L,k,r1[n]+K1_3*dr,r4[n]+K4_3*dr)
             K4_4 = f4_psv(rho,A,C,F,omega,k,r2[n]+K2_3*dr,r3[n]+K3_3*dr)
     
             #- update
-    
             r1[n + 1] = r1[n] + dr * (K1_1 + 2 * K1_2 + 2 * K1_3 + K1_4) / 6.0
             r2[n + 1] = r2[n] + dr * (K2_1 + 2 * K2_2 + 2 * K2_3 + K2_4) / 6.0
             r3[n + 1] = r3[n] + dr * (K3_1 + 2 * K3_2 + 2 * K3_3 + K3_4) / 6.0
@@ -271,14 +263,10 @@ def integrate_psv(model, r, dr, omega, k, initial_condition):
                 mm = np.max(np.abs(r2))
             else:
                 mm = np.max(np.abs(r4))
-    
             r1 = r1 / mm
             r2 = r2 / mm
             r3 = r3 / mm
             r4 = r4 / mm
-    
-    #- return -------------------------------------------------------------------------------------
-    
     return r1, r2, r3, r4
 
 @numba.jit( numba.types.UniTuple(numba.float32, 3) (numba.float32[:], numba.float32[:],numba.float32[:], numba.float32[:],\
@@ -418,7 +406,7 @@ def integrate_sh(model, r, dr, omega, k):
 	# r = np.arange(r_min, 6371000.0 + dr, dr, dtype=float)
 	l1  = np.zeros(r.size, dtype=np.float32)
 	l2  = np.zeros(r.size, dtype=np.float32)
-	rho, A, C, F, L, N = model.get_ind_Love_parameters(0)
+	rho, A, C, F, L, N = model.get_ind_Love_parameters_SH(0)
 	#- check if phase velocity is below S velocity ------------------------------------------------
 	if (1==1): #(k**2 - (omega**2 * rho / L)) > 0.0:
 		#- set initial values
@@ -429,18 +417,18 @@ def integrate_sh(model, r, dr, omega, k):
 
 		for n in xrange(r.size-1):
 			#- compute Runge-Kutta coeficients for l1 and l2
-			rho, A, C, F, L, N = model.get_r_love_parameters(r[n])
+			rho, A, C, F, L, N = model.get_r_love_parameters_SH(r[n])
 			K1_1 = f1_sh(L, l2[n])
 			K2_1 = f2_sh(N, rho, k, omega, l1[n]) 
 
-			rho, A, C, F, L, N = model.get_r_love_parameters(r[n]+dr/2.0)
+			rho, A, C, F, L, N = model.get_r_love_parameters_SH(r[n]+dr/2.0)
 			K1_2 = f1_sh(L, l2[n] + K2_1 * dr / 2.0)
 			K2_2 = f2_sh(N, rho, k, omega, l1[n] + K1_1 * dr / 2.0)
 
 			K1_3 = f1_sh(L, l2[n] + K2_2 * dr / 2.0)
 			K2_3 = f2_sh(N, rho, k, omega, l1[n] + K1_2 * dr / 2.0)
 
-			rho, A, C, F, L, N = model.get_r_love_parameters(r[n]+dr)
+			rho, A, C, F, L, N = model.get_r_love_parameters_SH(r[n]+dr)
 			K1_4 = f1_sh(L, l2[n] + K2_3 * dr)
 			K2_4 = f2_sh(N, rho, k, omega, l1[n] + K1_3 * dr)
 
@@ -533,34 +521,34 @@ def kernels_sh(r, l1, l2, omega, k, I3, rho, A, C, F, L, N):
     K_N_0   = N*K_N_0
     return K_rho_0, K_A_0, K_C_0, K_F_0, K_L_0, K_N_0, K_rho, K_vph, K_vpv, K_vsh, K_vsv, K_eta
 
-spec = [('model', model_type),
-        ('dr', numba.float32),
-        ('r', numba.float32[:]),
-        ('T', numba.float32[:]),
-        ('c', numba.float32[:]),
-        ('Vph', numba.float32[:, :]),
-        ('Vgr', numba.float32[:, :]),
-        ('eArr', numba.int32[:, :]),
-        ('r1data', numba.float32[:, :, :]),
-        ('r2data', numba.float32[:, :, :]),
-        ('r3data', numba.float32[:, :, :]),
-        ('r4data', numba.float32[:, :, :]),
-        ('l1data', numba.float32[:, :, :]),
-        ('l2data', numba.float32[:, :, :]),
-        ('Kadata', numba.float32[:, :, :]),
-        ('Kcdata', numba.float32[:, :, :]),
-        ('Kfdata', numba.float32[:, :, :]),
-        ('Kldata', numba.float32[:, :, :]),
-        ('Kndata', numba.float32[:, :, :]),
-        ('Krho0data', numba.float32[:, :, :]),
-        ('Kvphdata', numba.float32[:, :, :]),
-        ('Kvpvdata', numba.float32[:, :, :]),
-        ('Kvshdata', numba.float32[:, :, :]),
-        ('Kvsvdata', numba.float32[:, :, :]),
-        ('Ketadata', numba.float32[:, :, :]),
-        ('Krhodata', numba.float32[:, :, :]),
-        ('omega', numba.float32[:]),
-        ('nmodes', numba.int32)
+spec = [('model',       model_type),
+        ('dr',          numba.float32),
+        ('r',           numba.float32[:]),
+        ('T',           numba.float32[:]),
+        ('c',           numba.float32[:]),
+        ('Vph',         numba.float32[:, :]),
+        ('Vgr',         numba.float32[:, :]),
+        ('eArr',        numba.int32[:, :]),
+        ('r1data',      numba.float32[:, :, :]),
+        ('r2data',      numba.float32[:, :, :]),
+        ('r3data',      numba.float32[:, :, :]),
+        ('r4data',      numba.float32[:, :, :]),
+        ('l1data',      numba.float32[:, :, :]),
+        ('l2data',      numba.float32[:, :, :]),
+        ('Kadata',      numba.float32[:, :, :]),
+        ('Kcdata',      numba.float32[:, :, :]),
+        ('Kfdata',      numba.float32[:, :, :]),
+        ('Kldata',      numba.float32[:, :, :]),
+        ('Kndata',      numba.float32[:, :, :]),
+        ('Krho0data',   numba.float32[:, :, :]),
+        ('Kvphdata',    numba.float32[:, :, :]),
+        ('Kvpvdata',    numba.float32[:, :, :]),
+        ('Kvshdata',    numba.float32[:, :, :]),
+        ('Kvsvdata',    numba.float32[:, :, :]),
+        ('Ketadata',    numba.float32[:, :, :]),
+        ('Krhodata',    numba.float32[:, :, :]),
+        ('omega',       numba.float32[:]),
+        ('nmodes',      numba.int32)
         ]
 
 @numba.jitclass(spec)
@@ -655,9 +643,6 @@ class eigen_solver(object):
         self.Kvsvdata   = tempdata.copy()
         self.Ketadata   = tempdata.copy()
         return
-        
-
-        
     
     def solve_PSV(self):
         #- root-finding algorithm ---------------------------------------------------------------------
@@ -670,7 +655,7 @@ class eigen_solver(object):
         L   = np.zeros(self.r.size, dtype=np.float32)
         N   = np.zeros(self.r.size, dtype=np.float32)
     
-        for n in xrange(self.r.size): rho[n], A[n], C[n], F[n], L[n], N[n] = self.model.get_r_love_parameters(self.r[n])
+        for n in xrange(self.r.size): rho[n], A[n], C[n], F[n], L[n], N[n] = self.model.get_r_love_parameters_PSV(self.r[n])
         #- loop over angular frequencies
         for it in xrange(self.omega.size):
             omega       = self.omega[it]
@@ -764,7 +749,7 @@ class eigen_solver(object):
         L   = np.zeros(self.r.size, dtype=np.float32)
         N   = np.zeros(self.r.size, dtype=np.float32)
     
-        for n in xrange(self.r.size): rho[n], A[n], C[n], F[n], L[n], N[n] = self.model.get_r_love_parameters(self.r[n])
+        for n in xrange(self.r.size): rho[n], A[n], C[n], F[n], L[n], N[n] = self.model.get_r_love_parameters_SH(self.r[n])
         #- loop over angular frequencies
         for it in xrange(self.omega.size):
             omega       = self.omega[it]
