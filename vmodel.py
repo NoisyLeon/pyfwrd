@@ -56,7 +56,7 @@ def read_model(model, infname, unit=1000., isotropic=True,
         eta     = eta[::-1]
         rho     = rho[::-1]
         radius  = radius[::-1]
-    ind = vsv!=0.
+    ind     = radius > 3700000.
     vsv     = vsv[ind]
     vsh     = vsh[ind]
     vpv     = vpv[ind]
@@ -65,6 +65,105 @@ def read_model(model, infname, unit=1000., isotropic=True,
     rho     = rho[ind]
     radius  = radius[ind]
     model.get_data_vel(vsv, vsh, vpv, vph, eta, rho, radius)
+    return model
+
+def read_axisem_bm(model, infname):
+    """
+    Read 1D block model from AxiSEM
+    ===========================================================================================================
+    Input Parameters:
+    model       - input model1d object
+    infname     - input txt file name
+    ===========================================================================================================
+    """
+    with open(infname, 'rb') as f:
+        f.readline()
+        cline           = f.readline()
+        cline           = cline.split()
+        if cline[0] != 'NAME':
+            raise ValueError('Unexpected header: '+cline[0])
+        f.readline()
+        cline           = f.readline()
+        cline           = cline.split()
+        if cline[0] != 'ANISOTROPIC':
+            raise ValueError('Unexpected header: '+cline[0])
+        anisotropic     = cline[1]
+        if anisotropic == 'T': anisotropic = True
+        elif anisotropic == 'F': anisotropic = False
+        cline           = f.readline()
+        cline           = cline.split()
+        if cline[0] != 'UNITS':
+            raise ValueError('Unexpected header: '+cline[0])
+        if cline[1] == 'm': unit = 1.
+        elif cline[1] == 'km': unit = 1000.
+        cline           = f.readline()
+        cline           = cline.split()
+        if cline[0] != 'COLUMNS':
+            raise ValueError('Unexpected header: '+cline[0])
+        ind = {}
+        i=0
+        for hdrstr in cline[1:]:
+            ind[hdrstr] = i
+            i   += 1
+        ###
+        # Read model parameters
+        ###
+        z0 = 0.
+        vsvArr  = np.array([], dtype=np.float32)
+        vshArr  = np.array([], dtype=np.float32)
+        vpvArr  = np.array([], dtype=np.float32)
+        vphArr  = np.array([], dtype=np.float32)
+        etaArr  = np.array([], dtype=np.float32)
+        rhoArr  = np.array([], dtype=np.float32)
+        rArr    = np.array([], dtype=np.float32)
+        for line in f.readlines():
+            cline   = line.split()
+            if cline[0] == '#': continue
+            r   = np.float32(cline[ ind['radius'] ])*unit
+            vpv = np.float32(cline[ ind['vpv'] ])*unit
+            vsv = np.float32(cline[ ind['vsv'] ])*unit
+            rho = np.float32(cline[ ind['rho'] ])*unit
+            if anisotropic:
+                vph = np.float32(cline[ ind['vph'] ])*unit
+                vsh = np.float32(cline[ ind['vsh'] ])*unit
+                eta = np.float32(cline[ ind['eta'] ])*unit
+            else:
+                vph = vpv
+                vsh = vsv
+                eta = np.float32(1.)
+            vsvArr  = np.append(vsvArr, vsv)
+            vshArr  = np.append(vshArr, vsh)
+            vpvArr  = np.append(vpvArr, vpv)
+            vphArr  = np.append(vphArr, vph)
+            etaArr  = np.append(etaArr, eta)
+            rhoArr  = np.append(rhoArr, rho)
+            rArr    = np.append(rArr, r)
+    # revert array
+    vsvArr  = vsvArr[::-1]
+    vshArr  = vshArr[::-1]
+    vpvArr  = vpvArr[::-1]
+    vphArr  = vphArr[::-1]
+    etaArr  = etaArr[::-1]
+    rhoArr  = rhoArr[::-1]
+    rArr    = rArr[::-1]
+    # discard Earth core
+    ind     = (rArr > 3700000.)
+    vsvArr  = vsvArr[ind]
+    vshArr  = vshArr[ind]
+    vpvArr  = vpvArr[ind]
+    vphArr  = vphArr[ind]
+    etaArr  = etaArr[ind]
+    rhoArr  = rhoArr[ind]
+    rArr    = rArr[ind]
+    # reassgin data type
+    vsvArr  = vsvArr.astype(np.float32)
+    vshArr  = vshArr.astype(np.float32)
+    vpvArr  = vpvArr.astype(np.float32)
+    vphArr  = vphArr.astype(np.float32)
+    etaArr  = etaArr.astype(np.float32)
+    rhoArr  = rhoArr.astype(np.float32)
+    rArr    = rArr.astype(np.float32)
+    model.get_data_vel(vsvArr, vshArr, vpvArr, vphArr, etaArr, rhoArr, rArr)        
     return model
 
 spec = [('VsvArr', numba.float32[:]),
