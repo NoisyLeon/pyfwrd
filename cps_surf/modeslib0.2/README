@@ -1,0 +1,31 @@
+You will need a Fortran 90 compiler to compile the package.
+
+**Run the configure script which will generate the
+flags.mk to be used by the different makefiles. It will ask you 
+what comiler do you have:
+- intel for intel compiler (ifort)
+- g95 : GNU fortran 95 compiler 
+- pgf for portland compiler
+- xlf90 for IBM compiler (e.g. for mac?)
+- dec for DEC ALPHA compiler
+- sun for SUN
+If you need another compiler, we can easely add an new entry in 
+the  configure script. 
+Warning: if you use g95, the -O level is set to 0 otherwize minosy 
+has some problems. I guess it will be fixed with futur versions of g95.
+The version I m using now is: "gcc version 4.0.0 20050129 (experimental)  
+(g95!) Apr 13 2005"
+
+**Run "make all" or "gmake all" at the top
+of the package tree and you should get all the executable files
+in bin directory. If you don't ... well you will have to work 
+a little bit more than expected or send me an email (try the 
+first option first!).
+
+**Some documentations  about these little programs are provided 
+in the doc directory. Run "make doc" to creat the pdf file if 
+not already there
+
+Author: Yann Capdeville, Paris (in the train form Paris to 
+Nantes actually!), the 08/12/05
+email: capdevil@ipgp.jussieu.fr

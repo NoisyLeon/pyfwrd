@@ -1,0 +1,23 @@
+23/08/05 adding modlib to the CVS database
+         Checking that the codes are compiling 
+         and running with ifort, pgf90, sun f90 and IBM xlf90
+         correcting bugs for stock_boule
+24/08/05 ***tagging rel-0-0
+         now working on version 0.1
+         fixing typo in minosy makefile
+         ***tagging rel-0-1
+         now working on version 0.2
+26/08/05
+         fixing bug for mac (tdelay=0)
+         changing configure
+         minosy now computes spheroidal and toroidals mode
+         in one run
+         updating doc
+01/09/05 
+          Adding g95 compiler and changing minor problem 
+           to compile with it. With this version of g95
+          only -O0 gives a correct result
+          adding amp_source in nms.dat
+          ***tagging rel-0-2
+          now working on version 0.3
+          

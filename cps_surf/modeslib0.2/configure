@@ -1,0 +1,267 @@
+#!/bin/csh 
+set ver=`cat VERSION`
+setenv VERSION $ver
+echo "Version "$VERSION
+set level=opt
+###############################################################
+if ( $#argv == 1 ) then
+set compiler=$1
+else
+echo "For which compiler?"
+echo "Possibilities are:"
+echo "intel (intel)"
+echo "g95 (GNU fortran compiler)"
+echo "pgf (portland"
+echo "xlf90 (IBM)"
+echo "dec (DEC)"
+echo "sun (SUN)"
+echo "to add more, edit this file (that's easy)"
+set compiler=$<
+endif
+#
+######normalement, vous ne devez rien changer apres cette ligne############
+#
+setenv MV "mv -f"
+setenv RM "rm -f"
+setenv CPP "-cpp"
+setenv AR  "ar cr"
+#
+if ( $compiler == xlf90 ) then
+echo "IBM compiler"
+##################
+#IBM SP:
+##################
+setenv CPP
+#setenv F90 mpxlf90
+#setenv F77 mpxlf
+setenv MF90 mpxlf90
+setenv F90 xlf90
+setenv F77 xlf
+setenv CC xlc
+if ($level == "dbg" ) then
+  set Opt_tmp_noC="-g  -qflttrap=overflow:zerodivide:enable"
+  set Opt_tmp="-g -C  -qflttrap=overflow:zerodivide:enable"
+else
+  set Opt_tmp="-O3"
+  set Opt_tmp_noC="-O3"
+endif
+setenv MAKE gmake
+setenv LIBFFT -lfft_default
+setenv LMPI 
+setenv Opt   "$Opt_tmp -qsuffix=f=f90:cpp=F90"
+setenv Opt9077   "$Opt_tmp -qfixed=72"
+setenv Opt77 "$Opt_tmp -qfixed=72"
+setenv Opt77_noC "$Opt_tmp_noC -qfixed=72"
+setenv Optc   "$Opt_tmp"
+setenv Opt_no "-qsuffix=f=f90:cpp=F90"
+setenv pM .mod 
+setenv MODOUT "-qmoddir=mod"
+setenv MOVE_MOD
+setenv HSEMM_VISU 0
+#setenv HYB_MOD $TMPDIR
+#
+else if ( $compiler == ibm_cines ) then
+echo " compiler IBM"
+##################
+#IBM SP su cines:
+##################
+setenv CPP
+#setenv F90 mpxlf90
+#setenv F77 mpxlf
+setenv MF90 mpxlf90_r
+setenv F90 mpxlf90_r
+setenv F77 mpxlf_r
+setenv CC xlc
+if ($level == "dbg" ) then
+  set Opt_tmp_noC="-g  -qflttrap=overflow:zerodivide:enable -q64"
+  set Opt_tmp="-g -C  -qflttrap=overflow:zerodivide:enable -q64"
+else
+  set Opt_tmp="-O3 -qnostrict -qmaxmem=-1 -q64"
+  set Opt_tmp_noC="-O3 -q64"
+endif
+#overdreading AR
+setenv AR "ar -v -r -X64"
+setenv MAKE make
+setenv LIBFFT -lfft_default
+setenv LMPI 
+setenv Opt   "$Opt_tmp -qsuffix=f=f90:cpp=F90"
+setenv Opt9077   "$Opt_tmp -qfixed=72"
+setenv Opt77 "$Opt_tmp -qfixed=72"
+setenv Opt77_noC "$Opt_tmp_noC -qfixed=72"
+setenv Optc   "$Opt_tmp"
+setenv Opt_no "-qsuffix=f=f90:cpp=F90 -q64"
+setenv pM .mod 
+setenv MODOUT "-qmoddir=mod"
+setenv MOVE_MOD
+setenv HSEMM_VISU 0
+#setenv HYB_MOD $TMPDIR
+#############################################################
+else if ( $compiler == dec ) then
+echo "dec compiler"
+##################
+#dec:
+##################
+setenv F90 f90
+setenv F77 f77
+setenv CC cc
+setenv MAKE make
+setenv LIBFFT -ldxml
+setenv LMPI "-lfmpi -lmpi -lrt -pthread"
+if ( $level == "dbg" ) then
+   setenv Opt_tmp "-g -C -arch ev6 -tune ev6"
+   setenv Opt_tmp_noC "-g -arch ev6 -tune ev6"
+else
+   setenv Opt_tmp "-fast -C -arch ev6 -tune ev6"
+   setenv Opt_tmp_noC "-g -arch ev6 -tune ev6"
+endif
+setenv Opt   "$Opt_tmp"
+setenv Opt77 "$Opt_tmp"
+setenv Opt77_noC "$Opt_tmp_noC"
+setenv Optc   "-O3 -arch ev6 -tune ev6"
+setenv Opt9077   "$Opt"
+setenv Opt_no "-fast -C -arch ev6 -tune ev6"
+setenv pM .mod 
+setenv MODOUT "-module mod"
+setenv MOVE_MOD 
+setenv HSEMM_VISU 0
+#
+else if ( $compiler == intel ) then
+echo "intel compiler"
+##################
+#intel:
+##################
+setenv MF90 mpif90
+setenv F90 ifort
+setenv F77 ifort
+setenv MAKE gmake
+setenv LIBFFT -lfft_default
+setenv LMPI " "
+if ( $level == "dbg" ) then
+   setenv Opt_tmp "-g -C -w95 -static-libcxa"
+   setenv Opt_tmp_noC "-g -w95 -static-libcxa"
+else
+   setenv Opt_tmp "-O3  -assume byterecl  -fpscomp logicals  -static-libcxa  -w90"
+   setenv Opt_tmp_noC "-O2  -assume byterecl  -fpscomp logicals  -static-libcxa   -w90"
+endif
+setenv Opt  "$Opt_tmp"
+setenv Opt77 "$Opt"
+setenv Opt77_noC "$Opt"
+setenv Optc "-O2"
+setenv Opt_no "$Opt_tmp_noC"
+setenv Opt9077 "$Opt"
+setenv pM .mod 
+setenv MODOUT "-module mod"
+setenv MOVE_MOD 
+setenv HSEMM_VISU 0
+#
+else if ( $compiler == g95 ) then
+echo "GNU 95  compiler"
+echo "Warning: the -O level is set to 0 otherwize minosy has some problems"
+echo "I guess it will be fixed with futur version of g95"
+echo "The version I m using is:"
+echo "gcc version 4.0.0 20050129 (experimental) (g95!) Apr 13 2005"
+##################
+#g95:
+##################
+setenv MF90 mpif90
+setenv F90 g95
+setenv F77 g95
+setenv MAKE gmake
+setenv LIBFFT -lfft_default
+setenv LMPI " "
+setenv Opt_tmp "-O0"  
+setenv Opt_tmp_noC "-O0"
+#
+setenv Opt  "$Opt_tmp"
+setenv Opt77 "$Opt"
+setenv Opt77_noC "$Opt"
+setenv Optc "-O2"
+setenv Opt_no "$Opt_tmp_noC"
+setenv Opt9077 "$Opt"
+setenv pM .mod 
+setenv MODOUT "-fmod=mod"
+setenv MOVE_MOD 
+setenv HSEMM_VISU 0
+#
+else if ( $compiler == pgf ) then
+echo "linux pgf90 compiler"
+##################
+#pgf:
+##################
+setenv MF90 mpif90
+setenv F90 pgf90
+setenv F77 pgf90
+setenv MAKE gmake
+setenv LIBFFT "-lfft_default"
+setenv LMPI " "
+if ( $level == "dbg" ) then
+   setenv Opt_tmp "-g -C -"
+   setenv Opt_tmp_noC "-g "
+else
+   setenv Opt_tmp "-O2 -fast"
+   setenv Opt_tmp_noC "-O0"
+endif
+setenv Opt  "$Opt_tmp"
+setenv Opt77 "$Opt"
+setenv Opt77_noC "$Opt"
+setenv Optc "-O2"
+setenv Opt_no "$Opt_tmp_noC"
+setenv Opt9077 "$Opt"
+setenv pM .mod 
+setenv MODOUT "-module mod"
+setenv HSEMM_VISU 0
+#
+else if ( $compiler == sgi ) then
+echo "NO SGI compiler"
+exit
+#
+else if ( $compiler == "sun" ) then
+############
+#sun:
+############
+echo "SUN compiler"
+setenv F90 f90
+setenv MF90 
+setenv F77 f90
+setenv CC  cc
+setenv MAKE make
+setenv LIBFFT -lfft_default
+#setenv LMPI "-L$MPI_PATH_LIB -lmpich -lfmpich -lsocket -lnsl -laio"
+if ( $level == "dbg" ) then
+   setenv Opt_tmp " -g  "
+   setenv Opt_tmp_noC " -g "
+else
+   setenv Opt_tmp " -O3 "
+   setenv Opt_tmp_noC " -O3 "
+endif
+setenv Opt "$Opt_tmp" 
+setenv Opt9077 "$Opt_tmp"
+setenv Opt77 "$Opt_tmp"
+setenv Opt77_noC "$Opt_tmp_noC"
+setenv Optc "$Opt_tmp"
+setenv Opt_no ""
+setenv pM ".mod"
+setenv MODOUT "-M. -Mmod"
+setenv HSEMM_VISU 1
+setenv CPP "-xpp=cpp" 
+#
+else
+echo "the compiler $compiler is not defined"
+endif
+############
+#building include file:
+############
+echo  VERSION      =$VERSION       > flags.mk
+echo  MV           =$MV            >>flags.mk
+echo  RM           =$RM            >>flags.mk
+echo  AR           =$AR            >>flags.mk
+echo  CPP          =$CPP           >>flags.mk
+echo  MF90          =$MF90         >>flags.mk
+echo  F90          =$F90           >>flags.mk
+echo  F77          =$F77           >>flags.mk
+echo  MAKE         =$MAKE          >>flags.mk
+echo  Opt          =$Opt           >>flags.mk
+echo  Opt9077      =$Opt9077       >>flags.mk
+echo  pM           =$pM            >>flags.mk
+echo  MODOUT       =$MODOUT        >>flags.mk
+
