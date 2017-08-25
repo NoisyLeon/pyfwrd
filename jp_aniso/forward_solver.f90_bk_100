@@ -17,7 +17,7 @@
 !  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-!/*< Interface for forward calculation >*/
+!!/*< Interface for forward calculation >*/
 !subroutine forward_solver(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
 !                          Rphase,Rgroup,Lphase,Lgroup,Period,Nperiod,&
 !                          Rrecfun,Trecfun,Timesave,Ntime) 
@@ -48,15 +48,13 @@
 !                            Rrecfun,Trecfun,Timesave,Ntime)
 !
 !end subroutine forward_solver 
-
+!
 
 !/*< Interface for surface wave dispersion >*/
-!subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
-!                             Rphase,Rgroup,Lphase,Lgroup,Period)
+subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
+                             Rphase,Rgroup,Lphase,Lgroup,Period)
 !subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
 !                             Rphase,Rgroup,Lphase,Lgroup,Period,nperiod)
-subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,nperiod, &
-                             Rphase,Rgroup,Lphase,Lgroup,Period)
     implicit none 
 
     ! Input 
@@ -65,8 +63,9 @@ subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,nperiod, 
     double precision:: baz 
 
     ! Output 
-    integer:: nperiod
-    double precision,dimension(nperiod):: Rphase,Rgroup,Lphase,Lgroup,Period 
+    integer:: nperiod=100
+!       integer:: nperiod
+    double precision,dimension(100):: Rphase,Rgroup,Lphase,Lgroup,Period 
 
     ! Output from aniprop 
     integer,parameter:: nperiod_out=1000
@@ -78,8 +77,8 @@ subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,nperiod, 
 
     pmin=10.0
     pmax=200.0 
-    dp=(pmax-pmin)/(nperiod-1)
-    do i=1,nperiod
+    dp=(pmax-pmin)/(100-1)
+    do i=1,100
         Period(i)=pmin+(i-1)*dp
     end do 
 
@@ -88,7 +87,7 @@ subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,nperiod, 
                              Period_out,nperiod_out) 
 
     ! Interpolate result             
-    do i=1,nperiod  
+    do i=1,100  
         distmin=10000000000000000.0 
         do j=1,nperiod_out 
             dist=(Period_out(j)-Period(i))*(Period_out(j)-Period(i))

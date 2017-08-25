@@ -18,45 +18,9 @@
 
 
 !/*< Interface for forward calculation >*/
-!subroutine forward_solver(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
-!                          Rphase,Rgroup,Lphase,Lgroup,Period,Nperiod,&
-!                          Rrecfun,Trecfun,Timesave,Ntime) 
-!    implicit none 
-!
-!    ! Input 
-!    integer:: nl 
-!    double precision,dimension(nl+1):: theta,phig,z,vp,vp2,vp4,vs,vs2,rho 
-!    double precision:: baz 
-!
-!    ! Output 
-!    integer:: Nperiod
-!    double precision,dimension(Nperiod):: Rphase,Rgroup,Lphase,Lgroup,Period 
-!
-!    ! Output 
-!    integer:: Ntime 
-!    double precision,dimension(Ntime):: Rrecfun,Trecfun,Timesave
-!   
-!    ! calculate dispersion curve
-!    print*,'##### Calculate dispersion curve #####' 
-!    call aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
-!                           Rphase,Rgroup,Lphase,Lgroup,Period,Nperiod)
-!
-!
-!    ! calculate receiver function
-!    print*, '##### Calculate receiver function #####' 
-!    call rf_aniso_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
-!                            Rrecfun,Trecfun,Timesave,Ntime)
-!
-!end subroutine forward_solver 
-
-
-!/*< Interface for surface wave dispersion >*/
-!subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
-!                             Rphase,Rgroup,Lphase,Lgroup,Period)
-!subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
-!                             Rphase,Rgroup,Lphase,Lgroup,Period,nperiod)
-subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,nperiod, &
-                             Rphase,Rgroup,Lphase,Lgroup,Period)
+subroutine forward_solver(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
+                          Rphase,Rgroup,Lphase,Lgroup,Period,Nperiod,&
+                          Rrecfun,Trecfun,Timesave,Ntime) 
     implicit none 
 
     ! Input 
@@ -65,7 +29,42 @@ subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,nperiod, 
     double precision:: baz 
 
     ! Output 
-    integer:: nperiod
+    integer:: Nperiod
+    double precision,dimension(Nperiod):: Rphase,Rgroup,Lphase,Lgroup,Period 
+
+    ! Output 
+    integer:: Ntime 
+    double precision,dimension(Ntime):: Rrecfun,Trecfun,Timesave
+   
+    ! calculate dispersion curve
+    print*,'##### Calculate dispersion curve #####' 
+    call aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
+                           Rphase,Rgroup,Lphase,Lgroup,Period,Nperiod)
+
+
+    ! calculate receiver function
+    print*, '##### Calculate receiver function #####' 
+    call rf_aniso_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
+                            Rrecfun,Trecfun,Timesave,Ntime)
+
+end subroutine forward_solver 
+
+
+!/*< Interface for surface wave dispersion >*/
+subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
+                             Rphase,Rgroup,Lphase,Lgroup,Period)
+!subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
+!                             Rphase,Rgroup,Lphase,Lgroup,Period,nperiod)
+    implicit none 
+
+    ! Input 
+    integer:: nl 
+    double precision,dimension(nl+1):: theta,phig,z,vp,vp2,vp4,vs,vs2,rho 
+    double precision:: baz 
+
+    ! Output 
+    integer:: nperiod=100
+!       integer:: nperiod
     double precision,dimension(nperiod):: Rphase,Rgroup,Lphase,Lgroup,Period 
 
     ! Output from aniprop 
