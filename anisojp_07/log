@@ -1,0 +1,69 @@
+44c44
+<       character*80 name,title
+---
+>       character*80 name,title,name_model
+109c109,118
+<       open(7,file='animodel',form='formatted')
+---
+>       print *,'enter velocity model for modelling'
+>       print *,'leading space = <animodel>'
+>       read(5,102) name_model
+>       print *,'enter sampling time e.g., 0.05 for 20 sps'
+>       read(5,*) dt
+>       if(name_model(1:1).eq.' ') then
+>         open(7,file='animodel',form='formatted')
+>       else
+>         open(7,file=name_model,form='formatted')
+>       endif
+608c617
+<       name='/Users/jjpark/Courses/GEO557/T05C.BHZ'
+---
+>       name='/Users/jjpark/Research/Layers/test.bhz'
+953a963
+>       dimension jp(3)
+954a965,968
+> c  jp() permutes the R and T components in one LU decomposition to avoid crash
+>       jp(1)=1
+>       jp(2)=3
+>       jp(3)=2
+1422a1437
+> c	print *,'zzget one'
+1454a1470,1471
+> c  use the permutation jp to switch the R and T components, to avoid a zero-pivot 
+> c  in subroutine csolve whenever R and T are do not couple (e.g. isotropic media)
+1458,1459c1475,1476
+<           s(i,k)=dreal(ee(i+3,k,1))
+<           t(i,k)=dimag(ee(i+3,k,1))
+---
+>           s(jp(i),jp(k))=dreal(ee(i+3,k,1))
+>           t(jp(i),jp(k))=dimag(ee(i+3,k,1))
+1472a1490,1494
+> c      print *,'zzget two ',idfct(3,1)
+> c      do k=1,3
+> c        print 1111,(s(i,k),t(i,k),i=1,3)
+> c      end do
+>  1111 format(3(2e13.4,3x))
+1475,1476c1497,1498
+<           yr(i)=dreal(rt0(i,k))
+<           yi(i)=dimag(rt0(i,k))
+---
+>           yr(jp(i))=dreal(rt0(i,k))
+>           yi(jp(i))=dimag(rt0(i,k))
+1481c1503
+<           rt0(i,k)=-dcmplx(xr(i),xi(i))
+---
+>           rt0(i,k)=-dcmplx(xr(jp(i)),xi(jp(i)))
+1652a1675
+> c      print *,'in defective'
+2319,2320c2342,2343
+<   400 print 101,aam,i                                                           
+<   101 format('near-zero pivot ',e12.5,'  on column',i3)                         
+---
+>   400 print 101,aam,i,n                                                           
+>   101 format('near-zero pivot in lup ',e12.5,'  on column',i3,' of',i3)                         
+2403,2404c2426,2427
+<   400 print 101,aam,i                                                           
+<   101 format('near-zero pivot ',e12.5,'  on column',i3)                         
+---
+>   400 print 101,aam,i,n
+>   101 format('near-zero pivot in clup ',e12.5,'  on column',i3,' of',i3)                         

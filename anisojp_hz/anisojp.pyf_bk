@@ -1,0 +1,1480 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module anisojp ! in 
+    interface  ! in :anisojp
+        subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,rphase,rgroup,lphase,lgroup,period,nperiod) ! in :anisojp:forward_solver.f90
+            double precision dimension(nl + 1),depend(nl):: z
+            double precision dimension(nl + 1),depend(nl) :: vp
+            double precision dimension(nl + 1),depend(nl) :: vp2
+            double precision dimension(nl + 1),depend(nl) :: vp4
+            double precision dimension(nl + 1),depend(nl) :: vs
+            double precision dimension(nl + 1),depend(nl) :: vs2
+            double precision dimension(nl + 1),depend(nl) :: rho
+            double precision dimension(nl + 1),depend(nl) :: theta
+            double precision dimension(nl + 1),depend(nl) :: phig
+            integer,intent(in):: nl
+            double precision,intent(in):: baz
+            double precision dimension(nperiod),intent(out),depend(nperiod) :: rphase
+            double precision dimension(nperiod),intent(out),depend(nperiod) :: rgroup
+            double precision dimension(nperiod),intent(out),depend(nperiod) :: lphase
+            double precision dimension(nperiod),intent(out),depend(nperiod) :: lgroup
+            double precision dimension(nperiod),intent(out),depend(nperiod) :: period
+            integer,intent(in):: nperiod
+        end subroutine aniprop_interface
+        subroutine rf_aniso_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,rrecfun,trecfun,timesave,ntime) ! in :anisojp:forward_solver.f90
+            double precision dimension(nl + 1) :: z
+            double precision dimension(nl + 1),depend(nl) :: vp
+            double precision dimension(nl + 1),depend(nl) :: vp2
+            double precision dimension(nl + 1),depend(nl) :: vp4
+            double precision dimension(nl + 1),depend(nl) :: vs
+            double precision dimension(nl + 1),depend(nl) :: vs2
+            double precision dimension(nl + 1),depend(nl) :: rho
+            double precision dimension(nl + 1),depend(nl) :: theta
+            double precision dimension(nl + 1),depend(nl) :: phig
+            integer, optional,check((len(z)-1)>=nl),depend(z) :: nl=(len(z)-1)
+            double precision :: baz
+            double precision dimension(ntime) :: rrecfun
+            double precision dimension(ntime),depend(ntime) :: trecfun
+            double precision dimension(ntime),depend(ntime) :: timesave
+            integer, optional,check(len(rrecfun)>=ntime),depend(rrecfun) :: ntime=len(rrecfun)
+        end subroutine rf_aniso_interface
+        subroutine aniprop_subroutines(z_in,vp_in,vp2_in,vp4_in,vs_in,vs2_in,rho_in,theta_in,phig_in,nl,baz,rphase,rgroup,lphase,lgroup,period,nfrq) ! in :anisojp:aniprop_subroutines.f
+            real*8 dimension(nl + 1) :: z_in
+            real*8 dimension(nl + 1),depend(nl) :: vp_in
+            real*8 dimension(nl + 1),depend(nl) :: vp2_in
+            real*8 dimension(nl + 1),depend(nl) :: vp4_in
+            real*8 dimension(nl + 1),depend(nl) :: vs_in
+            real*8 dimension(nl + 1),depend(nl) :: vs2_in
+            real*8 dimension(nl + 1),depend(nl) :: rho_in
+            real*8 dimension(nl + 1),depend(nl) :: theta_in
+            real*8 dimension(nl + 1),depend(nl) :: phig_in
+            integer, optional,check((len(z_in)-1)>=nl),depend(z_in) :: nl=(len(z_in)-1)
+            real*8 :: baz
+            real*8 dimension(nfrq) :: rphase
+            real*8 dimension(nfrq),depend(nfrq) :: rgroup
+            real*8 dimension(nfrq),depend(nfrq) :: lphase
+            real*8 dimension(nfrq),depend(nfrq) :: lgroup
+            real*8 dimension(nfrq),depend(nfrq) :: period
+            integer, optional,check(len(rphase)>=nfrq),depend(rphase) :: nfrq=len(rphase)
+            complex*16 dimension(6,101) :: xnu
+            complex*16 dimension(6,100) :: xl
+            complex*16 dimension(6,3) :: pfac
+            complex*16 dimension(3,6) :: u
+            complex*16 dimension(6,101) :: c
+            complex*16 dimension(1000,3) :: eigf
+            complex*16 dimension(3,3,101) :: rt
+            complex*16 dimension(3,3,101) :: tt
+            complex*16 dimension(3,3) :: rt0
+            complex*16 dimension(3,3) :: trc
+            real*8 dimension(101) :: xmu
+            real*8 dimension(101) :: xla
+            real*8 dimension(101) :: xmu2
+            real*8 dimension(101) :: xla2
+            real*8 dimension(101) :: xla4
+            integer*4 dimension(10000) :: ievan
+            real*8 dimension(3,101) :: w
+            real*8 dimension(3,3) :: t
+            real*8 dimension(3,3) :: ttl
+            real*8 dimension(3,3) :: s
+            real*8 dimension(3,3) :: stl
+            real*8 dimension(3,3) :: r
+            real*8 dimension(3) :: x
+            real*8 dimension(3) :: y
+            real*8 dimension(202) :: roota
+            real*8 dimension(202) :: rootb
+            integer*4 dimension(202) :: jtrval
+            integer*4 dimension(8192) :: kroots
+            real*8 dimension(8192,202) :: cvel
+            real*8 dimension(8192,202) :: gvel
+            integer*4 dimension(202) :: nc
+            real*4 dimension(8192) :: frqq
+            complex*16 dimension(3) :: pp
+            complex*16 dimension(3) :: u0
+            complex*16 dimension(6,6,101) :: ee
+            complex*16 dimension(6,6) :: e1
+            complex*16 dimension(6,6) :: e2
+            complex*16 dimension(6) :: zla
+            real*4 dimension(10000) :: cc4
+            real*4 dimension(10000) :: zz4
+            complex*16 dimension(10000) :: zzz
+            real*8 dimension(10000) :: ccc
+            real*4 dimension(10000) :: x4
+            real*8 dimension(6,6) :: qq
+            real*8 dimension(6) :: wr
+            real*8 dimension(6) :: wi
+            real*8 dimension(6,6) :: zr
+            real*8 dimension(6,6) :: zi
+            integer*4 dimension(6) :: iv
+            real*8 dimension(6) :: fv
+            real*8 dimension(100) :: z
+            real*8 dimension(100) :: dz
+            real*8 dimension(101) :: rho
+            real*8 dimension(101) :: vp
+            real*8 dimension(101) :: vs
+            real*8 dimension(101) :: vp2
+            real*8 dimension(101) :: vp4
+            real*8 dimension(101) :: vs2
+            real*8 dimension(101) :: vss
+            common /propag/ xnu,xl,pfac,u
+            common /pstf2/ c,eigf
+            common /rstff/ rt,tt,rt0,trc
+            common /model2/ xmu,xla,xmu2,xla2,xla4
+            common /evanes/ ievan
+            common /stfff/ w,t,ttl,s,stl,r,x,y
+            common /disper2/ roota,rootb,jtrval,kroots
+            common /disper/ cvel,gvel,nc,frqq
+            common /pstff/ pp,u0,ee,e1,e2,zla
+            common /nstff/ cc4,zz4,zzz,ccc,x4
+            common /mstff/ qq,wr,wi,zr,zi,iv,fv
+            common /model/ z,dz,rho,vp,vs,vp2,vp4,vs2,vss
+        end subroutine aniprop_subroutines
+        subroutine zoom_in(nl,a1,a2,cc1,cc2,om,iter,cc,zz,ick) ! in :anisojp:aniprop_subroutines.f
+            integer*4 :: nl
+            real*8 :: a1
+            real*8 :: a2
+            real*8 :: cc1
+            real*8 :: cc2
+            real*8 :: om
+            integer*4 :: iter
+            real*8 :: cc
+            complex*16 :: zz
+            integer*4 :: ick
+        end subroutine zoom_in
+        subroutine zzget(nl,cc,om,zz,iev) ! in :anisojp:aniprop_subroutines.f
+            integer*4 :: nl
+            real*8 :: cc
+            real*8 :: om
+            complex*16 :: zz
+            integer*4 :: iev
+            complex*16 dimension(6,101) :: xnu
+            complex*16 dimension(6,100) :: xl
+            complex*16 dimension(6,3) :: pfac
+            complex*16 dimension(3,6) :: u
+            complex*16 dimension(3,3,101) :: rt
+            complex*16 dimension(3,3,101) :: tt
+            complex*16 dimension(3,3) :: rt0
+            complex*16 dimension(3,3) :: trc
+            real*8 dimension(101) :: xmu
+            real*8 dimension(101) :: xla
+            real*8 dimension(101) :: xmu2
+            real*8 dimension(101) :: xla2
+            real*8 dimension(101) :: xla4
+            real*8 dimension(3,101) :: w
+            real*8 dimension(3,3) :: t
+            real*8 dimension(3,3) :: ttl
+            real*8 dimension(3,3) :: s
+            real*8 dimension(3,3) :: stl
+            real*8 dimension(3,3) :: r
+            real*8 dimension(3) :: x
+            real*8 dimension(3) :: y
+            integer*4 dimension(4,101) :: idfct
+            real*8 dimension(2,101) :: adf
+            real*8 dimension(6,6) :: qi
+            real*8 dimension(6) :: xr
+            real*8 dimension(6) :: xi
+            real*8 dimension(6) :: yr
+            real*8 dimension(6) :: yi
+            complex*16 dimension(3) :: pp
+            complex*16 dimension(3) :: u0
+            complex*16 dimension(6,6,101) :: ee
+            complex*16 dimension(6,6) :: e1
+            complex*16 dimension(6,6) :: e2
+            complex*16 dimension(6) :: zla
+            real*8 dimension(6,6) :: qq
+            real*8 dimension(6) :: wr
+            real*8 dimension(6) :: wi
+            real*8 dimension(6,6) :: zr
+            real*8 dimension(6,6) :: zi
+            integer*4 dimension(6) :: iv
+            real*8 dimension(6) :: fv
+            real*8 dimension(100) :: z
+            real*8 dimension(100) :: dz
+            real*8 dimension(101) :: rho
+            real*8 dimension(101) :: vp
+            real*8 dimension(101) :: vs
+            real*8 dimension(101) :: vp2
+            real*8 dimension(101) :: vp4
+            real*8 dimension(101) :: vs2
+            real*8 dimension(101) :: vss
+            complex*16 dimension(6,6,100) :: rtm
+            common /propag/ xnu,xl,pfac,u
+            common /rstff/ rt,tt,rt0,trc
+            common /model2/ xmu,xla,xmu2,xla2,xla4
+            common /stfff/ w,t,ttl,s,stl,r,x,y
+            common /defect/ idfct,adf
+            common /qstff/ qi,xr,xi,yr,yi
+            common /pstff/ pp,u0,ee,e1,e2,zla
+            common /mstff/ qq,wr,wi,zr,zi,iv,fv
+            common /model/ z,dz,rho,vp,vs,vp2,vp4,vs2,vss
+            common /rrt/ rtm
+        end subroutine zzget
+        subroutine defective_aniprop(i,j,n,adf,a,b,c,d,e,om,akx) ! in :anisojp:aniprop_subroutines.f
+            integer*4 :: i
+            integer*4 :: j
+            integer*4 :: n
+            real*8 :: adf
+            real*8 :: a
+            real*8 :: b
+            real*8 :: c
+            real*8 :: d
+            real*8 :: e
+            real*8 :: om
+            real*8 :: akx
+            complex*16 dimension(6,101) :: xnu
+            complex*16 dimension(6,100) :: xl
+            complex*16 dimension(6,3) :: pfac
+            complex*16 dimension(3,6) :: u
+            real*8 dimension(3,101) :: w
+            real*8 dimension(3,3) :: t
+            real*8 dimension(3,3) :: ttl
+            real*8 dimension(3,3) :: s
+            real*8 dimension(3,3) :: stl
+            real*8 dimension(3,3) :: r
+            real*8 dimension(3) :: x
+            real*8 dimension(3) :: y
+            real*8 dimension(6,6) :: qi
+            real*8 dimension(6) :: xr
+            real*8 dimension(6) :: xi
+            real*8 dimension(6) :: yr
+            real*8 dimension(6) :: yi
+            complex*16 dimension(3) :: pp
+            complex*16 dimension(3) :: u0
+            complex*16 dimension(6,6,101) :: ee
+            complex*16 dimension(6,6) :: e1
+            complex*16 dimension(6,6) :: e2
+            complex*16 dimension(6) :: zla
+            real*8 dimension(6) :: edr
+            real*8 dimension(6) :: edi
+            real*8 dimension(5,5) :: qdr
+            real*8 dimension(5,5) :: qdi
+            real*8 dimension(6) :: ydr
+            real*8 dimension(6) :: ydi
+            real*8 dimension(3,3) :: q1r
+            real*8 dimension(3,3) :: q1i
+            real*8 dimension(3,3) :: q2r
+            real*8 dimension(3,3) :: q2i
+            real*8 dimension(3) :: fv2
+            real*8 dimension(3) :: fv3
+            complex*16 dimension(3,3) :: zq1
+            complex*16 dimension(3,3) :: zq2
+            complex*16 dimension(3) :: u1
+            complex*16 dimension(3) :: u2
+            complex*16 dimension(2,2) :: zq3
+            complex*16 dimension(3) :: xee
+            real*8 dimension(6,6) :: qq
+            real*8 dimension(6) :: wr
+            real*8 dimension(6) :: wi
+            real*8 dimension(6,6) :: zr
+            real*8 dimension(6,6) :: zi
+            integer*4 dimension(6) :: iv
+            real*8 dimension(6) :: fv
+            common /propag/ xnu,xl,pfac,u
+            common /stfff/ w,t,ttl,s,stl,r,x,y
+            common /qstff/ qi,xr,xi,yr,yi
+            common /pstff/ pp,u0,ee,e1,e2,zla
+            common /defect2/ edr,edi,qdr,qdi,ydr,ydi
+            common /defect3/ q1r,q1i,q2r,q2i,fv2,fv3
+            common /defect1/ zq1,zq2,u1,u2,zq3,xee
+            common /mstff/ qq,wr,wi,zr,zi,iv,fv
+        end subroutine defective_aniprop
+        subroutine grvel(nl,cc,om,gv) ! in :anisojp:aniprop_subroutines.f
+            integer*4 :: nl
+            real*8 :: cc
+            real*8 :: om
+            real*8 :: gv
+            complex*16 dimension(6,101) :: xnu
+            complex*16 dimension(6,100) :: xl
+            complex*16 dimension(6,3) :: pfac
+            complex*16 dimension(3,6) :: u
+            complex*16 dimension(6,101) :: co
+            complex*16 dimension(1000,3) :: eigf
+            complex*16 dimension(3,3,101) :: rt
+            complex*16 dimension(3,3,101) :: tt
+            complex*16 dimension(3,3) :: rt0
+            complex*16 dimension(3,3) :: trc
+            real*8 dimension(101) :: xmu
+            real*8 dimension(101) :: xla
+            real*8 dimension(101) :: xmu2
+            real*8 dimension(101) :: xla2
+            real*8 dimension(101) :: xla4
+            real*8 dimension(3,101) :: w
+            real*8 dimension(3,3) :: t
+            real*8 dimension(3,3) :: ttl
+            real*8 dimension(3,3) :: s
+            real*8 dimension(3,3) :: stl
+            real*8 dimension(3,3) :: r
+            real*8 dimension(3) :: x
+            real*8 dimension(3) :: y
+            complex*16 dimension(3) :: pp
+            complex*16 dimension(3) :: u0
+            complex*16 dimension(6,6,101) :: ee
+            complex*16 dimension(6,6) :: e1
+            complex*16 dimension(6,6) :: e2
+            complex*16 dimension(6) :: zla
+            real*4 dimension(10000) :: cc4
+            real*4 dimension(10000) :: zz4
+            complex*16 dimension(10000) :: zzz
+            real*8 dimension(10000) :: ccc
+            real*4 dimension(10000) :: x4
+            real*8 dimension(6,6) :: qq
+            real*8 dimension(6) :: wr
+            real*8 dimension(6) :: wi
+            real*8 dimension(6,6) :: zr
+            real*8 dimension(6,6) :: zi
+            integer*4 dimension(6) :: iv
+            real*8 dimension(6) :: fv
+            real*8 dimension(100) :: z
+            real*8 dimension(100) :: dz
+            real*8 dimension(101) :: rho
+            real*8 dimension(101) :: vp
+            real*8 dimension(101) :: vs
+            real*8 dimension(101) :: vp2
+            real*8 dimension(101) :: vp4
+            real*8 dimension(101) :: vs2
+            real*8 dimension(101) :: vss
+            common /propag/ xnu,xl,pfac,u
+            common /pstf2/ co,eigf
+            common /rstff/ rt,tt,rt0,trc
+            common /model2/ xmu,xla,xmu2,xla2,xla4
+            common /stfff/ w,t,ttl,s,stl,r,x,y
+            common /pstff/ pp,u0,ee,e1,e2,zla
+            common /nstff/ cc4,zz4,zzz,ccc,x4
+            common /mstff/ qq,wr,wi,zr,zi,iv,fv
+            common /model/ z,dz,rho,vp,vs,vp2,vp4,vs2,vss
+        end subroutine grvel
+        subroutine bakvec(nm,n,t,e,m,z,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(t,0)==nm),depend(t) :: nm=shape(t,0)
+            integer, optional,check(len(e)>=n),depend(e) :: n=len(e)
+            double precision dimension(nm,3) :: t
+            double precision dimension(n) :: e
+            integer, optional,check(shape(z,1)==m),depend(z) :: m=shape(z,1)
+            double precision dimension(nm,m),depend(nm) :: z
+            integer :: ierr
+        end subroutine bakvec
+        subroutine balanc(nm,n,a,low,igh,scale) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            integer :: low
+            integer :: igh
+            double precision dimension(n),depend(n) :: scale
+        end subroutine balanc
+        subroutine balbak(nm,n,low,igh,scale,m,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(z,0)==nm),depend(z) :: nm=shape(z,0)
+            integer, optional,check(len(scale)>=n),depend(scale) :: n=len(scale)
+            integer :: low
+            integer :: igh
+            double precision dimension(n) :: scale
+            integer, optional,check(shape(z,1)==m),depend(z) :: m=shape(z,1)
+            double precision dimension(nm,m) :: z
+        end subroutine balbak
+        subroutine bandr(nm,n,mb,a,d,e,e2,matz,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            integer, optional,check(shape(a,1)==mb),depend(a) :: mb=shape(a,1)
+            double precision dimension(nm,mb) :: a
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+            logical :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+        end subroutine bandr
+        subroutine bandv(nm,n,mbw,a,e21,m,w,z,ierr,nv,rv,rv6) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(len(rv6)>=n),depend(rv6) :: n=len(rv6)
+            integer, optional,check(shape(a,1)==mbw),depend(a) :: mbw=shape(a,1)
+            double precision dimension(nm,mbw) :: a
+            double precision :: e21
+            integer, optional,check(len(w)>=m),depend(w) :: m=len(w)
+            double precision dimension(m) :: w
+            double precision dimension(nm,m),depend(nm,m) :: z
+            integer :: ierr
+            integer, optional,check(len(rv)>=nv),depend(rv) :: nv=len(rv)
+            double precision dimension(nv) :: rv
+            double precision dimension(n) :: rv6
+        end subroutine bandv
+        subroutine bisect(n,eps1,d,e,e2,lb,ub,mm,m,w,ind,ierr,rv4,rv5) ! in :anisojp:eispack.f
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision :: eps1
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+            double precision :: lb
+            double precision :: ub
+            integer, optional,check(len(w)>=mm),depend(w) :: mm=len(w)
+            integer :: m
+            double precision dimension(mm) :: w
+            integer dimension(mm),depend(mm) :: ind
+            integer :: ierr
+            double precision dimension(n),depend(n) :: rv4
+            double precision dimension(n),depend(n) :: rv5
+        end subroutine bisect
+        subroutine bqr(nm,n,mb,a,t,r,ierr,nv,rv) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer :: n
+            integer, optional,check(shape(a,1)==mb),depend(a) :: mb=shape(a,1)
+            double precision dimension(nm,mb) :: a
+            double precision :: t
+            double precision :: r
+            integer :: ierr
+            integer, optional,check(len(rv)>=nv),depend(rv) :: nv=len(rv)
+            double precision dimension(nv) :: rv
+        end subroutine bqr
+        subroutine cbabk2(nm,n,low,igh,scale,m,zr,zi) ! in :anisojp:eispack.f
+            integer, optional,check(shape(zr,0)==nm),depend(zr) :: nm=shape(zr,0)
+            integer, optional,check(len(scale)>=n),depend(scale) :: n=len(scale)
+            integer :: low
+            integer :: igh
+            double precision dimension(n) :: scale
+            integer, optional,check(shape(zr,1)==m),depend(zr) :: m=shape(zr,1)
+            double precision dimension(nm,m) :: zr
+            double precision dimension(nm,m),depend(nm,m) :: zi
+        end subroutine cbabk2
+        subroutine cbal(nm,n,ar,ai,low,igh,scale) ! in :anisojp:eispack.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            double precision dimension(nm,n) :: ar
+            double precision dimension(nm,n),depend(nm,n) :: ai
+            integer :: low
+            integer :: igh
+            double precision dimension(n),depend(n) :: scale
+        end subroutine cbal
+        subroutine cdiv(ar,ai,br,bi,cr,ci) ! in :anisojp:eispack.f
+            double precision :: ar
+            double precision :: ai
+            double precision :: br
+            double precision :: bi
+            double precision :: cr
+            double precision :: ci
+        end subroutine cdiv
+        subroutine cg(nm,n,ar,ai,wr,wi,matz,zr,zi,fv1,fv2,fv3,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            double precision dimension(nm,n) :: ar
+            double precision dimension(nm,n),depend(nm,n) :: ai
+            double precision dimension(n),depend(n) :: wr
+            double precision dimension(n),depend(n) :: wi
+            integer :: matz
+            double precision dimension(nm,n),depend(nm,n) :: zr
+            double precision dimension(nm,n),depend(nm,n) :: zi
+            double precision dimension(n),depend(n) :: fv1
+            double precision dimension(n),depend(n) :: fv2
+            double precision dimension(n),depend(n) :: fv3
+            integer :: ierr
+        end subroutine cg
+        subroutine ch(nm,n,ar,ai,w,matz,zr,zi,fv1,fv2,fm1,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            double precision dimension(nm,n) :: ar
+            double precision dimension(nm,n),depend(nm,n) :: ai
+            double precision dimension(n),depend(n) :: w
+            integer :: matz
+            double precision dimension(nm,n),depend(nm,n) :: zr
+            double precision dimension(nm,n),depend(nm,n) :: zi
+            double precision dimension(n),depend(n) :: fv1
+            double precision dimension(n),depend(n) :: fv2
+            double precision dimension(2,n),depend(n) :: fm1
+            integer :: ierr
+        end subroutine ch
+        subroutine cinvit(nm,n,ar,ai,wr,wi,select,mm,m,zr,zi,ierr,rm1,rm2,rv1,rv2) ! in :anisojp:eispack.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            double precision dimension(nm,n) :: ar
+            double precision dimension(nm,n),depend(nm,n) :: ai
+            double precision dimension(n),depend(n) :: wr
+            double precision dimension(n),depend(n) :: wi
+            logical dimension(n),depend(n) :: select
+            integer, optional,check(shape(zr,1)==mm),depend(zr) :: mm=shape(zr,1)
+            integer :: m
+            double precision dimension(nm,mm),depend(nm) :: zr
+            double precision dimension(nm,mm),depend(nm,mm) :: zi
+            integer :: ierr
+            double precision dimension(n,n),depend(n,n) :: rm1
+            double precision dimension(n,n),depend(n,n) :: rm2
+            double precision dimension(n),depend(n) :: rv1
+            double precision dimension(n),depend(n) :: rv2
+        end subroutine cinvit
+        subroutine combak(nm,low,igh,ar,ai,int_bn,m,zr,zi) ! in :anisojp:eispack.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer :: low
+            integer, optional,check(shape(ar,1)==igh),depend(ar) :: igh=shape(ar,1)
+            double precision dimension(nm,igh) :: ar
+            double precision dimension(nm,igh),depend(nm,igh) :: ai
+            integer dimension(igh),depend(igh) :: int_bn
+            integer, optional,check(shape(zr,1)==m),depend(zr) :: m=shape(zr,1)
+            double precision dimension(nm,m),depend(nm) :: zr
+            double precision dimension(nm,m),depend(nm,m) :: zi
+        end subroutine combak
+        subroutine comhes(nm,n,low,igh,ar,ai,int_bn) ! in :anisojp:eispack.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            integer :: low
+            integer, optional,check(len(int_bn)>=igh),depend(int_bn) :: igh=len(int_bn)
+            double precision dimension(nm,n) :: ar
+            double precision dimension(nm,n),depend(nm,n) :: ai
+            integer dimension(igh) :: int_bn
+        end subroutine comhes
+        subroutine comlr(nm,n,low,igh,hr,hi,wr,wi,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(hr,0)==nm),depend(hr) :: nm=shape(hr,0)
+            integer, optional,check(shape(hr,1)==n),depend(hr) :: n=shape(hr,1)
+            integer :: low
+            integer :: igh
+            double precision dimension(nm,n) :: hr
+            double precision dimension(nm,n),depend(nm,n) :: hi
+            double precision dimension(n),depend(n) :: wr
+            double precision dimension(n),depend(n) :: wi
+            integer :: ierr
+        end subroutine comlr
+        subroutine comlr2(nm,n,low,igh,int_bn,hr,hi,wr,wi,zr,zi,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(hr,0)==nm),depend(hr) :: nm=shape(hr,0)
+            integer, optional,check(shape(hr,1)==n),depend(hr) :: n=shape(hr,1)
+            integer :: low
+            integer, optional,check(len(int_bn)>=igh),depend(int_bn) :: igh=len(int_bn)
+            integer dimension(igh) :: int_bn
+            double precision dimension(nm,n) :: hr
+            double precision dimension(nm,n),depend(nm,n) :: hi
+            double precision dimension(n),depend(n) :: wr
+            double precision dimension(n),depend(n) :: wi
+            double precision dimension(nm,n),depend(nm,n) :: zr
+            double precision dimension(nm,n),depend(nm,n) :: zi
+            integer :: ierr
+        end subroutine comlr2
+        subroutine comqr(nm,n,low,igh,hr,hi,wr,wi,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(hr,0)==nm),depend(hr) :: nm=shape(hr,0)
+            integer, optional,check(shape(hr,1)==n),depend(hr) :: n=shape(hr,1)
+            integer :: low
+            integer :: igh
+            double precision dimension(nm,n) :: hr
+            double precision dimension(nm,n),depend(nm,n) :: hi
+            double precision dimension(n),depend(n) :: wr
+            double precision dimension(n),depend(n) :: wi
+            integer :: ierr
+        end subroutine comqr
+        subroutine comqr2(nm,n,low,igh,ortr,orti,hr,hi,wr,wi,zr,zi,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(hr,0)==nm),depend(hr) :: nm=shape(hr,0)
+            integer, optional,check(shape(hr,1)==n),depend(hr) :: n=shape(hr,1)
+            integer :: low
+            integer, optional,check(len(ortr)>=igh),depend(ortr) :: igh=len(ortr)
+            double precision dimension(igh) :: ortr
+            double precision dimension(igh),depend(igh) :: orti
+            double precision dimension(nm,n) :: hr
+            double precision dimension(nm,n),depend(nm,n) :: hi
+            double precision dimension(n),depend(n) :: wr
+            double precision dimension(n),depend(n) :: wi
+            double precision dimension(nm,n),depend(nm,n) :: zr
+            double precision dimension(nm,n),depend(nm,n) :: zi
+            integer :: ierr
+        end subroutine comqr2
+        subroutine cortb(nm,low,igh,ar,ai,ortr,orti,m,zr,zi) ! in :anisojp:eispack.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer :: low
+            integer, optional,check(shape(ar,1)==igh),depend(ar) :: igh=shape(ar,1)
+            double precision dimension(nm,igh) :: ar
+            double precision dimension(nm,igh),depend(nm,igh) :: ai
+            double precision dimension(igh),depend(igh) :: ortr
+            double precision dimension(igh),depend(igh) :: orti
+            integer, optional,check(shape(zr,1)==m),depend(zr) :: m=shape(zr,1)
+            double precision dimension(nm,m),depend(nm) :: zr
+            double precision dimension(nm,m),depend(nm,m) :: zi
+        end subroutine cortb
+        subroutine corth(nm,n,low,igh,ar,ai,ortr,orti) ! in :anisojp:eispack.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            integer :: low
+            integer, optional,check(len(ortr)>=igh),depend(ortr) :: igh=len(ortr)
+            double precision dimension(nm,n) :: ar
+            double precision dimension(nm,n),depend(nm,n) :: ai
+            double precision dimension(igh) :: ortr
+            double precision dimension(igh),depend(igh) :: orti
+        end subroutine corth
+        subroutine csroot(xr,xi,yr,yi) ! in :anisojp:eispack.f
+            double precision :: xr
+            double precision :: xi
+            double precision :: yr
+            double precision :: yi
+        end subroutine csroot
+        subroutine elmbak(nm,low,igh,a,int_bn,m,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer :: low
+            integer, optional,check(shape(a,1)==igh),depend(a) :: igh=shape(a,1)
+            double precision dimension(nm,igh) :: a
+            integer dimension(igh),depend(igh) :: int_bn
+            integer, optional,check(shape(z,1)==m),depend(z) :: m=shape(z,1)
+            double precision dimension(nm,m),depend(nm) :: z
+        end subroutine elmbak
+        subroutine elmhes(nm,n,low,igh,a,int_bn) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            integer :: low
+            integer, optional,check(len(int_bn)>=igh),depend(int_bn) :: igh=len(int_bn)
+            double precision dimension(nm,n) :: a
+            integer dimension(igh) :: int_bn
+        end subroutine elmhes
+        subroutine eltran(nm,n,low,igh,a,int_bn,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(z,1)==n),depend(z) :: n=shape(z,1)
+            integer :: low
+            integer, optional,check(shape(a,1)==igh),depend(a) :: igh=shape(a,1)
+            double precision dimension(nm,igh) :: a
+            integer dimension(igh),depend(igh) :: int_bn
+            double precision dimension(nm,n),depend(nm) :: z
+        end subroutine eltran
+        function epslon(x) ! in :anisojp:eispack.f
+            double precision :: x
+            double precision :: epslon
+        end function epslon
+        subroutine figi(nm,n,t,d,e,e2,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(t,0)==nm),depend(t) :: nm=shape(t,0)
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision dimension(nm,3) :: t
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+            integer :: ierr
+        end subroutine figi
+        subroutine figi2(nm,n,t,d,e,z,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(t,0)==nm),depend(t) :: nm=shape(t,0)
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision dimension(nm,3) :: t
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(nm,n),depend(nm,n) :: z
+            integer :: ierr
+        end subroutine figi2
+        subroutine hqr(nm,n,low,igh,h,wr,wi,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(h,0)==nm),depend(h) :: nm=shape(h,0)
+            integer, optional,check(shape(h,1)==n),depend(h) :: n=shape(h,1)
+            integer :: low
+            integer :: igh
+            double precision dimension(nm,n) :: h
+            double precision dimension(n),depend(n) :: wr
+            double precision dimension(n),depend(n) :: wi
+            integer :: ierr
+        end subroutine hqr
+        subroutine hqr2(nm,n,low,igh,h,wr,wi,z,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(h,0)==nm),depend(h) :: nm=shape(h,0)
+            integer, optional,check(shape(h,1)==n),depend(h) :: n=shape(h,1)
+            integer :: low
+            integer :: igh
+            double precision dimension(nm,n) :: h
+            double precision dimension(n),depend(n) :: wr
+            double precision dimension(n),depend(n) :: wi
+            double precision dimension(nm,n),depend(nm,n) :: z
+            integer :: ierr
+        end subroutine hqr2
+        subroutine htrib3(nm,n,a,tau,m,zr,zi) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(2,n),depend(n) :: tau
+            integer, optional,check(shape(zr,1)==m),depend(zr) :: m=shape(zr,1)
+            double precision dimension(nm,m),depend(nm) :: zr
+            double precision dimension(nm,m),depend(nm,m) :: zi
+        end subroutine htrib3
+        subroutine htribk(nm,n,ar,ai,tau,m,zr,zi) ! in :anisojp:eispack.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            double precision dimension(nm,n) :: ar
+            double precision dimension(nm,n),depend(nm,n) :: ai
+            double precision dimension(2,n),depend(n) :: tau
+            integer, optional,check(shape(zr,1)==m),depend(zr) :: m=shape(zr,1)
+            double precision dimension(nm,m),depend(nm) :: zr
+            double precision dimension(nm,m),depend(nm,m) :: zi
+        end subroutine htribk
+        subroutine htrid3(nm,n,a,d,e,e2,tau) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(n),depend(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+            double precision dimension(2,n),depend(n) :: tau
+        end subroutine htrid3
+        subroutine htridi(nm,n,ar,ai,d,e,e2,tau) ! in :anisojp:eispack.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            double precision dimension(nm,n) :: ar
+            double precision dimension(nm,n),depend(nm,n) :: ai
+            double precision dimension(n),depend(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+            double precision dimension(2,n),depend(n) :: tau
+        end subroutine htridi
+        subroutine imtql1(n,d,e,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            integer :: ierr
+        end subroutine imtql1
+        subroutine imtql2(nm,n,d,e,z,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(z,0)==nm),depend(z) :: nm=shape(z,0)
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(nm,n),depend(n) :: z
+            integer :: ierr
+        end subroutine imtql2
+        subroutine imtqlv(n,d,e,e2,w,ind,ierr,rv1) ! in :anisojp:eispack.f
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+            double precision dimension(n),depend(n) :: w
+            integer dimension(n),depend(n) :: ind
+            integer :: ierr
+            double precision dimension(n),depend(n) :: rv1
+        end subroutine imtqlv
+        subroutine invit(nm,n,a,wr,wi,select,mm,m,z,ierr,rm1,rv1,rv2) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(n),depend(n) :: wr
+            double precision dimension(n),depend(n) :: wi
+            logical dimension(n),depend(n) :: select
+            integer, optional,check(shape(z,1)==mm),depend(z) :: mm=shape(z,1)
+            integer :: m
+            double precision dimension(nm,mm),depend(nm) :: z
+            integer :: ierr
+            double precision dimension(n,n),depend(n,n) :: rm1
+            double precision dimension(n),depend(n) :: rv1
+            double precision dimension(n),depend(n) :: rv2
+        end subroutine invit
+        subroutine minfit(nm,m,n,a,w,ip,b,ierr,rv1) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer :: m
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(n),depend(n) :: w
+            integer, optional,check(shape(b,1)==ip),depend(b) :: ip=shape(b,1)
+            double precision dimension(nm,ip),depend(nm) :: b
+            integer :: ierr
+            double precision dimension(n),depend(n) :: rv1
+        end subroutine minfit
+        subroutine ortbak(nm,low,igh,a,ort,m,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer :: low
+            integer, optional,check(shape(a,1)==igh),depend(a) :: igh=shape(a,1)
+            double precision dimension(nm,igh) :: a
+            double precision dimension(igh),depend(igh) :: ort
+            integer, optional,check(shape(z,1)==m),depend(z) :: m=shape(z,1)
+            double precision dimension(nm,m),depend(nm) :: z
+        end subroutine ortbak
+        subroutine orthes(nm,n,low,igh,a,ort) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            integer :: low
+            integer, optional,check(len(ort)>=igh),depend(ort) :: igh=len(ort)
+            double precision dimension(nm,n) :: a
+            double precision dimension(igh) :: ort
+        end subroutine orthes
+        subroutine ortran(nm,n,low,igh,a,ort,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(z,1)==n),depend(z) :: n=shape(z,1)
+            integer :: low
+            integer, optional,check(shape(a,1)==igh),depend(a) :: igh=shape(a,1)
+            double precision dimension(nm,igh) :: a
+            double precision dimension(igh),depend(igh) :: ort
+            double precision dimension(nm,n),depend(nm) :: z
+        end subroutine ortran
+        function pythag(a,b) ! in :anisojp:eispack.f
+            double precision :: a
+            double precision :: b
+            double precision :: pythag
+        end function pythag
+        subroutine qzhes(nm,n,a,b,matz,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(nm,n),depend(nm,n) :: b
+            logical :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+        end subroutine qzhes
+        subroutine qzit(nm,n,a,b,eps1,matz,z,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(nm,n),depend(nm,n) :: b
+            double precision :: eps1
+            logical :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+            integer :: ierr
+        end subroutine qzit
+        subroutine qzval(nm,n,a,b,alfr,alfi,beta,matz,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(nm,n),depend(nm,n) :: b
+            double precision dimension(n),depend(n) :: alfr
+            double precision dimension(n),depend(n) :: alfi
+            double precision dimension(n),depend(n) :: beta
+            logical :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+        end subroutine qzval
+        subroutine qzvec(nm,n,a,b,alfr,alfi,beta,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(nm,n),depend(nm,n) :: b
+            double precision dimension(n),depend(n) :: alfr
+            double precision dimension(n),depend(n) :: alfi
+            double precision dimension(n),depend(n) :: beta
+            double precision dimension(nm,n),depend(nm,n) :: z
+        end subroutine qzvec
+        subroutine r8mat_uniform_01(m,n,seed,r) ! in :anisojp:eispack.f
+            integer, optional,check(shape(r,0)==m),depend(r) :: m=shape(r,0)
+            integer, optional,check(shape(r,1)==n),depend(r) :: n=shape(r,1)
+            integer :: seed
+            double precision dimension(m,n) :: r
+        end subroutine r8mat_uniform_01
+        subroutine ratqr(n,eps1,d,e,e2,m,w,ind,bd,type_bn,idef,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision :: eps1
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+            integer :: m
+            double precision dimension(n),depend(n) :: w
+            integer dimension(n),depend(n) :: ind
+            double precision dimension(n),depend(n) :: bd
+            logical :: type_bn
+            integer :: idef
+            integer :: ierr
+        end subroutine ratqr
+        subroutine rebak(nm,n,b,dl,m,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(b,0)==nm),depend(b) :: nm=shape(b,0)
+            integer, optional,check(shape(b,1)==n),depend(b) :: n=shape(b,1)
+            double precision dimension(nm,n) :: b
+            double precision dimension(n),depend(n) :: dl
+            integer, optional,check(shape(z,1)==m),depend(z) :: m=shape(z,1)
+            double precision dimension(nm,m),depend(nm) :: z
+        end subroutine rebak
+        subroutine rebakb(nm,n,b,dl,m,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(b,0)==nm),depend(b) :: nm=shape(b,0)
+            integer, optional,check(shape(b,1)==n),depend(b) :: n=shape(b,1)
+            double precision dimension(nm,n) :: b
+            double precision dimension(n),depend(n) :: dl
+            integer, optional,check(shape(z,1)==m),depend(z) :: m=shape(z,1)
+            double precision dimension(nm,m),depend(nm) :: z
+        end subroutine rebakb
+        subroutine reduc(nm,n,a,b,dl,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(nm,n),depend(nm,n) :: b
+            double precision dimension(n),depend(n) :: dl
+            integer :: ierr
+        end subroutine reduc
+        subroutine reduc2(nm,n,a,b,dl,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(nm,n),depend(nm,n) :: b
+            double precision dimension(n),depend(n) :: dl
+            integer :: ierr
+        end subroutine reduc2
+        subroutine rg(nm,n,a,wr,wi,matz,z,iv1,fv1,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(n),depend(n) :: wr
+            double precision dimension(n),depend(n) :: wi
+            integer :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+            integer dimension(n),depend(n) :: iv1
+            double precision dimension(n),depend(n) :: fv1
+            integer :: ierr
+        end subroutine rg
+        subroutine rgg(nm,n,a,b,alfr,alfi,beta,matz,z,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(nm,n),depend(nm,n) :: b
+            double precision dimension(n),depend(n) :: alfr
+            double precision dimension(n),depend(n) :: alfi
+            double precision dimension(n),depend(n) :: beta
+            integer :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+            integer :: ierr
+        end subroutine rgg
+        subroutine rs(nm,n,a,w,matz,z,fv1,fv2,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(n),depend(n) :: w
+            integer :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+            double precision dimension(n),depend(n) :: fv1
+            double precision dimension(n),depend(n) :: fv2
+            integer :: ierr
+        end subroutine rs
+        subroutine rsb(nm,n,mb,a,w,matz,z,fv1,fv2,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(len(w)>=n),depend(w) :: n=len(w)
+            integer, optional,check(shape(a,1)==mb),depend(a) :: mb=shape(a,1)
+            double precision dimension(nm,mb) :: a
+            double precision dimension(n) :: w
+            integer :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+            double precision dimension(n),depend(n) :: fv1
+            double precision dimension(n),depend(n) :: fv2
+            integer :: ierr
+        end subroutine rsb
+        subroutine rsg(nm,n,a,b,w,matz,z,fv1,fv2,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(nm,n),depend(nm,n) :: b
+            double precision dimension(n),depend(n) :: w
+            integer :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+            double precision dimension(n),depend(n) :: fv1
+            double precision dimension(n),depend(n) :: fv2
+            integer :: ierr
+        end subroutine rsg
+        subroutine rsgab(nm,n,a,b,w,matz,z,fv1,fv2,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(nm,n),depend(nm,n) :: b
+            double precision dimension(n),depend(n) :: w
+            integer :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+            double precision dimension(n),depend(n) :: fv1
+            double precision dimension(n),depend(n) :: fv2
+            integer :: ierr
+        end subroutine rsgab
+        subroutine rsgba(nm,n,a,b,w,matz,z,fv1,fv2,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(nm,n),depend(nm,n) :: b
+            double precision dimension(n),depend(n) :: w
+            integer :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+            double precision dimension(n),depend(n) :: fv1
+            double precision dimension(n),depend(n) :: fv2
+            integer :: ierr
+        end subroutine rsgba
+        subroutine rsm(nm,n,a,w,m,z,fwork,iwork,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(n),depend(n) :: w
+            integer, optional,check(shape(z,1)==m),depend(z) :: m=shape(z,1)
+            double precision dimension(nm,m),depend(nm) :: z
+            double precision dimension(1) :: fwork
+            integer dimension(n),depend(n) :: iwork
+            integer :: ierr
+        end subroutine rsm
+        subroutine rsp(nm,n,nv,a,w,matz,z,fv1,fv2,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(z,0)==nm),depend(z) :: nm=shape(z,0)
+            integer, optional,check(len(w)>=n),depend(w) :: n=len(w)
+            integer, optional,check(len(a)>=nv),depend(a) :: nv=len(a)
+            double precision dimension(nv) :: a
+            double precision dimension(n) :: w
+            integer :: matz
+            double precision dimension(nm,n),depend(n) :: z
+            double precision dimension(n),depend(n) :: fv1
+            double precision dimension(n),depend(n) :: fv2
+            integer :: ierr
+        end subroutine rsp
+        subroutine rspp(n,nv,a,w,matz,z,ierr,m,type_bn) ! in :anisojp:eispack.f
+            integer, optional,check(shape(z,0)==n),depend(z) :: n=shape(z,0)
+            integer, optional,check(len(a)>=nv),depend(a) :: nv=len(a)
+            double precision dimension(nv) :: a
+            double precision dimension(m) :: w
+            integer :: matz
+            double precision dimension(n,m),depend(m) :: z
+            integer :: ierr
+            integer, optional,check(len(w)>=m),depend(w) :: m=len(w)
+            logical :: type_bn
+        end subroutine rspp
+        subroutine rst(nm,n,w,e,matz,z,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(z,0)==nm),depend(z) :: nm=shape(z,0)
+            integer, optional,check(len(w)>=n),depend(w) :: n=len(w)
+            double precision dimension(n) :: w
+            double precision dimension(n),depend(n) :: e
+            integer :: matz
+            double precision dimension(nm,n),depend(n) :: z
+            integer :: ierr
+        end subroutine rst
+        subroutine rt(nm,n,a,w,matz,z,fv1,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(len(w)>=n),depend(w) :: n=len(w)
+            double precision dimension(nm,3) :: a
+            double precision dimension(n) :: w
+            integer :: matz
+            double precision dimension(nm,n),depend(nm,n) :: z
+            double precision dimension(n),depend(n) :: fv1
+            integer :: ierr
+        end subroutine rt
+        subroutine svd(nm,m,n,a,w,matu,u,matv,v,ierr,rv1) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer :: m
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(n),depend(n) :: w
+            logical :: matu
+            double precision dimension(nm,n),depend(nm,n) :: u
+            logical :: matv
+            double precision dimension(nm,n),depend(nm,n) :: v
+            integer :: ierr
+            double precision dimension(n),depend(n) :: rv1
+        end subroutine svd
+        subroutine tinvit(nm,n,d,e,e2,m,w,ind,z,ierr,rv1,rv2,rv3,rv4,rv6) ! in :anisojp:eispack.f
+            integer, optional,check(shape(z,0)==nm),depend(z) :: nm=shape(z,0)
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+            integer, optional,check(len(w)>=m),depend(w) :: m=len(w)
+            double precision dimension(m) :: w
+            integer dimension(m),depend(m) :: ind
+            double precision dimension(nm,m),depend(m) :: z
+            integer :: ierr
+            double precision dimension(n),depend(n) :: rv1
+            double precision dimension(n),depend(n) :: rv2
+            double precision dimension(n),depend(n) :: rv3
+            double precision dimension(n),depend(n) :: rv4
+            double precision dimension(n),depend(n) :: rv6
+        end subroutine tinvit
+        subroutine tql1(n,d,e,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            integer :: ierr
+        end subroutine tql1
+        subroutine tql2(nm,n,d,e,z,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(shape(z,0)==nm),depend(z) :: nm=shape(z,0)
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(nm,n),depend(n) :: z
+            integer :: ierr
+        end subroutine tql2
+        subroutine tqlrat(n,d,e2,ierr) ! in :anisojp:eispack.f
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e2
+            integer :: ierr
+        end subroutine tqlrat
+        subroutine trbak1(nm,n,a,e,m,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(n),depend(n) :: e
+            integer, optional,check(shape(z,1)==m),depend(z) :: m=shape(z,1)
+            double precision dimension(nm,m),depend(nm) :: z
+        end subroutine trbak1
+        subroutine trbak3(nm,n,nv,a,m,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(z,0)==nm),depend(z) :: nm=shape(z,0)
+            integer :: n
+            integer, optional,check(len(a)>=nv),depend(a) :: nv=len(a)
+            double precision dimension(nv) :: a
+            integer, optional,check(shape(z,1)==m),depend(z) :: m=shape(z,1)
+            double precision dimension(nm,m) :: z
+        end subroutine trbak3
+        subroutine tred1(nm,n,a,d,e,e2) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(n),depend(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+        end subroutine tred1
+        subroutine tred2(nm,n,a,d,e,z) ! in :anisojp:eispack.f
+            integer, optional,check(shape(a,0)==nm),depend(a) :: nm=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            double precision dimension(nm,n) :: a
+            double precision dimension(n),depend(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(nm,n),depend(nm,n) :: z
+        end subroutine tred2
+        subroutine tred3(n,nv,a,d,e,e2) ! in :anisojp:eispack.f
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            integer, optional,check(len(a)>=nv),depend(a) :: nv=len(a)
+            double precision dimension(nv) :: a
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+        end subroutine tred3
+        subroutine tridib(n,eps1,d,e,e2,lb,ub,m11,m,w,ind,ierr,rv4,rv5) ! in :anisojp:eispack.f
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision :: eps1
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+            double precision :: lb
+            double precision :: ub
+            integer :: m11
+            integer, optional,check(len(w)>=m),depend(w) :: m=len(w)
+            double precision dimension(m) :: w
+            integer dimension(m),depend(m) :: ind
+            integer :: ierr
+            double precision dimension(n),depend(n) :: rv4
+            double precision dimension(n),depend(n) :: rv5
+        end subroutine tridib
+        subroutine tsturm(nm,n,eps1,d,e,e2,lb,ub,mm,m,w,z,ierr,rv1,rv2,rv3,rv4,rv5,rv6) ! in :anisojp:eispack.f
+            integer, optional,check(shape(z,0)==nm),depend(z) :: nm=shape(z,0)
+            integer, optional,check(len(d)>=n),depend(d) :: n=len(d)
+            double precision :: eps1
+            double precision dimension(n) :: d
+            double precision dimension(n),depend(n) :: e
+            double precision dimension(n),depend(n) :: e2
+            double precision :: lb
+            double precision :: ub
+            integer, optional,check(len(w)>=mm),depend(w) :: mm=len(w)
+            integer :: m
+            double precision dimension(mm) :: w
+            double precision dimension(nm,mm),depend(mm) :: z
+            integer :: ierr
+            double precision dimension(n),depend(n) :: rv1
+            double precision dimension(n),depend(n) :: rv2
+            double precision dimension(n),depend(n) :: rv3
+            double precision dimension(n),depend(n) :: rv4
+            double precision dimension(n),depend(n) :: rv5
+            double precision dimension(n),depend(n) :: rv6
+        end subroutine tsturm
+        subroutine rf_aniso_subroutines(z_in,vp_in,vp2_in,vp4_in,vs_in,vs2_in,rho_in,theta_in,phig_in,nl,baz,rrecfun,trecfun,timesave,ntime) ! in :anisojp:rf_aniso_subroutines.f
+            real*8 dimension(nl + 1) :: z_in
+            real*8 dimension(nl + 1),depend(nl) :: vp_in
+            real*8 dimension(nl + 1),depend(nl) :: vp2_in
+            real*8 dimension(nl + 1),depend(nl) :: vp4_in
+            real*8 dimension(nl + 1),depend(nl) :: vs_in
+            real*8 dimension(nl + 1),depend(nl) :: vs2_in
+            real*8 dimension(nl + 1),depend(nl) :: rho_in
+            real*8 dimension(nl + 1),depend(nl) :: theta_in
+            real*8 dimension(nl + 1),depend(nl) :: phig_in
+            integer, optional,check((len(z_in)-1)>=nl),depend(z_in) :: nl=(len(z_in)-1)
+            real*8 :: baz
+            real*8 dimension(ntime) :: rrecfun
+            real*8 dimension(ntime),depend(ntime) :: trecfun
+            real*8 dimension(ntime),depend(ntime) :: timesave
+            integer, optional,check(len(rrecfun)>=ntime),depend(rrecfun) :: ntime=len(rrecfun)
+            complex*16 dimension(6,101) :: xnu
+            complex*16 dimension(6,100) :: xl
+            complex*16 dimension(6,3) :: pfac
+            complex*16 dimension(3,6) :: u
+            complex*16 dimension(3,3,101) :: rt
+            complex*16 dimension(3,3,101) :: tt
+            complex*16 dimension(3,3) :: rt0
+            complex*16 dimension(3,3) :: trc
+            real*8 dimension(101) :: xmu
+            real*8 dimension(101) :: xla
+            real*8 dimension(101) :: xmu2
+            real*8 dimension(101) :: xla2
+            real*8 dimension(101) :: xla4
+            integer*4 dimension(10000) :: ievan
+            real*8 dimension(3,101) :: w
+            real*8 dimension(3,3) :: t
+            real*8 dimension(3,3) :: ttl
+            real*8 dimension(3,3) :: s
+            real*8 dimension(3,3) :: stl
+            real*8 dimension(3,3) :: r
+            real*8 dimension(3) :: x
+            real*8 dimension(3) :: y
+            real*8 dimension(101) :: roota
+            real*8 dimension(101) :: rootb
+            integer*4 dimension(101) :: jtrval
+            integer*4 dimension(1024) :: kroots
+            complex*16 dimension(3,3,1024) :: resp
+            real*4 dimension(1024) :: frqq
+            complex*16 dimension(3) :: pp
+            complex*16 dimension(3) :: u0
+            complex*16 dimension(6,6,101) :: ee
+            complex*16 dimension(6,6) :: e1
+            complex*16 dimension(6,6) :: e2
+            complex*16 dimension(6) :: zla
+            real*4 dimension(8200) :: cc4
+            real*4 dimension(8200) :: zz4
+            real*8 dimension(8200,3,3) :: dat4
+            real*8 dimension(8200) :: ccc
+            real*4 dimension(8200) :: cc5
+            real*8 dimension(6,6) :: qq
+            real*8 dimension(6) :: wr
+            real*8 dimension(6) :: wi
+            real*8 dimension(6,6) :: zr
+            real*8 dimension(6,6) :: zi
+            integer*4 dimension(6) :: iv
+            real*8 dimension(6) :: fv
+            real*8 dimension(100) :: z
+            real*8 dimension(100) :: dz
+            real*8 dimension(101) :: rho
+            real*8 dimension(101) :: vp
+            real*8 dimension(101) :: vs
+            real*8 dimension(101) :: vp2
+            real*8 dimension(101) :: vp4
+            real*8 dimension(101) :: vs2
+            real*8 dimension(101) :: vss
+            common /propag/ xnu,xl,pfac,u
+            common /rstff/ rt,tt,rt0,trc
+            common /model2/ xmu,xla,xmu2,xla2,xla4
+            common /evanes/ ievan
+            common /stfff/ w,t,ttl,s,stl,r,x,y
+            common /disper2/ roota,rootb,jtrval,kroots
+            common /disper/ resp,frqq
+            common /pstff/ pp,u0,ee,e1,e2,zla
+            common /nstff/ cc4,zz4,dat4,ccc,cc5
+            common /mstff/ qq,wr,wi,zr,zi,iv,fv
+            common /model/ z,dz,rho,vp,vs,vp2,vp4,vs2,vss
+        end subroutine rf_aniso_subroutines
+        subroutine matget(nl,cc) ! in :anisojp:rf_aniso_subroutines.f
+            integer*4 :: nl
+            real*8 :: cc
+            complex*16 dimension(6,101) :: xnu
+            complex*16 dimension(6,100) :: xl
+            complex*16 dimension(6,3) :: pfac
+            complex*16 dimension(3,6) :: u
+            real*8 dimension(101) :: xmu
+            real*8 dimension(101) :: xla
+            real*8 dimension(101) :: xmu2
+            real*8 dimension(101) :: xla2
+            real*8 dimension(101) :: xla4
+            real*8 dimension(3,101) :: w
+            real*8 dimension(3,3) :: t
+            real*8 dimension(3,3) :: ttl
+            real*8 dimension(3,3) :: s
+            real*8 dimension(3,3) :: stl
+            real*8 dimension(3,3) :: r
+            real*8 dimension(3) :: x
+            real*8 dimension(3) :: y
+            integer*4 dimension(4,101) :: idfct
+            real*8 dimension(2,101) :: adf
+            real*8 dimension(6,6) :: qi
+            real*8 dimension(6) :: xr
+            real*8 dimension(6) :: xi
+            real*8 dimension(6) :: yr
+            real*8 dimension(6) :: yi
+            integer*4 dimension(3) :: ips
+            complex*16 dimension(3) :: pp
+            complex*16 dimension(3) :: u0
+            complex*16 dimension(6,6,101) :: ee
+            complex*16 dimension(6,6) :: e1
+            complex*16 dimension(6,6) :: e2
+            complex*16 dimension(6) :: zla
+            real*8 dimension(6,6) :: qq
+            real*8 dimension(6) :: wr
+            real*8 dimension(6) :: wi
+            real*8 dimension(6,6) :: zr
+            real*8 dimension(6,6) :: zi
+            integer*4 dimension(6) :: iv
+            real*8 dimension(6) :: fv
+            real*8 dimension(100) :: z
+            real*8 dimension(100) :: dz
+            real*8 dimension(101) :: rho
+            real*8 dimension(101) :: vp
+            real*8 dimension(101) :: vs
+            real*8 dimension(101) :: vp2
+            real*8 dimension(101) :: vp4
+            real*8 dimension(101) :: vs2
+            real*8 dimension(101) :: vss
+            complex*16 dimension(6,6,100) :: rtm
+            common /propag/ xnu,xl,pfac,u
+            common /model2/ xmu,xla,xmu2,xla2,xla4
+            common /stfff/ w,t,ttl,s,stl,r,x,y
+            common /defect/ idfct,adf
+            common /qstff/ qi,xr,xi,yr,yi,ips
+            common /pstff/ pp,u0,ee,e1,e2,zla
+            common /mstff/ qq,wr,wi,zr,zi,iv,fv
+            common /model/ z,dz,rho,vp,vs,vp2,vp4,vs2,vss
+            common /rrt/ rtm
+        end subroutine matget
+        subroutine respget(nl,om,cc,resp) ! in :anisojp:rf_aniso_subroutines.f
+            integer*4 :: nl
+            real*8 :: om
+            real*8 :: cc
+            complex*16 dimension(3,3) :: resp
+            complex*16 dimension(6,101) :: xnu
+            complex*16 dimension(6,100) :: xl
+            complex*16 dimension(6,3) :: pfac
+            complex*16 dimension(3,6) :: u
+            complex*16 dimension(6,101) :: co
+            complex*16 dimension(3) :: ur
+            complex*16 dimension(3,3,101) :: rt
+            complex*16 dimension(3,3,101) :: tt
+            complex*16 dimension(3,3) :: rt0
+            complex*16 dimension(3,3) :: trc
+            real*8 dimension(101) :: xmu
+            real*8 dimension(101) :: xla
+            real*8 dimension(101) :: xmu2
+            real*8 dimension(101) :: xla2
+            real*8 dimension(101) :: xla4
+            real*8 dimension(3,101) :: w
+            real*8 dimension(3,3) :: t
+            real*8 dimension(3,3) :: ttl
+            real*8 dimension(3,3) :: s
+            real*8 dimension(3,3) :: stl
+            real*8 dimension(3,3) :: r
+            real*8 dimension(3) :: x
+            real*8 dimension(3) :: y
+            integer*4 dimension(4,101) :: idfct
+            real*8 dimension(2,101) :: adf
+            real*8 dimension(6,6) :: qi
+            real*8 dimension(6) :: xr
+            real*8 dimension(6) :: xi
+            real*8 dimension(6) :: yr
+            real*8 dimension(6) :: yi
+            integer*4 dimension(3) :: ips
+            complex*16 dimension(3) :: pp
+            complex*16 dimension(3) :: u0
+            complex*16 dimension(6,6,101) :: ee
+            complex*16 dimension(6,6) :: e1
+            complex*16 dimension(6,6) :: e2
+            complex*16 dimension(6) :: zla
+            real*8 dimension(6,6) :: qq
+            real*8 dimension(6) :: wr
+            real*8 dimension(6) :: wi
+            real*8 dimension(6,6) :: zr
+            real*8 dimension(6,6) :: zi
+            integer*4 dimension(6) :: iv
+            real*8 dimension(6) :: fv
+            real*8 dimension(100) :: z
+            real*8 dimension(100) :: dz
+            real*8 dimension(101) :: rho
+            real*8 dimension(101) :: vp
+            real*8 dimension(101) :: vs
+            real*8 dimension(101) :: vp2
+            real*8 dimension(101) :: vp4
+            real*8 dimension(101) :: vs2
+            real*8 dimension(101) :: vss
+            complex*16 dimension(6,6,100) :: rtm
+            common /propag/ xnu,xl,pfac,u
+            common /pstf2/ co,ur
+            common /rstff/ rt,tt,rt0,trc
+            common /model2/ xmu,xla,xmu2,xla2,xla4
+            common /stfff/ w,t,ttl,s,stl,r,x,y
+            common /defect/ idfct,adf
+            common /qstff/ qi,xr,xi,yr,yi,ips
+            common /pstff/ pp,u0,ee,e1,e2,zla
+            common /mstff/ qq,wr,wi,zr,zi,iv,fv
+            common /model/ z,dz,rho,vp,vs,vp2,vp4,vs2,vss
+            common /rrt/ rtm
+        end subroutine respget
+        subroutine defective_rf(i,j,n,adf,a,b,c,d,e,px) ! in :anisojp:rf_aniso_subroutines.f
+            integer*4 :: i
+            integer*4 :: j
+            integer*4 :: n
+            real*8 :: adf
+            real*8 :: a
+            real*8 :: b
+            real*8 :: c
+            real*8 :: d
+            real*8 :: e
+            real*8 :: px
+            complex*16 dimension(6,101) :: xnu
+            complex*16 dimension(6,100) :: xl
+            complex*16 dimension(6,3) :: pfac
+            complex*16 dimension(3,6) :: u
+            real*8 dimension(3,101) :: w
+            real*8 dimension(3,3) :: t
+            real*8 dimension(3,3) :: ttl
+            real*8 dimension(3,3) :: s
+            real*8 dimension(3,3) :: stl
+            real*8 dimension(3,3) :: r
+            real*8 dimension(3) :: x
+            real*8 dimension(3) :: y
+            real*8 dimension(6,6) :: qi
+            real*8 dimension(6) :: xr
+            real*8 dimension(6) :: xi
+            real*8 dimension(6) :: yr
+            real*8 dimension(6) :: yi
+            integer*4 dimension(3) :: ips
+            complex*16 dimension(3) :: pp
+            complex*16 dimension(3) :: u0
+            complex*16 dimension(6,6,101) :: ee
+            complex*16 dimension(6,6) :: e1
+            complex*16 dimension(6,6) :: e2
+            complex*16 dimension(6) :: zla
+            real*8 dimension(6) :: edr
+            real*8 dimension(6) :: edi
+            real*8 dimension(5,5) :: qdr
+            real*8 dimension(5,5) :: qdi
+            real*8 dimension(6) :: ydr
+            real*8 dimension(6) :: ydi
+            real*8 dimension(3,3) :: q1r
+            real*8 dimension(3,3) :: q1i
+            real*8 dimension(3,3) :: q2r
+            real*8 dimension(3,3) :: q2i
+            real*8 dimension(3) :: fv2
+            real*8 dimension(3) :: fv3
+            complex*16 dimension(3,3) :: zq1
+            complex*16 dimension(3,3) :: zq2
+            complex*16 dimension(3) :: u1
+            complex*16 dimension(3) :: u2
+            complex*16 dimension(2,2) :: zq3
+            complex*16 dimension(3) :: xee
+            real*8 dimension(6,6) :: qq
+            real*8 dimension(6) :: wr
+            real*8 dimension(6) :: wi
+            real*8 dimension(6,6) :: zr
+            real*8 dimension(6,6) :: zi
+            integer*4 dimension(6) :: iv
+            real*8 dimension(6) :: fv
+            common /propag/ xnu,xl,pfac,u
+            common /stfff/ w,t,ttl,s,stl,r,x,y
+            common /qstff/ qi,xr,xi,yr,yi,ips
+            common /pstff/ pp,u0,ee,e1,e2,zla
+            common /defect2/ edr,edi,qdr,qdi,ydr,ydi
+            common /defect3/ q1r,q1i,q2r,q2i,fv2,fv3
+            common /defect1/ zq1,zq2,u1,u2,zq3,xee
+            common /mstff/ qq,wr,wi,zr,zi,iv,fv
+        end subroutine defective_rf
+        subroutine cbcktr(n1,z,zi,dr,di,er,ei,ip) ! in :anisojp:util_subroutines.f
+            integer*4, optional,check(shape(z,0)==n1),depend(z) :: n1=shape(z,0)
+            real*8 dimension(n1,1) :: z
+            real*8 dimension(n1,1),depend(n1) :: zi
+            real*8 dimension(1) :: dr
+            real*8 dimension(1) :: di
+            real*8 dimension(1) :: er
+            real*8 dimension(1) :: ei
+            integer*4 dimension(1) :: ip
+        end subroutine cbcktr
+        subroutine bcktr(n1,z,dr,er,ip) ! in :anisojp:util_subroutines.f
+            integer*4, optional,check(shape(z,0)==n1),depend(z) :: n1=shape(z,0)
+            real*8 dimension(n1,1) :: z
+            real*8 dimension(1) :: dr
+            real*8 dimension(1) :: er
+            integer*4 dimension(1) :: ip
+        end subroutine bcktr
+        subroutine lup(n,a,ip) ! in :anisojp:util_subroutines.f
+            integer*4, optional,check(shape(a,0)==n),depend(a) :: n=shape(a,0)
+            real*8 dimension(n,1) :: a
+            integer*4 dimension(1) :: ip
+        end subroutine lup
+        subroutine clup(n,a,ai,ip) ! in :anisojp:util_subroutines.f
+            integer*4, optional,check(shape(a,0)==n),depend(a) :: n=shape(a,0)
+            real*8 dimension(n,1) :: a
+            real*8 dimension(n,1),depend(n) :: ai
+            integer*4 dimension(1) :: ip
+        end subroutine clup
+        subroutine solve(nn,a,x,y) ! in :anisojp:util_subroutines.f
+            integer*4 :: nn
+            real*8 dimension(1) :: a
+            real*8 dimension(1) :: x
+            real*8 dimension(1) :: y
+            integer*4 dimension(1000) :: ip
+            common /solve_/ ip
+        end subroutine solve
+        subroutine csolve(nn,a,ai,x,xi,y,yi) ! in :anisojp:util_subroutines.f
+            integer*4 :: nn
+            real*8 dimension(1) :: a
+            real*8 dimension(1) :: ai
+            real*8 dimension(1) :: x
+            real*8 dimension(1) :: xi
+            real*8 dimension(1) :: y
+            real*8 dimension(1) :: yi
+        end subroutine csolve
+        function dsind(dgr_argument) ! in :anisojp:util_subroutines.f
+            real*8 :: dgr_argument
+            real*8 :: dsind
+        end function dsind
+        function dcosd(dgr_argument) ! in :anisojp:util_subroutines.f
+            real*8 :: dgr_argument
+            real*8 :: dcosd
+        end function dcosd
+    end interface 
+end python module anisojp
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/

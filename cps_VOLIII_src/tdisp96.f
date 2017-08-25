@@ -198,7 +198,6 @@ c-----
             nfval = -1
         endif
         close(1)
-c   end of reading tdisp96 file
 c-----
 c       get the earth model
 c-----

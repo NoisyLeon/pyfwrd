@@ -1,4 +1,3 @@
-      program tdisp96
 c----------------------------------------------------------------------c
 c                                                                      c
 c      COMPUTER PROGRAMS IN SEISMOLOGY                                 c
@@ -73,6 +72,8 @@ c       MODIFICATION HISTORY
 c
 c       24 MAY 2000 - permit all fluid layers
 c-----
+        subroutine tdisp96_subroutine(dt, )
+    
         parameter (LIN=5, LOT=6, NL=200, NL2=NL+NL)
         implicit double precision (a-h,o-z)
         real*4 vth(NL2),vtp(NL2)
@@ -174,7 +175,7 @@ C        WRITE(*,*)nmodes
         read(1,*)faclov,facray
 C        WRITE(*,*)faclov,facray
 c-----
-c       get user specified frequencies, but also so an error check
+c       get user specified frequencies, but also so an error check, still from tdisp96.dat ?
 c-----
         if(n1.lt.0 )then
             nfval = npts
@@ -198,7 +199,7 @@ c-----
             nfval = -1
         endif
         close(1)
-c   end of reading tdisp96 file
+
 c-----
 c       get the earth model
 c-----
@@ -275,6 +276,8 @@ c-----
             stop
   999   continue
         end
+
+c       end of main subrountine
 
         subroutine mdsrch(cmin,cmax,ilvry)
 c-----
