@@ -3,7 +3,7 @@
 
 python module tdisp96 ! in 
     interface  ! in :tdisp96
-        subroutine mdsrch(cmin,cmax,ilvry) ! in :tdisp96:tdisp96.f
+        subroutine mdsrch(cmin,cmax,ilvry) ! in :tdisp96:tdisp96_subroutine.f
             real*4 :: cmin
             real*4 :: cmax
             integer :: ilvry
@@ -32,7 +32,7 @@ python module tdisp96 ! in
             common /modspec/ allfluid
             common /pari/ mmax,mode
         end subroutine mdsrch
-        subroutine psvhalf(mt,mb,betmn,betmx,cmin,cmax) ! in :tdisp96:tdisp96.f
+        subroutine psvhalf(mt,mb,betmn,betmx,cmin,cmax) ! in :tdisp96:tdisp96_subroutine.f
             integer :: mt
             integer :: mb
             real :: betmn
@@ -40,13 +40,13 @@ python module tdisp96 ! in
             real :: cmin
             real :: cmax
         end subroutine psvhalf
-        function dltar(wvno,omega,kk) ! in :tdisp96:tdisp96.f
+        function dltar(wvno,omega,kk) ! in :tdisp96:tdisp96_subroutine.f
             double precision :: wvno
             double precision :: omega
             integer :: kk
             double precision :: dltar
         end function dltar
-        function dltar1(wvno,omega) ! in :tdisp96:tdisp96.f
+        function dltar1(wvno,omega) ! in :tdisp96:tdisp96_subroutine.f
             double precision :: wvno
             double precision :: omega
             integer dimension(200) :: iwat
@@ -74,22 +74,34 @@ python module tdisp96 ! in
             common /pard/ twopi,displ,dispr
             common /pari/ mmax,modew
         end function dltar1
-        subroutine bsort(nn,x,isign) ! in :tdisp96:tdisp96.f
+        subroutine bsort(nn,x,isign) ! in :tdisp96:tdisp96_subroutine.f
             integer, optional,check(len(x)>=nn),depend(x) :: nn=len(x)
             real*4 dimension(nn) :: x
             integer :: isign
         end subroutine bsort
-        subroutine disprs(ilvry,dt,nn,iret,mname,verby,nfval,fval,ccmin,ccmax) ! in :tdisp96:tdisp96.f
+        subroutine disprs(ilvry,dt,nn,iret,verby,nfval,fval,ccmin,ccmax,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in) ! in :tdisp96:tdisp96_subroutine.f
             integer :: ilvry
             real*4 :: dt
             integer :: nn
             integer :: iret
-            character*80 :: mname
             logical :: verby
             integer :: nfval
             real dimension(2049) :: fval
             real*4 :: ccmin
             real*4 :: ccmax
+            real*8 dimension(nl_in),depend(nl_in) :: d_in
+            real*8 dimension(nl_in),depend(nl_in) :: ta_in
+            real*8 dimension(nl_in),depend(nl_in) :: tc_in
+            real*8 dimension(nl_in),depend(nl_in) :: tf_in
+            real*8 dimension(nl_in),depend(nl_in) :: tl_in
+            real*8 dimension(nl_in),depend(nl_in) :: tn_in
+            real*8 dimension(nl_in),depend(nl_in) :: trho_in
+            integer, intent(in) :: nl_in
+            integer :: iflsph_in
+            double precision :: refdep_in
+            integer :: mode_in
+            real*8 :: facl_in
+            real*8 :: facr_in
             double precision :: twopi
             double precision :: displ
             double precision :: dispr
@@ -141,7 +153,7 @@ python module tdisp96 ! in
             common /pari/ mmax,mode
             common /vels/ mvts,vts
         end subroutine disprs
-        subroutine poles(ifunc,omega0,omega,cmin,cmax) ! in :tdisp96:tdisp96.f
+        subroutine poles(ifunc,omega0,omega,cmin,cmax) ! in :tdisp96:tdisp96_subroutine.f
             integer :: ifunc
             double precision :: omega0
             double precision :: omega
@@ -180,11 +192,11 @@ python module tdisp96 ! in
             common /pari/ mmax,mode
             common /vels/ mvts,vts
         end subroutine poles
-        subroutine gtsolh(jmn,c) ! in :tdisp96:tdisp96.f
+        subroutine gtsolh(jmn,c) ! in :tdisp96:tdisp96_subroutine.f
             integer :: jmn
             double precision :: c
         end subroutine gtsolh
-        subroutine sphere(ifunc) ! in :tdisp96:tdisp96.f
+        subroutine sphere(ifunc) ! in :tdisp96:tdisp96_subroutine.f
             integer :: ifunc
             integer dimension(200) :: iwat
             real :: radius
@@ -210,15 +222,15 @@ python module tdisp96 ! in
             common /depref/ refdep
             common /pari/ mmax,mode
         end subroutine sphere
-        subroutine gcmdln(verby,cmin,cmax) ! in :tdisp96:tdisp96.f
+        subroutine gcmdln(verby,cmin,cmax) ! in :tdisp96:tdisp96_subroutine.f
             logical :: verby
             real*4 :: cmin
             real*4 :: cmax
         end subroutine gcmdln
-        subroutine usage(str) ! in :tdisp96:tdisp96.f
+        subroutine usage(str) ! in :tdisp96:tdisp96_subroutine.f
             character*(*) :: str
         end subroutine usage
-        subroutine hskl(cossh,rsinsh,sinshr,tl,iwat,hl,exm,exe) ! in :tdisp96:tdisp96.f
+        subroutine hskl(cossh,rsinsh,sinshr,tl,iwat,hl,exm,exe) ! in :tdisp96:tdisp96_subroutine.f
             double precision :: cossh
             double precision :: rsinsh
             double precision :: sinshr
@@ -228,7 +240,7 @@ python module tdisp96 ! in
             double precision :: exm
             double precision :: exe
         end subroutine hskl
-        subroutine gtesh(esh,einvsh,rsh,wvno,l,lshimag,ltrueinv,iwat) ! in :tdisp96:tdisp96.f
+        subroutine gtesh(esh,einvsh,rsh,wvno,l,lshimag,ltrueinv,iwat) ! in :tdisp96:tdisp96_subroutine.f
             complex*16 dimension(2,2) :: esh
             complex*16 dimension(2,2) :: einvsh
             double precision :: rsh
@@ -238,7 +250,7 @@ python module tdisp96 ! in
             logical :: ltrueinv
             integer :: iwat
         end subroutine gtesh
-        subroutine gtegsh(m,wvno,omega,rsh,lshimag) ! in :tdisp96:tdisp96.f
+        subroutine gtegsh(m,wvno,omega,rsh,lshimag) ! in :tdisp96:tdisp96_subroutine.f
             integer :: m
             double precision :: wvno
             double precision :: omega
@@ -261,7 +273,7 @@ python module tdisp96 ! in
             common /water/ iwat
             common /timod/ td,ta,tc,tf,tl,tn,trho,qa,qb,etap,etas,frefp,frefs
         end subroutine gtegsh
-        subroutine lmult(d11,d12,d21,d22,hl,iwat,exel,exb,icomp) ! in :tdisp96:tdisp96.f
+        subroutine lmult(d11,d12,d21,d22,hl,iwat,exel,exb,icomp) ! in :tdisp96:tdisp96_subroutine.f
             complex*16 :: d11
             complex*16 :: d12
             complex*16 :: d21
@@ -272,12 +284,12 @@ python module tdisp96 ! in
             real*8 :: exb
             logical :: icomp
         end subroutine lmult
-        subroutine normc(ee,ex,nmat) ! in :tdisp96:tdisp96.f
+        subroutine normc(ee,ex,nmat) ! in :tdisp96:tdisp96_subroutine.f
             complex*16 dimension(5) :: ee
             real*8 :: ex
             integer :: nmat
         end subroutine normc
-        subroutine gettiegn(a,b,c,d,e,f,omega2,wvno2,rp,rsv,x11,x21,x31,x41,x12,x22,x32,x42,np,nsv,m,omg,wvn,atna,atnb) ! in :tdisp96:tdisp96.f
+        subroutine gettiegn(a,b,c,d,e,f,omega2,wvno2,rp,rsv,x11,x21,x31,x41,x12,x22,x32,x42,np,nsv,m,omg,wvn,atna,atnb) ! in :tdisp96:tdisp96_subroutine.f
             complex*16 :: a
             complex*16 :: b
             complex*16 :: c
@@ -318,7 +330,7 @@ python module tdisp96 ! in
             real*4 dimension(200) :: frefs
             common /timod/ td,ta,tc,tf,tl,tn,trho,qa,qb,etap,etas,frefp,frefs
         end subroutine gettiegn
-        function dltar4(wvno,omga) ! in :tdisp96:tdisp96.f
+        function dltar4(wvno,omga) ! in :tdisp96:tdisp96_subroutine.f
             real*8 :: wvno
             real*8 :: omga
             integer dimension(200) :: iwat
@@ -342,7 +354,7 @@ python module tdisp96 ! in
             common /timod/ d,ta,tc,tf,tl,tn,trho,qa,qb,etap,etas,frefp,frefs
             common /pari/ mmax,mode
         end function dltar4
-        subroutine varsv(p,q,rp,rsv,cosp,cosq,rsinp,rsinq,sinpr,sinqr,pex,svex,iwat,dm) ! in :tdisp96:tdisp96.f
+        subroutine varsv(p,q,rp,rsv,cosp,cosq,rsinp,rsinq,sinpr,sinqr,pex,svex,iwat,dm) ! in :tdisp96:tdisp96_subroutine.f
             complex*16 :: p
             complex*16 :: q
             complex*16 :: rp
@@ -358,7 +370,7 @@ python module tdisp96 ! in
             integer :: iwat
             real*8 :: dm
         end subroutine varsv
-        subroutine dnka(ca,cosp,rsinp,sinpr,cossv,rsinsv,sinsvr,np,nsv,x11,x21,x31,x41,x12,x22,x32,x42,trho,iwat,ex,om2) ! in :tdisp96:tdisp96.f
+        subroutine dnka(ca,cosp,rsinp,sinpr,cossv,rsinsv,sinsvr,np,nsv,x11,x21,x31,x41,x12,x22,x32,x42,trho,iwat,ex,om2) ! in :tdisp96:tdisp96_subroutine.f
             complex*16 dimension(5,5) :: ca
             complex*16 :: cosp
             complex*16 :: rsinp
@@ -381,7 +393,7 @@ python module tdisp96 ! in
             real*8 :: ex
             real*8 :: om2
         end subroutine dnka
-        subroutine varsh(h,rsh,lshimag,cossh,rsinsh,sinshr,ex) ! in :tdisp96:tdisp96.f
+        subroutine varsh(h,rsh,lshimag,cossh,rsinsh,sinshr,ex) ! in :tdisp96:tdisp96_subroutine.f
             double precision :: h
             double precision :: rsh
             logical :: lshimag
@@ -390,7 +402,7 @@ python module tdisp96 ! in
             double precision :: sinshr
             double precision :: ex
         end subroutine varsh
-        subroutine evalg(jbdry,m,m1,gbr,indx,wvno,om,om2,wvno2) ! in :tdisp96:tdisp96.f
+        subroutine evalg(jbdry,m,m1,gbr,indx,wvno,om,om2,wvno2) ! in :tdisp96:tdisp96_subroutine.f
             integer :: jbdry
             integer :: m
             integer :: m1
