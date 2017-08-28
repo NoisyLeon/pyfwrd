@@ -79,7 +79,7 @@ python module tdisp96 ! in
             real*4 dimension(nn) :: x
             integer :: isign
         end subroutine bsort
-        subroutine disprs(ilvry,dt,nn,iret,verby,nfval,fval,ccmin,ccmax,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in,c_out) ! in :tdisp96:tdisp96_subroutine.f
+        subroutine disprs(ilvry,dt,nn,iret,verby,nfval,fval,ccmin,ccmax,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in) ! in :tdisp96:tdisp96_subroutine.f
             integer :: ilvry
             real*4 :: dt
             integer :: nn
@@ -102,7 +102,6 @@ python module tdisp96 ! in
             integer :: mode_in
             real*8 :: facl_in
             real*8 :: facr_in
-            real*8 dimension(2049), intent(out) :: c_out
             double precision :: twopi
             double precision :: displ
             double precision :: dispr

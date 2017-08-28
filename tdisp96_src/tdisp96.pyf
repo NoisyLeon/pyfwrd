@@ -89,20 +89,20 @@ python module tdisp96 ! in
             real dimension(2049) :: fval
             real*4 :: ccmin
             real*4 :: ccmax
-            real*8 dimension(nl_in),depend(nl_in) :: d_in
-            real*8 dimension(nl_in),depend(nl_in) :: ta_in
-            real*8 dimension(nl_in),depend(nl_in) :: tc_in
-            real*8 dimension(nl_in),depend(nl_in) :: tf_in
-            real*8 dimension(nl_in),depend(nl_in) :: tl_in
-            real*8 dimension(nl_in),depend(nl_in) :: tn_in
-            real*8 dimension(nl_in),depend(nl_in) :: trho_in
+            real*4 dimension(nl_in),depend(nl_in) :: d_in
+            real*4 dimension(nl_in),depend(nl_in) :: ta_in
+            real*4 dimension(nl_in),depend(nl_in) :: tc_in
+            real*4 dimension(nl_in),depend(nl_in) :: tf_in
+            real*4 dimension(nl_in),depend(nl_in) :: tl_in
+            real*4 dimension(nl_in),depend(nl_in) :: tn_in
+            real*4 dimension(nl_in),depend(nl_in) :: trho_in
             integer, intent(in) :: nl_in
             integer :: iflsph_in
             double precision :: refdep_in
             integer :: mode_in
-            real*8 :: facl_in
-            real*8 :: facr_in
-            real*8 dimension(2049), intent(out) :: c_out
+            real :: facl_in
+            real :: facr_in
+            real dimension(2049), intent(out) :: c_out
             double precision :: twopi
             double precision :: displ
             double precision :: dispr

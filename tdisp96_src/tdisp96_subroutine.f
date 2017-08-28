@@ -1,4 +1,3 @@
-      program tdisp96
 c----------------------------------------------------------------------c
 c                                                                      c
 c      COMPUTER PROGRAMS IN SEISMOLOGY                                 c
@@ -73,209 +72,6 @@ c       MODIFICATION HISTORY
 c
 c       24 MAY 2000 - permit all fluid layers
 c-----
-        parameter (LIN=5, LOT=6, NL=200, NL2=NL+NL)
-        implicit double precision (a-h,o-z)
-        real*4 vth(NL2),vtp(NL2)
-        real*4 vts(NL2,2)
-        equivalence(vth(1),vts(1,1)),(vtp(1),vts(1,2))
-        common/pari/ mmax,mode
-        common/water/iwat(NL)
-        common/pard/ twopi,displ,dispr
-        common/vels/ mvts(2),vts
-
-        common/earth/radius
-        real radius
-
-        parameter(NPERIOD=2049)
-        real fval(NPERIOD)
-        integer nfval
-
-        common/timod/d(NL),TA(NL),TC(NL),TF(NL),TL(NL),TN(NL),
-     1      TRho(NL),
-     2      qa(NL),qb(NL),etap(NL),etas(NL), 
-     3      frefp(NL), frefs(NL)
-        real*4 d,TA,TC,TN,TL,TF,TRho,qa,
-     1       qb,etap,etas,frefp,frefs
-        common/depref/refdep
-        real refdep
-        
-        common/timodel/od(NL),oTA(NL),oTC(NL),oTL(NL),oTN(NL),oTF(NL),
-     1      oTRho(NL),
-     2      oqa(NL),oqb(NL),oetap(NL),oetas(NL), 
-     3      ofrefp(NL), ofrefs(NL)
-        real od,oTA,oTC,oTN,oTL,oTF,oTRho,oqa,oqb,
-     1        oetap,oetas,ofrefp,ofrefs
-
-        real*4 ccmin, ccmax
-
-c-----
-c       parameters for model file
-c-----
-        character title*80
-        logical ext
-c-----
-c       parameters from tdisp96.dat
-c-----
-        character mname*80
-        logical dolove, dorayl
-c-----
-c       model characterization
-c-----
-        common/modspec/allfluid
-        logical allfluid
-c-----
-c       command flags from tdisp96.dat
-c-----
-c
-        real*4 dt
-c-----
-c       command line variables
-c-----
-        logical verby
-c-----
-c       call machine dependent initialization
-c-----
-        call mchdep()
-c-----
-c       initialize
-c-----
-        radius = 6371.
-c-----
-c       parse command line flags
-c-----
-        call gcmdln(verby,ccmin,ccmax)
-c-----
-c       main program just does the control.
-c-----
-        twopi=6.283185307179586d+00
-c-----
-c       get control parameters from tdisp96.dat
-c-----
-        inquire(file='tdisp96.dat',exist=ext)
-        if(.not.ext)then
-            call usage('Control file tdisp96.dat'//
-     1          ' does not exist')
-        endif
-        open(1,file='tdisp96.dat',form='formatted',status='unknown',
-     1      access='sequential')
-        rewind 1
-        read(1,*,end=9999,err=9999)dt
-C        WRITE(*,*)dt
-        read(1,*,end=9999,err=9999)npts,n1,n2
-C        WRITE(*,*)npts,n1,n2
-        read(1,'(a)',end=9999,err=9999)mname
-C        WRITE(*,*)mname
-        read(1,*)dolove, dorayl
-C        WRITE(*,*)dolove, dorayl
-        read(1,*)hs, hr
-C        WRITE(*,*)hs,hr
-        read(1,*)nmodes
-C        WRITE(*,*)nmodes
-        read(1,*)faclov,facray
-C        WRITE(*,*)faclov,facray
-c-----
-c       get user specified frequencies, but also so an error check
-c-----
-        if(n1.lt.0 )then
-            nfval = npts
-            npts = 0
-            do 1010 i=1,nfval
-                read(1,*,end=1011,err=1011)xx
-                if(xx.ge.0.0)then
-                    npts = npts + 1
-                    fval(npts) = xx
-                endif
- 1010       continue
- 1011       continue
-c-----
-c       safety
-c-----
-            if(npts.gt.1)then
-                call bsort(npts,fval,-1)
-            endif
-            nfval = npts
-        else
-            nfval = -1
-        endif
-        close(1)
-c   end of reading tdisp96 file
-c-----
-c       get the earth model
-c-----
-        inquire(file=mname,exist=ext)
-        if(.not. ext)call usage('Model file does not exist')
-        l = lgstr(mname)
-
-        write(LOT,*)'Model name: ',mname(1:l)
-        call getmod(1,mname,mmax,title,iunit,iiso,iflsph,
-     1      idimen,icnvel,ierr,.true.)
-CCCCC drop out if not flat 1-D constant velocity isotropic
-c-----
-c       check for water only
-c-----
-        allfluid = .true.
-        do 1200 i=1,mmax
-            if(oTN(i).gt.0.0)then
-                allfluid = .false.
-            endif
- 1200   continue
-        if(allfluid)then
-            dolove = .false.
-        endif
-c-----
-c       set up controls
-c-----
-        if(dolove)then
-            idispl = 1
-        else
-            idispl = 0
-        endif
-        if(dorayl)then
-            idispr = 1
-        else
-            idispr = 0
-        endif
-        mode = nmodes
-c-----
-c       mmax = number of layer including the half-space.
-c       mode = maximum number of modes to be found at a frequency,
-c              can be as large as 1500.
-c-----
-        if(mode.gt.2000)then
-            mode=2000
-        endif
-c-----
-c       process dispersion
-c-----
-        if(faclov.lt.1.0)faclov = 5.0
-        if(facray.lt.1.0)facray = 5.0
-        displ = faclov
-        dispr = facray
-c-----
-c       get the Love and Rayleigh dispersion as two separate
-c       operations.
-c       when we are done update the state files. 
-c-----
-        do 1000 ilvry=1,2
-            if(ilvry.eq.1)then
-                if(idispl.eq.1)then
-                    call disprs(ilvry,dt,npts,iret,mname,
-     1                  verby,nfval,fval,ccmin,ccmax)
-                endif
-            else
-                if(idispr.eq.1)then
-                    call disprs(ilvry,dt,npts,iret,mname,
-     1                  verby,nfval,fval,ccmin,ccmax)
-                endif
-            endif
- 1000   continue
-        go to 999
- 9999   continue
-            write(LOT,*)'Error in tdisp96.dat'
-            stop
-  999   continue
-        end
-
         subroutine mdsrch(cmin,cmax,ilvry)
 c-----
 c       cmin - lower possible bound on phase velocity
@@ -629,12 +425,18 @@ C              if(x0) 10,20,50
 c
 c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 c
-        subroutine disprs(ilvry,dt,nn,iret,mname,
-     1          verby,nfval,fval,ccmin,ccmax)
+        subroutine disprs(ilvry,dt,nn,iret,
+     1          verby,nfval,fval,ccmin,ccmax,
+     1      d_in,TA_in,TC_in,TF_in,TL_in,TN_in,TRho_in,
+     1      nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in,c_out)
 c-----
 c       search poles in either C-T or F-K domains.
 c       To generate synthetic seismograms, F-K domain searching is
 c       recommended.
+c================================================================
+c        Modified by Lili Feng for pysurf
+c        Aug 28th, 2017  - currently only output fundamental mode
+c================================================================
 c
 c-----
         implicit double precision (a-h,o-z)
@@ -656,8 +458,16 @@ c-----
         common/pard/ twopi,displ,dispr
         common/stor/ dcc(MAXMOD),c(MAXMOD),nlost,index,nroot1
         common/vels/ mvts(2),vts
-
-
+C       Input model arrays, added by LF
+        integer nl_in, iflsph_in
+        real*4 d_in(nl_in),TA_in(nl_in),TC_in(nl_in),TF_in(nl_in)
+        real*4 TL_in(nl_in),TN_in(nl_in),TRho_in(nl_in)
+        integer mode_in
+        real facl_in, facr_in
+c       Output, added by LF
+        real c_out(NPERIOD)
+        integer ic
+        
         common/timod/d(NL),TA(NL),TC(NL),TF(NL),TL(NL),TN(NL),
      1      TRho(NL),
      2      qa(NL),qb(NL),etap(NL),etas(NL), 
@@ -672,7 +482,6 @@ c-----
      3      ofrefp(NL), ofrefs(NL)
         real od,oTA,oTC,oTN,oTL,oTF,oTRho,oqa,oqb,
      1        oetap,oetas,ofrefp,ofrefs
-
 
         character mname*80
         integer ipar(20)
@@ -700,13 +509,35 @@ c-----
 c-----
 c       get the earth model
 c-----
-        call getmod(1,mname,mmmax,title,iunit,iiso,iflsph,
-     1      idimen,icnvel,ierr,.false.)
-        mmax = mmmax
-        nsph = iflsph
+
+c        call getmod(1,mname,mmmax,title,iunit,iiso,iflsph,
+c     1      idimen,icnvel,ierr,.false.)
+c        mmax = mmmax
+c        nsph = iflsph
+c        ipar(1) = nsph
+c        fpar(1) = refdep
+c        fpar(2) = refdep
+
+c   - model information, LF
+c   - iflsph_in - 0: flat; 1: spherical
+        if (mode_in.ne.1)then
+        mode_in = 1
+        write(6,*) 'WARNING: Currently only support fundamental mode!'
+        endif
+        radius = 6371.
+        twopi=6.283185307179586d+00
+        ic=1 
+        mmax = nl_in
+        nsph = iflsph_in
         ipar(1) = nsph
-        fpar(1) = refdep
-        fpar(2) = refdep
+        fpar(1) = refdep_in
+        fpar(2) = refdep_in
+        refdep  = refdep_in
+        mode    = mode_in
+c factor for finer search, can be modifed as input parameters
+        displ   = facl_in
+        dispr   = facr_in
+        
 c-----
 c       set fpar(1) = refdep in flat earth model
 c   ?   set fpar(2) = refdep in original flat or spherical model
@@ -726,20 +557,38 @@ c       set ipar(9)   = 1 if dc/dah are output with -DER flag
 c       set ipar(10)  = 1 if dc/dn are output with -DER flag
 c       set ipar(11)  = 1 if dc/dbh are output with -DER flag
 c-----
+c        do 339 i=1,mmax
+c            d(i) = od(i)
+c            TA(i) = oTA(i)
+c            TC(i) = oTC(i)
+c            TF(i) = oTF(i)
+c            TN(i) = oTN(i)
+c            TL(i) = oTL(i)
+c            Trho(i) = oTrho(i)
+c            if(TN(i).le.1.0e-4*TA(i))then
+c                iwat(i) = 1
+c            else
+c                iwat(i) = 0
+c            endif
+
+C   assign model arrays, LF
         do 339 i=1,mmax
-            d(i) = od(i)
-            TA(i) = oTA(i)
-            TC(i) = oTC(i)
-            TF(i) = oTF(i)
-            TN(i) = oTN(i)
-            TL(i) = oTL(i)
-            Trho(i) = oTrho(i)
+            d(i) = d_in(i)
+            TA(i) = TA_in(i)
+            TC(i) = TC_in(i)
+            TF(i) = TF_in(i)
+            TN(i) = TN_in(i)
+            TL(i) = TL_in(i)
+            Trho(i) = TRho_in(i)
             if(TN(i).le.1.0e-4*TA(i))then
                 iwat(i) = 1
             else
                 iwat(i) = 0
             endif
-C       WRITE(6,*)d(i),TA(i),TC(i),TF(i),TN(i),TL(i),Trho(i),iwat(i)
+
+c   - End of get model            
+
+c        WRITE(6,*)d(i),TA(i),TC(i),TF(i),TN(i),TL(i),Trho(i),iwat(i)
   339   continue
 c-----
 c       d = thickness of layer in kilometers
@@ -755,6 +604,7 @@ c-----
         if(nsph.gt.0)then
             call sphere(ilvry)
         endif
+        if (verby)then
             write(LOT,30)
             write(LOT,40)
             if(nsph.eq.0)then
@@ -769,6 +619,7 @@ c-----
   341       continue
             write(LOT,20) TA(mmax),TC(mmax),TF(mmax),TL(mmax),
      1         TN(mmax),TRho(mmax)
+        endif
 c-----
 c       look at the model, determined the range of velocities
 c       for the SH or P-SV problems
@@ -776,20 +627,26 @@ c-----
         call mdsrch(cmin,cmax,ilvry)
         if(ccmin.gt.0.0)cmin = ccmin
         if(ccmax.gt.0.0)cmax = ccmax
-        write(LOT,*)'cmin,cmax',cmin,cmax
-c-----
-        if(ilvry.eq.1)then
-            write(LOT,*)'Love Computations'
-        else if(ilvry.eq.2)then
-            write(LOT,*)'Rayleigh Computations'
+        if (verby)then
+            write(LOT,*)'cmin,cmax',cmin,cmax
         endif
-        write(LOT,*) ' Number of layers=',mmax,' Maximum modes=',mode
+c-----
+        if (verby)then
+            if(ilvry.eq.1)then
+                write(LOT,*)'Love Computations'
+            else if(ilvry.eq.2)then
+                write(LOT,*)'Rayleigh Computations'
+            endif
+            write(LOT,*) ' Number of layers=',mmax,' Maximum modes=',mode
+        endif
 c-----
 c       read in control parameters.
 c-----
         iret = 1
-        write(LOT,*) ' NPTS=',nn,' DT=',dt,' CMIN=',cmin, ' nfval=',
+        if (verby)then
+            write(LOT,*) ' NPTS=',nn,' DT=',dt,' CMIN=',cmin, ' nfval=',
      1     nfval
+        endif
         df=1./(nn*dt)
         if(nfval.gt.0)then
             kmax = nfval
@@ -799,26 +656,10 @@ c-----
         mmaxx=mmax
         kmaxx=kmax
 c-----
-c       I/O file set up.
+c       I/O file set up. , DELETED !
 c-----
-        if(ilvry.eq.1 )then
-c-----
-c       Love wave
-c-----
-            open(1,file='tdisp96.lov',status='unknown',
-     1          form='unformatted', access='sequential')
-            disp = displ
-        else
-c-----
-c       Rayleigh Wave
-c-----
-            open(1,file='tdisp96.ray',status='unknown',
-     1          form='unformatted', access='sequential')
-            disp = dispr
-        endif
-        rewind 1
-        call ptsmdt(1,mmaxx,d,ta,tc,tf,tl,tn,Trho,qa,qb,kmaxx,
-     1      mname,ipar,fpar)
+
+     
 c-----
 c       The main processing section
 c-----
@@ -884,7 +725,8 @@ c-----
             if(k.eq.1.and.kmode.eq.0) go to 3000
             do 2100 i=1,kmode
                 cp(i)=omega1/dcc(i)
-                write(6,*) cp(i), kmode
+                c_out(ic) = cp(i)
+                ic = ic+1
  2100       continue
             t0=1./t1
 c-----
@@ -918,25 +760,16 @@ c-----
             endif
  2700           continue
 c-----
-c       Output.
+c       Output.DELETED !
 c-----
             ifuncc(ilvry)=ifunc
-C       write(LOT,*)'DISPRS: lmode, kmode, kmodee',
-C     1     lmode, kmode, kmodee
             kmodee=kmode
-        call ptshed(1,ifuncc(ilvry),kmodee,t0)
-C       write(LOT,*) ifuncc(ilvry),kmodee,t0
-            if(kmode.gt.0) then
-            call ptsval(1,cp,kmode)
-C       write(LOT,*) (cp(i),i=1,kmode)
-            endif
  2800   continue
         kmodee=-1
-        call ptshed(1,kmodee,kmodee,t0)
  3000   continue
-        close(1,status='keep')
         return
         end
+        
 c
 c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 c
@@ -1982,7 +1815,7 @@ C       double precision va,vc,cl,vn
 
         common/earth/radius
         real radius
-
+        radius = 6371.
         ar=radius
         r0=ar + refdep
         td(mmax)=1.0
@@ -2001,7 +1834,7 @@ c                SV
 c-----
                  rhosph    = trho(i)
                  trho(i)   = rhosph * tmp**(-2.275)
-
+        
                  ta(i)=ta(i)*tmp**(-0.2750)
                  tc(i)=tc(i)*tmp**(-0.2750)
 C                 tf(i)=tf(i)*tmp**(-0.2750)
@@ -2027,6 +1860,7 @@ C              WRITE(6,*)i,tl(i),vl*vl*trho(i),tn(i),vn*vn*trho(i)
         td(mmax)=0.0
         return
         end
+c End of sphere
 
         subroutine gcmdln(verby,cmin,cmax)
         logical verby

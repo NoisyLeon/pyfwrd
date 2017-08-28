@@ -428,11 +428,15 @@ c
         subroutine disprs(ilvry,dt,nn,iret,
      1          verby,nfval,fval,ccmin,ccmax,
      1      d_in,TA_in,TC_in,TF_in,TL_in,TN_in,TRho_in,
-     1      nl_in, iflsph_in, refdep_in, mode_in, facl_in, facr_in)
+     1      nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in,c_out)
 c-----
 c       search poles in either C-T or F-K domains.
 c       To generate synthetic seismograms, F-K domain searching is
 c       recommended.
+c================================================================
+c        Modified by Lili Feng for pysurf
+c        Aug 28th, 2017  - currently only output fundamental mode
+c================================================================
 c
 c-----
         implicit double precision (a-h,o-z)
@@ -460,7 +464,10 @@ C       Input model arrays, added by LF
         real*8 TL_in(nl_in),TN_in(nl_in),TRho_in(nl_in)
         integer mode_in
         real*8 facl_in, facr_in
-
+c       Output, added by LF
+        real*8 c_out(NPERIOD)
+        integer ic
+        
         common/timod/d(NL),TA(NL),TC(NL),TF(NL),TL(NL),TN(NL),
      1      TRho(NL),
      2      qa(NL),qb(NL),etap(NL),etas(NL), 
@@ -513,9 +520,13 @@ c        fpar(2) = refdep
 
 c   - model information, LF
 c   - iflsph_in - 0: flat; 1: spherical
-c        verby = .true.
+        if (mode_in.ne.1)then
+        mode_in = 1
+        write(6,*) 'WARNING: Currently only support fundamental mode!'
+        endif
         radius = 6371.
         twopi=6.283185307179586d+00
+        ic=1 
         mmax = nl_in
         nsph = iflsph_in
         ipar(1) = nsph
@@ -621,12 +632,12 @@ c-----
         endif
 c-----
         if (verby)then
-        if(ilvry.eq.1)then
-            write(LOT,*)'Love Computations'
-        else if(ilvry.eq.2)then
-            write(LOT,*)'Rayleigh Computations'
-        endif
-        write(LOT,*) ' Number of layers=',mmax,' Maximum modes=',mode
+            if(ilvry.eq.1)then
+                write(LOT,*)'Love Computations'
+            else if(ilvry.eq.2)then
+                write(LOT,*)'Rayleigh Computations'
+            endif
+            write(LOT,*) ' Number of layers=',mmax,' Maximum modes=',mode
         endif
 c-----
 c       read in control parameters.
@@ -645,26 +656,10 @@ c-----
         mmaxx=mmax
         kmaxx=kmax
 c-----
-c       I/O file set up. , DELETE !
+c       I/O file set up. , DELETED !
 c-----
-        if(ilvry.eq.1 )then
-c-----
-c       Love wave
-c-----
-            open(1,file='tdisp96.lov',status='unknown',
-     1          form='unformatted', access='sequential')
-            disp = displ
-        else
-c-----
-c       Rayleigh Wave
-c-----
-            open(1,file='tdisp96.ray',status='unknown',
-     1          form='unformatted', access='sequential')
-            disp = dispr
-        endif
-        rewind 1
-        call ptsmdt(1,mmaxx,d,ta,tc,tf,tl,tn,Trho,qa,qb,kmaxx,
-     1      mname,ipar,fpar)
+
+     
 c-----
 c       The main processing section
 c-----
@@ -730,6 +725,8 @@ c-----
             if(k.eq.1.and.kmode.eq.0) go to 3000
             do 2100 i=1,kmode
                 cp(i)=omega1/dcc(i)
+                c_out(ic) = cp(i)
+                ic = ic+1
  2100       continue
             t0=1./t1
 c-----
@@ -763,25 +760,16 @@ c-----
             endif
  2700           continue
 c-----
-c       Output.
+c       Output.DELETED !
 c-----
             ifuncc(ilvry)=ifunc
-C       write(LOT,*)'DISPRS: lmode, kmode, kmodee',
-C     1     lmode, kmode, kmodee
             kmodee=kmode
-        call ptshed(1,ifuncc(ilvry),kmodee,t0)
-C       write(LOT,*) ifuncc(ilvry),kmodee,t0
-            if(kmode.gt.0) then
-            call ptsval(1,cp,kmode)
-C       write(LOT,*) (cp(i),i=1,kmode)
-            endif
  2800   continue
         kmodee=-1
-        call ptshed(1,kmodee,kmodee,t0)
  3000   continue
-        close(1,status='keep')
         return
         end
+        
 c
 c - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 c

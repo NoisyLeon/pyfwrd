@@ -30,7 +30,10 @@
 #    subroutine disprs(ilvry,dt,nn,iret,mname,
 # 1          verby,nfval,fval,ccmin,ccmax)
 
-import tdisp96
+
+
+
+import tegn96
 import vmodel
 import numpy as np
 model=vmodel.Model1d(modelindex=2)
@@ -42,35 +45,25 @@ TL_in   = model.rhoArr * model.VsvArr**2
 TF_in   = 1.0 * (TA_in - np.float32(2.)* TL_in)
 TN_in   = model.rhoArr * model.VshArr**2
 TRho_in = model.rhoArr
+qai_in  = model.QpArr
+qbi_in  = model.QsArr
+etapi_in= model.etapArr
+etasi_in= model.etasArr
+frefpi_in= model.frefpArr
+frefsi_in= model.frefsArr
 
-
-ilvry = 1
-dt = 1.
-npts = 7
-iret =1
-verby = True
-nfval = 7
-fval  = 1./(np.arange(7)*5.+10.)
-fval  = np.append(fval, np.zeros(2049-nfval))
-ccmin = -1.
-ccmax = -1.
-nl_in = TRho_in.size
-iflsph_in = 1 # 0 flat, 1: love, 2: rayleigh
-refdep_in = 0.
-nmode = 1
-# 
-# 
-cout=tdisp96.disprs(ilvry,dt,npts,iret,verby, nfval,fval,ccmin,ccmax,\
+hs_in=0.
+hr_in=0.
+ohr_in=0.
+ohs_in=0.
+refdep_in=0.
+nl_in = model.HArr.size
+iflsph_in = 0
+mode_in=np.ones(7)
+Nt_in=7
+t_in = (np.arange(7)*5.+10.)
+cp_in = np.array([ 3.50507307,  3.64215541,  3.78464317,  3.92029595,  4.03891897,
+        4.13657808,  4.21457863])
+tegn96.tregn96(hs_in, hr_in, ohr_in,ohs_in, refdep_in, nl_in, iflsph_in,\
                d_in,TA_in,TC_in,TF_in,TL_in,TN_in,TRho_in,\
-               nl_in, iflsph_in, refdep_in, nmode, 0.5, 0.5)
-
-
-# real*8 dimension(nl_in),depend(nl_in) :: d_in
-# real*8 dimension(nl_in),depend(nl_in) :: ta_in
-# real*8 dimension(nl_in),depend(nl_in) :: tc_in
-# real*8 dimension(nl_in),depend(nl_in) :: tf_in
-# real*8 dimension(nl_in),depend(nl_in) :: tl_in
-# real*8 dimension(nl_in),depend(nl_in) :: tn_in
-# real*8 dimension(nl_in),depend(nl_in) :: trho_in
-# integer, intent(in) :: nl_in
-
+               qai_in,qbi_in,etapi_in,etasi_in,frefpi_in,frefsi_in, mode_in, t_in, Nt_in, cp_in)

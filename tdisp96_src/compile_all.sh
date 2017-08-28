@@ -1,7 +1,7 @@
 ####################
 ## copy subs code
 ####################
-cps_subs_dir='/home/lili/code/PROGRAMS.330/SUBS'
+cps_subs_dir='/home/leon/code/PROGRAMS.330/SUBS'
 
 #cp $cps_subs_dir/f2csub.f .
 #cp $cps_subs_dir/f96subf.f .
