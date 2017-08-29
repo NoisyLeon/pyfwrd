@@ -17,7 +17,7 @@ c----------------------------------------------------------------------c
 c
 c
 c     This program calculates the group velocity and partial
-c     derivatives of Rayleigh waves for any plane multi-layered TI
+c     derivatives of Love waves for any plane multi-layered TI
 c     model.  The propagator-matrix, instead of numerical-
 c     integration method is used.
 c     than Harkrider formalisms are concerned.
@@ -43,14 +43,11 @@ c                     migration to TI.
 c                     explicit none
 c       20 MAR 2012 - corrected compiler warnings
 c- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        subroutine tregn96(hs_in,hr_in,
-     1      ohr_in,ohs_in, refdep_in, dogam_in, nl_in, iflsph_in,
+        subroutine tregn96(hs_in,hr_in,dogam_in,
+     1      ohr_in,ohs_in, refdep_in, nl_in, iflsph_in,
      1      d_in,TA_in,TC_in,TF_in,TL_in,TN_in,TRho_in,
      1      qai_in,qbi_in,etapi_in,etasi_in,frefpi_in,frefsi_in,
-     1      Nt_in, t_in,cp_in, u_out,
-     1      ur_out, tur_out, uz_out, tuz_out,
-     1      dcdh_out,dcdav_out,dcdah_out,
-     1      dcdbv_out,dcdbh_out,dcdn_out,dcdr_out)
+     1      mode_in, t_in, Nt_in,cp_in)
         
         implicit none
 c-----
@@ -162,28 +159,18 @@ c   Input arrays, added by LF
         real*4 t_in(Nt_in),cp_in(Nt_in)
         integer Nt_in, idisp
         logical dogam_in
-c   Output arrays
-        real*8 u_out(Nt_in)
-        real*8 ur_out(2049,200), tur_out(2049,200), uz_out(2049,200)
-        real*8 tuz_out(2049,200)
-        real*8 dcdh_out(2049,200),dcdav_out(2049,200)
-        real*8 dcdah_out(2049,200),dcdn_out(2049,200)
-        real*8 dcdbv_out(2049,200),dcdbh_out(2049,200)
-        real*8 dcdr_out(2049,200)
-     
+
 c-----
 c       machine dependent initialization
 c-----
         call mchdep()
 c-----
-c       parse command line information
+c       parse command line information, DELETED
 c-----
-
-cc        call gcmdln(hsfile,hrfile,hs,hr,dotmp,dogam,dderiv,
-cc     1      nipar,verbose)
+        dotmp=.false.
+        dderiv=.false.
         verbose = .false.
-        dogam   = dogam_in
-        dderiv  = .true.
+        dogam=dogam_in
         nipar(4) = 1
         nipar(5) = 1
         nipar(6) = 1
@@ -192,6 +179,12 @@ cc     1      nipar,verbose)
         nipar(9) = 1
         nipar(10) = 1
         nipar(11) = 1
+        
+c        nipar,verbose
+
+cc        call gcmdln(hsfile,hrfile,hs,hr,dotmp,dogam,dderiv,
+cc     1      nipar,verbose)
+        
         
 c-----
 c       wired in file names     - output of this program 
@@ -400,12 +393,12 @@ c       Currently only support fundamental mode!
 c mode_in(idisp)
         mode  = 1
         t     = t_in(idisp)
+        idisp = idisp+1
         if (idisp.gt.Nt_in)then
             ierr=200
         else
             ierr=0
         endif
-        idisp = idisp+1
         if(ierr.ne.0)go to 700
         s1=t
 c-----
@@ -425,7 +418,7 @@ c COMMENTED
 c        read(1) (cp(k),k=1,mode)
         
         do 600 k=1,mode
-                c=cp_in(idisp-1)
+                c=cp_in(idisp)
 c-----
 c       main part.
 c-----
@@ -474,12 +467,9 @@ c           of the original model
 c-----
                 call sprayl(omega,c,mmaxot,csph,usph,ugr)
                 wvno = omega / csph
-                u_out(idisp-1) = usph 
-            else
-                    u_out(idisp-1) = ugr 
+
             endif
-c            WRITE(6,*)'c(flat)=',c,' u(flat)=',ugr, idisp, Nt_in
-            u_out(idisp-1) = ugr 
+            WRITE(6,*)'c(flat)=',c,' u(flat)=',ugr
 
 C STOP HERE
 c-----
@@ -600,37 +590,15 @@ c-----
                 sdcdh(i) = sum
   505       continue
             sdcdh(mmaxot) = 0.0
-            
-c subroutine putdrt(lun,lorr,wvno,u,gamma,
-c     1      sur,sdur,sd2ur,suz,sduz,sd2uz,sare,wvnsrc,sur0,
-c     2      rur,rtr,ruz,rtz,rare,wvnrec,rur0,
-c     3      sumkr,sumgr,sumgv,mmax,dcdh,
-c     4      dcdav,dcdah, dcdbv, dcdbh, dcdn,dcdr,
-c     5      ur,tur,uz,tuz,ipar)
-            
-C   - OUTPUT eigenfunctions/kernels, COMMENTED!
-c            call putdrt(2,6,sngl(wvno),sngl(ugr), 
-c     1          sngl(gammar), 
-c     1          sur,sdur,sd2ur,suz,sduz,sd2uz,sare,wvnsrc,sur0,
-c     2          rur,rtr,ruz,rtz,rare,wvnrec,rur0,
-c     3          sumkr,sumgr,sumgv,mmaxot,
-c     4          sdcdh,sdcdav,sdcdah,sdcdbv,sdcdbh,sdcdn,sdcdr,
-c     5          spur,sptr,spuz,sptz,ipar)
 
-        do 559 i=1,mmaxot
-            ur_out(idisp-1, i)=spur(i)
-            tur_out(idisp-1, i)=sptr(i)
-            uz_out(idisp-1, i)=spuz(i)
-            tuz_out(idisp-1, i)=sptz(i)
-            dcdh_out(idisp-1, i)=sdcdh(i)
-            dcdav_out(idisp-1, i)=sdcdav(i)
-            dcdah_out(idisp-1, i)=sdcdah(i)
-            dcdbv_out(idisp-1, i)=sdcdbv(i)
-            dcdbh_out(idisp-1, i)=sdcdbh(i)
-            dcdn_out(idisp-1, i)=sdcdn(i)
-            dcdr_out(idisp-1, i)=sdcdr(i)
-  559       continue
-        
+
+            call putdrt(2,6,sngl(wvno),sngl(ugr), 
+     1          sngl(gammar), 
+     1          sur,sdur,sd2ur,suz,sduz,sd2uz,sare,wvnsrc,sur0,
+     2          rur,rtr,ruz,rtz,rare,wvnrec,rur0,
+     3          sumkr,sumgr,sumgv,mmaxot,
+     4          sdcdh,sdcdav,sdcdah,sdcdbv,sdcdbh,sdcdn,sdcdr,
+     5          spur,sptr,spuz,sptz,ipar)
         else
 C  7 sur = 0
 C  8 sdur NaN
@@ -639,14 +607,12 @@ C  10 sduz NaN
 C  11 rur 0
 C  12 rtr 0
 C  13 ruz 0
-C  14 rtz   0
-
-C   - OUTPUT eigenfunctions, COMMENTED!
-c            call putegn(2,2,1,sngl(wvno),sngl(ugr),
-c     1          sngl(gammar),
-c     1          sur,sdur,suz,sduz,sare,wvnsrc,sur0,
-c     2          rur,rtr,ruz,rtz,rare,wvnrec,rur0,
-c     3          sumkr,sumgr,sumgv)
+C  14 rtz   0 
+            call putegn(2,2,1,sngl(wvno),sngl(ugr),
+     1          sngl(gammar),
+     1          sur,sdur,suz,sduz,sare,wvnsrc,sur0,
+     2          rur,rtr,ruz,rtz,rare,wvnrec,rur0,
+     3          sumkr,sumgr,sumgv)
         endif
 c-----
 c       DEBUG OUTPUT

@@ -33,7 +33,7 @@
 
 
 
-import tegn96
+import tlegn96
 import vmodel
 import numpy as np
 model=vmodel.Model1d(modelindex=2)
@@ -59,11 +59,12 @@ ohs_in=0.
 refdep_in=0.
 nl_in = model.HArr.size
 iflsph_in = 0
-mode_in=np.ones(7)
+mode_in=np.ones(7, dtype=np.int)
 Nt_in=7
 t_in = (np.arange(7)*5.+10.)
-cp_in = np.array([ 3.50507307,  3.64215541,  3.78464317,  3.92029595,  4.03891897,
-        4.13657808,  4.21457863])
-tegn96.tregn96(hs_in, hr_in, ohr_in,ohs_in, refdep_in, nl_in, iflsph_in,\
+cp_in = np.array([ 3.61031318,  3.73016572,  3.85718274,  3.97710991,  4.08013439,
+        4.16317844,  4.22794294])
+dogam=False
+u_out,ut, tut,dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr=tlegn96.tlegn96(hs_in, hr_in, ohr_in,ohs_in, refdep_in,dogam, nl_in, iflsph_in,\
                d_in,TA_in,TC_in,TF_in,TL_in,TN_in,TRho_in,\
-               qai_in,qbi_in,etapi_in,etasi_in,frefpi_in,frefsi_in, mode_in, t_in, Nt_in, cp_in)
+               qai_in,qbi_in,etapi_in,etasi_in,frefpi_in,frefsi_in, Nt_in, t_in, cp_in)

@@ -1,0 +1,1276 @@
+rmbadname1: Replacing "string" with "string_bn".
+analyzevars: character array "character*12 fname(2)" is considered as "character fname(2,12)"; "intent(c)" is forced.
+analyzevars: character array "character*12 fname(2)" is considered as "character fname(2,12)"; "intent(c)" is forced.
+Reading fortran codes...
+	Reading file 'tregn96_subroutine.f' (format:fix,strict)
+	Reading file 'tlegn96_subroutine.f' (format:fix,strict)
+	Reading file 'mnmarg.f' (format:fix,strict)
+	Reading file 'mgtarg.f' (format:fix,strict)
+	Reading file 'lgstr.f' (format:fix,strict)
+	Reading file 'tio.f' (format:fix,strict)
+	Reading file 'mchdep.f' (format:fix,strict)
+	Reading file 'tgetmod.f' (format:fix,strict)
+Post-processing...
+	Block: tegn96
+			Block: tregn96
+			Block: insert
+			Block: srclyr
+			Block: gcmdln
+			Block: usage
+			Block: collap
+{}
+In: :tegn96:tregn96_subroutine.f:chksiz
+vars2fortran: No typespec for argument "mmaxot".
+			Block: chksiz
+			Block: sprayl
+			Block: bldsph
+			Block: ffunc
+			Block: gfunc
+			Block: h1func
+			Block: h2func
+			Block: cnormc
+			Block: rnormc
+			Block: svfunc
+			Block: up
+			Block: dnka
+			Block: evalg
+			Block: gettiegn
+			Block: varsv
+			Block: hska
+			Block: down
+			Block: gammap
+			Block: energy
+			Block: getmat
+			Block: intijr
+			Block: getdcdh
+			Block: tlegn96
+{}
+In: :tegn96:tlegn96_subroutine.f:shfunc
+vars2fortran: No typespec for argument "omega".
+{}
+In: :tegn96:tlegn96_subroutine.f:shfunc
+vars2fortran: No typespec for argument "wvno".
+			Block: shfunc
+{}
+In: :tegn96:tlegn96_subroutine.f:up
+vars2fortran: No typespec for argument "fl".
+			Block: up
+{}
+In: :tegn96:tlegn96_subroutine.f:energy
+vars2fortran: No typespec for argument "eut".
+{}
+In: :tegn96:tlegn96_subroutine.f:energy
+vars2fortran: No typespec for argument "edut".
+{}
+In: :tegn96:tlegn96_subroutine.f:energy
+vars2fortran: No typespec for argument "ed2ut".
+{}
+In: :tegn96:tlegn96_subroutine.f:energy
+vars2fortran: No typespec for argument "eut0".
+{}
+In: :tegn96:tlegn96_subroutine.f:energy
+vars2fortran: No typespec for argument "ett0".
+{}
+In: :tegn96:tlegn96_subroutine.f:energy
+vars2fortran: No typespec for argument "lss".
+{}
+In: :tegn96:tlegn96_subroutine.f:energy
+vars2fortran: No typespec for argument "lrr".
+			Block: energy
+			Block: insert
+			Block: srclyr
+			Block: gammaq
+			Block: splove
+			Block: bldsph
+			Block: gcmdln
+			Block: usage
+			Block: collap
+			Block: chksiz
+			Block: varsh
+			Block: hskl
+			Block: gtesh
+			Block: gtegsh
+			Block: ffunc
+			Block: gfunc
+			Block: intij
+			Block: mnmarg
+			Block: mgtarg
+			Block: lgstr
+			Block: gtshed
+			Block: ptshed
+			Block: gtsval
+			Block: ptsval
+{}
+In: :tegn96:tio.f:gethed
+vars2fortran: No typespec for argument "lun".
+{}
+In: :tegn96:tio.f:gethed
+vars2fortran: No typespec for argument "ifunc".
+{}
+In: :tegn96:tio.f:gethed
+vars2fortran: No typespec for argument "kmode".
+{}
+In: :tegn96:tio.f:gethed
+vars2fortran: No typespec for argument "t0".
+{}
+In: :tegn96:tio.f:gethed
+vars2fortran: No typespec for argument "ierr".
+			Block: gethed
+{}
+In: :tegn96:tio.f:puthed
+vars2fortran: No typespec for argument "lun".
+{}
+In: :tegn96:tio.f:puthed
+vars2fortran: No typespec for argument "ifunc".
+{}
+In: :tegn96:tio.f:puthed
+vars2fortran: No typespec for argument "kmode".
+			Block: puthed
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "lun".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "lorr".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "intext".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "wvno".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "u".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "gamma".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "sur".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "sdur".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "suz".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "sduz".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "sare".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "wvnsrc".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "sur0".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "rur".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "rtr".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "ruz".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "rtz".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "rare".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "wvnrec".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "rur0".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "sumkr".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "sumgr".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "sumgv".
+{}
+In: :tegn96:tio.f:getegn
+vars2fortran: No typespec for argument "ierr".
+			Block: getegn
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "lun".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "lorr".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "intext".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "wvno".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "u".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "gamma".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "sur".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "sdur".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "suz".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "sduz".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "sare".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "wvnsrc".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "sur0".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "rur".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "rtr".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "ruz".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "rtz".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "rare".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "wvnrec".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "rur0".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "sumkr".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "sumgr".
+{}
+In: :tegn96:tio.f:putegn
+vars2fortran: No typespec for argument "sumgv".
+			Block: putegn
+			Block: gtsmdt
+			Block: ptsmdt
+{}
+In: :tegn96:tio.f:getmdt
+vars2fortran: No typespec for argument "lun".
+{}
+In: :tegn96:tio.f:getmdt
+vars2fortran: No typespec for argument "mmax".
+{}
+In: :tegn96:tio.f:getmdt
+vars2fortran: No typespec for argument "nper".
+{}
+In: :tegn96:tio.f:getmdt
+vars2fortran: No typespec for argument "dphs".
+{}
+In: :tegn96:tio.f:getmdt
+vars2fortran: No typespec for argument "dphr".
+			Block: getmdt
+{}
+In: :tegn96:tio.f:putmdt
+vars2fortran: No typespec for argument "lun".
+{}
+In: :tegn96:tio.f:putmdt
+vars2fortran: No typespec for argument "mmax".
+{}
+In: :tegn96:tio.f:putmdt
+vars2fortran: No typespec for argument "nper".
+{}
+In: :tegn96:tio.f:putmdt
+vars2fortran: No typespec for argument "dphs".
+{}
+In: :tegn96:tio.f:putmdt
+vars2fortran: No typespec for argument "dphr".
+			Block: putmdt
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "lun".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "lorr".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "wvno".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "u".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "gamma".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "sur".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "sdur".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "sd2ur".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "suz".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "sduz".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "sd2uz".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "sare".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "wvnsrc".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "sur0".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "rur".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "rtr".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "ruz".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "rtz".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "rare".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "wvnrec".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "rur0".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "sumkr".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "sumgr".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "sumgv".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "ierr".
+{}
+In: :tegn96:tio.f:getdrt
+vars2fortran: No typespec for argument "mmax".
+			Block: getdrt
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "lun".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "lorr".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "wvno".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "u".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "gamma".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "sur".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "sdur".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "sd2ur".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "suz".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "sduz".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "sd2uz".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "sare".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "wvnsrc".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "sur0".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "rur".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "rtr".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "ruz".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "rtz".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "rare".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "wvnrec".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "rur0".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "sumkr".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "sumgr".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "sumgv".
+{}
+In: :tegn96:tio.f:putdrt
+vars2fortran: No typespec for argument "mmax".
+			Block: putdrt
+			Block: mchdep
+			Block: getmod
+Post-processing (stage 2)...
+Saving signatures to file "./tegn96.pyf"
+running build
+running config_cc
+unifing config_cc, config, build_clib, build_ext, build commands --compiler options
+running config_fc
+unifing config_fc, config, build_clib, build_ext, build commands --fcompiler options
+running build_src
+build_src
+building extension "tegn96" sources
+creating /tmp/tmpDCpzVv/src.linux-x86_64-2.7
+f2py options: []
+f2py: tegn96.pyf
+Reading fortran codes...
+	Reading file 'tegn96.pyf' (format:free)
+Post-processing...
+	Block: tegn96
+			Block: tregn96
+			Block: insert
+			Block: srclyr
+			Block: gcmdln
+			Block: usage
+			Block: collap
+			Block: chksiz
+			Block: sprayl
+			Block: bldsph
+			Block: ffunc
+			Block: gfunc
+			Block: h1func
+			Block: h2func
+			Block: cnormc
+			Block: rnormc
+			Block: svfunc
+			Block: up
+			Block: dnka
+			Block: evalg
+			Block: gettiegn
+			Block: varsv
+			Block: hska
+			Block: down
+			Block: gammap
+			Block: energy
+			Block: getmat
+			Block: intijr
+			Block: getdcdh
+			Block: tlegn96
+			Block: shfunc
+			Block: up
+			Block: energy
+			Block: insert
+			Block: srclyr
+			Block: gammaq
+			Block: splove
+			Block: bldsph
+			Block: gcmdln
+			Block: usage
+			Block: collap
+			Block: chksiz
+			Block: varsh
+			Block: hskl
+			Block: gtesh
+			Block: gtegsh
+			Block: ffunc
+			Block: gfunc
+			Block: intij
+			Block: mnmarg
+			Block: mgtarg
+			Block: lgstr
+			Block: gtshed
+			Block: ptshed
+			Block: gtsval
+			Block: ptsval
+			Block: gethed
+			Block: puthed
+			Block: getegn
+			Block: putegn
+			Block: gtsmdt
+			Block: ptsmdt
+			Block: getmdt
+			Block: putmdt
+			Block: getdrt
+			Block: putdrt
+			Block: mchdep
+			Block: getmod
+Post-processing (stage 2)...
+Building modules...
+	Building module "tegn96"...
+		Constructing wrapper function "tregn96"...
+		  tregn96(hs_in,hr_in,ohr_in,ohs_in,refdep_in,dogam_in,iflsph_in,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,qai_in,qbi_in,etapi_in,etasi_in,frefpi_in,frefsi_in,t_in,cp_in,u_out,ur_out,tur_out,uz_out,tuz_out,dcdh_out,dcdav_out,dcdah_out,dcdbv_out,dcdbh_out,dcdn_out,dcdr_out,[nl_in,nt_in])
+		Constructing wrapper function "insert"...
+		  insert(dph,newlyr,ls)
+		Constructing wrapper function "srclyr"...
+		  srclyr(depth,lmax)
+		Constructing wrapper function "gcmdln"...
+		  gcmdln(hsfile,hrfile,hs,hr,dotmp,dogam,dderiv,nipar,verbose)
+		Constructing wrapper function "usage"...
+		  usage(ostr)
+		Constructing wrapper function "collap"...
+		  collap(ls,mmaxot)
+		Constructing wrapper function "chksiz"...
+		  chksiz(dp,sp,[mmaxot])
+		Constructing wrapper function "sprayl"...
+		  sprayl(om,c,mmax,csph,usph,ugr)
+		Constructing wrapper function "bldsph"...
+		  bldsph()
+		Creating wrapper for Fortran function "ffunc"("ffunc")...
+		Constructing wrapper function "ffunc"...
+		  ffunc = ffunc(nub,dm)
+		Creating wrapper for Fortran function "gfunc"("gfunc")...
+		Constructing wrapper function "gfunc"...
+		  gfunc = gfunc(nub,dm)
+		Creating wrapper for Fortran function "h1func"("h1func")...
+		Constructing wrapper function "h1func"...
+		  h1func = h1func(nua,nub,dm)
+		Creating wrapper for Fortran function "h2func"("h2func")...
+		Constructing wrapper function "h2func"...
+		  h2func = h2func(nua,nub,dm)
+		Constructing wrapper function "cnormc"...
+		  cnormc(ee,ex,[nmat])
+		Constructing wrapper function "rnormc"...
+		  rnormc(ee,ex,[nmat])
+		Constructing wrapper function "svfunc"...
+		  svfunc(omega,wvno)
+		Constructing wrapper function "up"...
+		  up(omega,wvno,fr)
+		Constructing wrapper function "dnka"...
+		  dnka(ca,cosp,rsinp,sinpr,cossv,rsinsv,sinsvr,np,nsv,x11,x21,x31,x41,x12,x22,x32,x42,trho,iwat,ex,om2)
+		Constructing wrapper function "evalg"...
+		  evalg(jbdry,m,m1,gbr,indx,wvno,om,om2,wvno2)
+		Constructing wrapper function "gettiegn"...
+		  gettiegn(a,b,c,d,e,f,omega2,wvno2,rp,rsv,x11,x21,x31,x41,x12,x22,x32,x42,np,nsv,m,omg,wvn,atna,atnb)
+		Constructing wrapper function "varsv"...
+		  varsv(p,q,rp,rsv,cosp,cosq,rsinp,rsinq,sinpr,sinqr,pex,svex,iwat,dm)
+		Constructing wrapper function "hska"...
+		  hska(aa,tcosp,trsinp,tsinpr,tcossv,trsinsv,tsinsvr,np,nsv,x11,x21,x31,x41,x12,x22,x32,x42,trho,iwat,ex,om2)
+		Constructing wrapper function "down"...
+		  down(omega,wvno)
+		Constructing wrapper function "gammap"...
+		  gammap(omega,wvno,gammar)
+		Constructing wrapper function "energy"...
+		  energy(om,wvno,mmax)
+		Constructing wrapper function "getmat"...
+		  getmat(m,wvno,om,a12,a14,a21,a23,ah,av,bh,bv,eta,rho,ta,tc,tf,tl,tn,iwat)
+		Creating wrapper for Fortran function "intijr"("intijr")...
+		Constructing wrapper function "intijr"...
+		  intijr = intijr(i,j,m,typelyr,om,om2,wvno,wvno2)
+		Constructing wrapper function "getdcdh"...
+		  getdcdh(om2,wvno,wvno2,fac)
+		Constructing wrapper function "tlegn96"...
+		  tlegn96(hs_in,hr_in,ohr_in,ohs_in,refdep_in,dogam_in,iflsph_in,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,qai_in,qbi_in,etapi_in,etasi_in,frefpi_in,frefsi_in,t_in,cp_in,u_out,ur_out,tur_out,uz_out,tuz_out,dcdh_out,dcdav_out,dcdah_out,dcdbv_out,dcdbh_out,dcdn_out,dcdr_out,[nl_in,nt_in])
+		Constructing wrapper function "shfunc"...
+		  shfunc(omega,wvno)
+		Constructing wrapper function "up"...
+		  up(omega,wvno,fr)
+		Constructing wrapper function "energy"...
+		  energy(om,wvno,mmax)
+		Constructing wrapper function "insert"...
+		  insert(dph,newlyr,ls)
+		Constructing wrapper function "srclyr"...
+		  srclyr(depth,lmax)
+		Constructing wrapper function "gammaq"...
+		  gammaq(omega,wvno,gammal)
+		Constructing wrapper function "splove"...
+		  splove(om,c,mmax,csph,usph,ugr)
+		Constructing wrapper function "bldsph"...
+		  bldsph()
+		Constructing wrapper function "gcmdln"...
+		  gcmdln(hsfile,hrfile,hs,hr,dotmp,dogam,dderiv,nipar,verbose)
+		Constructing wrapper function "usage"...
+		  usage(ostr)
+		Constructing wrapper function "collap"...
+		  collap(ls,mmaxot)
+		Constructing wrapper function "chksiz"...
+		  chksiz(dp,sp,[mmaxot])
+		Constructing wrapper function "varsh"...
+		  varsh(h,rsh,lshimag,cossh,rsinsh,sinshr,ex)
+		Constructing wrapper function "hskl"...
+		  hskl(cossh,rsinsh,sinshr,tl,iwat,hl,exm,exe)
+		Constructing wrapper function "gtesh"...
+		  gtesh(esh,einvsh,rsh,wvno,l,lshimag,ltrueinv,iwat)
+		Constructing wrapper function "gtegsh"...
+		  gtegsh(m,wvno,omega,rsh,lshimag)
+		Creating wrapper for Fortran function "ffunc"("ffunc")...
+		Constructing wrapper function "ffunc"...
+		  ffunc,ffunc = ffunc(nub,dm)
+		Creating wrapper for Fortran function "gfunc"("gfunc")...
+		Constructing wrapper function "gfunc"...
+		  gfunc,gfunc = gfunc(nub,dm)
+		Creating wrapper for Fortran function "intij"("intij")...
+		Constructing wrapper function "intij"...
+		  intij = intij(i,j,fb,gb,km1dn,kmup,esh)
+		Creating wrapper for Fortran function "mnmarg"("mnmarg")...
+		Constructing wrapper function "mnmarg"...
+		  mnmarg = mnmarg()
+		Constructing wrapper function "mgtarg"...
+		  mgtarg(i,name)
+		Creating wrapper for Fortran function "lgstr"("lgstr")...
+		Constructing wrapper function "lgstr"...
+		  lgstr = lgstr(str)
+		Constructing wrapper function "gtshed"...
+		  gtshed(lun,ifunc,kmode,t0,ierr)
+		Constructing wrapper function "ptshed"...
+		  ptshed(lun,ifunc,kmode,t0)
+		Constructing wrapper function "gtsval"...
+		  gtsval(lun,cp,kmode,ierr)
+		Constructing wrapper function "ptsval"...
+		  ptsval(lun,cp,kmode)
+		Constructing wrapper function "gethed"...
+		  gethed(lun,ifunc,kmode,t0,ierr)
+		Constructing wrapper function "puthed"...
+		  puthed(lun,ifunc,kmode,t0)
+		Constructing wrapper function "getegn"...
+		  getegn(lun,lorr,intext,wvno,u,gamma,sur,sdur,suz,sduz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv,ierr)
+		Constructing wrapper function "putegn"...
+		  putegn(lun,lorr,intext,wvno,u,gamma,sur,sdur,suz,sduz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv)
+		Constructing wrapper function "gtsmdt"...
+		  gtsmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,mname,ipar,fpar)
+		Constructing wrapper function "ptsmdt"...
+		  ptsmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,mname,ipar,fpar)
+		Constructing wrapper function "getmdt"...
+		  getmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,dphs,dphr,mname,ipar,fpar)
+		Constructing wrapper function "putmdt"...
+		  putmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,dphs,dphr,mname,ipar,fpar)
+		Constructing wrapper function "getdrt"...
+		  getdrt(lun,lorr,wvno,u,gamma,sur,sdur,sd2ur,suz,sduz,sd2uz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv,ierr,mmax,dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr,ur,tur,uz,tuz,ipar)
+		Constructing wrapper function "putdrt"...
+		  putdrt(lun,lorr,wvno,u,gamma,sur,sdur,sd2ur,suz,sduz,sd2uz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv,mmax,dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr,ur,tur,uz,tuz,ipar)
+		Constructing wrapper function "mchdep"...
+		  mchdep()
+		Constructing wrapper function "getmod"...
+		  getmod(rlun,mname,mmax,title,iunit,iiso,iflsph,idimen,icnvel,ierr,listmd)
+		Constructing COMMON block support for "timod"...
+		  zd,zta,ztc,ztf,ztl,ztn,zrho,zqai,zqbi,zetap,zetas,zfrefp,zfrefs
+		Constructing COMMON block support for "pari"...
+		  mmax
+		Constructing COMMON block support for "wateri"...
+		  iwat
+		Constructing COMMON block support for "sphere"...
+		  vtp,dtp,rtp
+		Constructing COMMON block support for "eigfun"...
+		  ur,uz,tz,tr,uu0,dcdah,dcdav,dcdbh,dcdbv,dcdn,dcdr,dcdh
+		Constructing COMMON block support for "timodel"...
+		  d,ta,tc,tl,tn,tf,trho,qai,qbi,etapi,etasi,frefpi,frefsi
+		Constructing COMMON block support for "depref"...
+		  refdep
+		Constructing COMMON block support for "sumi"...
+		  sumi0,sumi1,sumi2,sumi3,flagr,are,ugr
+		Constructing COMMON block support for "modspec"...
+		  allfluid
+		Constructing COMMON block support for "dunk"...
+		  cd,exe,exa
+		Constructing COMMON block support for "hask"...
+		  vv
+		Constructing COMMON block support for "hwat"...
+		  wh,hex
+		Constructing COMMON block support for "aamatx"...
+		  ww,xx,yy,zz,cospp,cosqq
+		Constructing COMMON block support for "save"...
+		  dd,aa,ex1,ex2
+		Constructing COMMON block support for "engerw"...
+		  wra,wd,wba
+		Constructing COMMON block support for "modlly"...
+		  mmax
+		Constructing COMMON block support for "emat"...
+		  e,einv,ra,rb
+		Constructing COMMON block support for "water"...
+		  iwat
+	Wrote C/API module "tegn96" to file "/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c"
+	Fortran 77 wrappers are saved to "/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96-f2pywrappers.f"
+  adding '/tmp/tmpDCpzVv/src.linux-x86_64-2.7/fortranobject.c' to sources.
+  adding '/tmp/tmpDCpzVv/src.linux-x86_64-2.7' to include_dirs.
+copying /home/leon/anaconda2/lib/python2.7/site-packages/numpy/f2py/src/fortranobject.c -> /tmp/tmpDCpzVv/src.linux-x86_64-2.7
+copying /home/leon/anaconda2/lib/python2.7/site-packages/numpy/f2py/src/fortranobject.h -> /tmp/tmpDCpzVv/src.linux-x86_64-2.7
+  adding '/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96-f2pywrappers.f' to sources.
+build_src: building npy-pkg config files
+running build_ext
+customize UnixCCompiler
+customize UnixCCompiler using build_ext
+customize Gnu95FCompiler
+Found executable /home/leon/anaconda2/bin/gfortran
+customize Gnu95FCompiler
+customize Gnu95FCompiler using build_ext
+building 'tegn96' extension
+compiling C sources
+C compiler: gcc -pthread -fno-strict-aliasing -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -fPIC
+
+creating /tmp/tmpDCpzVv/tmp
+creating /tmp/tmpDCpzVv/tmp/tmpDCpzVv
+creating /tmp/tmpDCpzVv/tmp/tmpDCpzVv/src.linux-x86_64-2.7
+compile options: '-I/tmp/tmpDCpzVv/src.linux-x86_64-2.7 -I/home/leon/anaconda2/lib/python2.7/site-packages/numpy/core/include -I/home/leon/anaconda2/include/python2.7 -c'
+gcc: /tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c
+In file included from /home/leon/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1777:0,
+                 from /home/leon/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/ndarrayobject.h:18,
+                 from /home/leon/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/arrayobject.h:4,
+                 from /tmp/tmpDCpzVv/src.linux-x86_64-2.7/fortranobject.h:13,
+                 from /tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:19:
+/home/leon/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:15:2: warning: #warning "Using deprecated NumPy API, disable it by " "#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-Wcpp]
+ #warning "Using deprecated NumPy API, disable it by " \
+  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:155:28: error: conflicting types for ‘f2pywrapffunc_’
+ #define F_WRAPPEDFUNC(f,F) f2pywrap##f##_
+                            ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:480:13: note: in expansion of macro ‘F_WRAPPEDFUNC’
+ extern void F_WRAPPEDFUNC(ffunc,FFUNC)(complex_double*,complex_double*,complex_double*,double*);
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:155:28: note: previous declaration of ‘f2pywrapffunc_’ was here
+ #define F_WRAPPEDFUNC(f,F) f2pywrap##f##_
+                            ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:444:13: note: in expansion of macro ‘F_WRAPPEDFUNC’
+ extern void F_WRAPPEDFUNC(ffunc,FFUNC)(complex_double*,complex_double*,double*);
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:155:28: error: conflicting types for ‘f2pywrapgfunc_’
+ #define F_WRAPPEDFUNC(f,F) f2pywrap##f##_
+                            ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:481:13: note: in expansion of macro ‘F_WRAPPEDFUNC’
+ extern void F_WRAPPEDFUNC(gfunc,GFUNC)(complex_double*,complex_double*,complex_double*,double*);
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:155:28: note: previous declaration of ‘f2pywrapgfunc_’ was here
+ #define F_WRAPPEDFUNC(f,F) f2pywrap##f##_
+                            ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:445:13: note: in expansion of macro ‘F_WRAPPEDFUNC’
+ extern void F_WRAPPEDFUNC(gfunc,GFUNC)(complex_double*,complex_double*,double*);
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5194:13: error: redefinition of ‘doc_f2py_rout_tegn96_up’
+ static char doc_f2py_rout_tegn96_up[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2591:13: note: previous definition of ‘doc_f2py_rout_tegn96_up’ was here
+ static char doc_f2py_rout_tegn96_up[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5201:18: error: redefinition of ‘f2py_rout_tegn96_up’
+ static PyObject *f2py_rout_tegn96_up(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2598:18: note: previous definition of ‘f2py_rout_tegn96_up’ was here
+ static PyObject *f2py_rout_tegn96_up(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5278:13: error: redefinition of ‘doc_f2py_rout_tegn96_energy’
+ static char doc_f2py_rout_tegn96_energy[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:3894:13: note: previous definition of ‘doc_f2py_rout_tegn96_energy’ was here
+ static char doc_f2py_rout_tegn96_energy[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5285:18: error: redefinition of ‘f2py_rout_tegn96_energy’
+ static PyObject *f2py_rout_tegn96_energy(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:3901:18: note: previous definition of ‘f2py_rout_tegn96_energy’ was here
+ static PyObject *f2py_rout_tegn96_energy(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5362:13: error: redefinition of ‘doc_f2py_rout_tegn96_insert’
+ static char doc_f2py_rout_tegn96_insert[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1220:13: note: previous definition of ‘doc_f2py_rout_tegn96_insert’ was here
+ static char doc_f2py_rout_tegn96_insert[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5369:18: error: redefinition of ‘f2py_rout_tegn96_insert’
+ static PyObject *f2py_rout_tegn96_insert(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1227:18: note: previous definition of ‘f2py_rout_tegn96_insert’ was here
+ static PyObject *f2py_rout_tegn96_insert(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5447:13: error: redefinition of ‘doc_f2py_rout_tegn96_srclyr’
+ static char doc_f2py_rout_tegn96_srclyr[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1305:13: note: previous definition of ‘doc_f2py_rout_tegn96_srclyr’ was here
+ static char doc_f2py_rout_tegn96_srclyr[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5453:18: error: redefinition of ‘f2py_rout_tegn96_srclyr’
+ static PyObject *f2py_rout_tegn96_srclyr(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1311:18: note: previous definition of ‘f2py_rout_tegn96_srclyr’ was here
+ static PyObject *f2py_rout_tegn96_srclyr(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5715:13: error: redefinition of ‘doc_f2py_rout_tegn96_bldsph’
+ static char doc_f2py_rout_tegn96_bldsph[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1905:13: note: previous definition of ‘doc_f2py_rout_tegn96_bldsph’ was here
+ static char doc_f2py_rout_tegn96_bldsph[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5719:18: error: redefinition of ‘f2py_rout_tegn96_bldsph’
+ static PyObject *f2py_rout_tegn96_bldsph(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1909:18: note: previous definition of ‘f2py_rout_tegn96_bldsph’ was here
+ static PyObject *f2py_rout_tegn96_bldsph(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5775:13: error: redefinition of ‘doc_f2py_rout_tegn96_gcmdln’
+ static char doc_f2py_rout_tegn96_gcmdln[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1381:13: note: previous definition of ‘doc_f2py_rout_tegn96_gcmdln’ was here
+ static char doc_f2py_rout_tegn96_gcmdln[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5788:18: error: redefinition of ‘f2py_rout_tegn96_gcmdln’
+ static PyObject *f2py_rout_tegn96_gcmdln(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1394:18: note: previous definition of ‘f2py_rout_tegn96_gcmdln’ was here
+ static PyObject *f2py_rout_tegn96_gcmdln(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5930:13: error: redefinition of ‘doc_f2py_rout_tegn96_usage’
+ static char doc_f2py_rout_tegn96_usage[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1536:13: note: previous definition of ‘doc_f2py_rout_tegn96_usage’ was here
+ static char doc_f2py_rout_tegn96_usage[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5935:18: error: redefinition of ‘f2py_rout_tegn96_usage’
+ static PyObject *f2py_rout_tegn96_usage(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1541:18: note: previous definition of ‘f2py_rout_tegn96_usage’ was here
+ static PyObject *f2py_rout_tegn96_usage(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6001:13: error: redefinition of ‘doc_f2py_rout_tegn96_collap’
+ static char doc_f2py_rout_tegn96_collap[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1607:13: note: previous definition of ‘doc_f2py_rout_tegn96_collap’ was here
+ static char doc_f2py_rout_tegn96_collap[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6007:18: error: redefinition of ‘f2py_rout_tegn96_collap’
+ static PyObject *f2py_rout_tegn96_collap(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1613:18: note: previous definition of ‘f2py_rout_tegn96_collap’ was here
+ static PyObject *f2py_rout_tegn96_collap(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6077:13: error: redefinition of ‘doc_f2py_rout_tegn96_chksiz’
+ static char doc_f2py_rout_tegn96_chksiz[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1683:13: note: previous definition of ‘doc_f2py_rout_tegn96_chksiz’ was here
+ static char doc_f2py_rout_tegn96_chksiz[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6085:18: error: redefinition of ‘f2py_rout_tegn96_chksiz’
+ static PyObject *f2py_rout_tegn96_chksiz(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1691:18: note: previous definition of ‘f2py_rout_tegn96_chksiz’ was here
+ static PyObject *f2py_rout_tegn96_chksiz(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6698:13: error: redefinition of ‘doc_f2py_rout_tegn96_ffunc’
+ static char doc_f2py_rout_tegn96_ffunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1965:13: note: previous definition of ‘doc_f2py_rout_tegn96_ffunc’ was here
+ static char doc_f2py_rout_tegn96_ffunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6707:18: error: conflicting types for ‘f2py_rout_tegn96_ffunc’
+ static PyObject *f2py_rout_tegn96_ffunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1973:18: note: previous definition of ‘f2py_rout_tegn96_ffunc’ was here
+ static PyObject *f2py_rout_tegn96_ffunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c: In function ‘f2py_rout_tegn96_ffunc’:
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6717:18: error: redeclaration of ‘ffunc’ with no linkage
+   complex_double ffunc;
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6715:18: note: previous declaration of ‘ffunc’ was here
+   complex_double ffunc;
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6718:13: error: redefinition of ‘ffunc_capi’
+   PyObject *ffunc_capi = Py_None;
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6716:13: note: previous definition of ‘ffunc_capi’ was here
+   PyObject *ffunc_capi = Py_None;
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c: At top level:
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6785:13: error: redefinition of ‘doc_f2py_rout_tegn96_gfunc’
+ static char doc_f2py_rout_tegn96_gfunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2048:13: note: previous definition of ‘doc_f2py_rout_tegn96_gfunc’ was here
+ static char doc_f2py_rout_tegn96_gfunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6794:18: error: conflicting types for ‘f2py_rout_tegn96_gfunc’
+ static PyObject *f2py_rout_tegn96_gfunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2056:18: note: previous definition of ‘f2py_rout_tegn96_gfunc’ was here
+ static PyObject *f2py_rout_tegn96_gfunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c: In function ‘f2py_rout_tegn96_gfunc’:
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6804:18: error: redeclaration of ‘gfunc’ with no linkage
+   complex_double gfunc;
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6802:18: note: previous declaration of ‘gfunc’ was here
+   complex_double gfunc;
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6805:13: error: redefinition of ‘gfunc_capi’
+   PyObject *gfunc_capi = Py_None;
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6803:13: note: previous definition of ‘gfunc_capi’ was here
+   PyObject *gfunc_capi = Py_None;
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c: At top level:
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:221:12: warning: ‘f2py_size’ defined but not used [-Wunused-function]
+ static int f2py_size(PyArrayObject* var, ...)
+            ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1220:13: warning: ‘doc_f2py_rout_tegn96_insert’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_insert[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1227:18: warning: ‘f2py_rout_tegn96_insert’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_insert(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1305:13: warning: ‘doc_f2py_rout_tegn96_srclyr’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_srclyr[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1311:18: warning: ‘f2py_rout_tegn96_srclyr’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_srclyr(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1381:13: warning: ‘doc_f2py_rout_tegn96_gcmdln’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_gcmdln[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1394:18: warning: ‘f2py_rout_tegn96_gcmdln’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_gcmdln(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1536:13: warning: ‘doc_f2py_rout_tegn96_usage’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_usage[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1541:18: warning: ‘f2py_rout_tegn96_usage’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_usage(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1607:13: warning: ‘doc_f2py_rout_tegn96_collap’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_collap[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1613:18: warning: ‘f2py_rout_tegn96_collap’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_collap(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1683:13: warning: ‘doc_f2py_rout_tegn96_chksiz’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_chksiz[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1691:18: warning: ‘f2py_rout_tegn96_chksiz’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_chksiz(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1905:13: warning: ‘doc_f2py_rout_tegn96_bldsph’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_bldsph[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1909:18: warning: ‘f2py_rout_tegn96_bldsph’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_bldsph(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1965:13: warning: ‘doc_f2py_rout_tegn96_ffunc’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_ffunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1973:18: warning: ‘f2py_rout_tegn96_ffunc’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_ffunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2048:13: warning: ‘doc_f2py_rout_tegn96_gfunc’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_gfunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2056:18: warning: ‘f2py_rout_tegn96_gfunc’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_gfunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2591:13: warning: ‘doc_f2py_rout_tegn96_up’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_up[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2598:18: warning: ‘f2py_rout_tegn96_up’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_up(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:3894:13: warning: ‘doc_f2py_rout_tegn96_energy’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_energy[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:3901:18: warning: ‘f2py_rout_tegn96_energy’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_energy(const PyObject *capi_self,
+                  ^
+In file included from /home/leon/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1777:0,
+                 from /home/leon/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/ndarrayobject.h:18,
+                 from /home/leon/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/arrayobject.h:4,
+                 from /tmp/tmpDCpzVv/src.linux-x86_64-2.7/fortranobject.h:13,
+                 from /tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:19:
+/home/leon/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:15:2: warning: #warning "Using deprecated NumPy API, disable it by " "#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-Wcpp]
+ #warning "Using deprecated NumPy API, disable it by " \
+  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:155:28: error: conflicting types for ‘f2pywrapffunc_’
+ #define F_WRAPPEDFUNC(f,F) f2pywrap##f##_
+                            ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:480:13: note: in expansion of macro ‘F_WRAPPEDFUNC’
+ extern void F_WRAPPEDFUNC(ffunc,FFUNC)(complex_double*,complex_double*,complex_double*,double*);
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:155:28: note: previous declaration of ‘f2pywrapffunc_’ was here
+ #define F_WRAPPEDFUNC(f,F) f2pywrap##f##_
+                            ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:444:13: note: in expansion of macro ‘F_WRAPPEDFUNC’
+ extern void F_WRAPPEDFUNC(ffunc,FFUNC)(complex_double*,complex_double*,double*);
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:155:28: error: conflicting types for ‘f2pywrapgfunc_’
+ #define F_WRAPPEDFUNC(f,F) f2pywrap##f##_
+                            ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:481:13: note: in expansion of macro ‘F_WRAPPEDFUNC’
+ extern void F_WRAPPEDFUNC(gfunc,GFUNC)(complex_double*,complex_double*,complex_double*,double*);
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:155:28: note: previous declaration of ‘f2pywrapgfunc_’ was here
+ #define F_WRAPPEDFUNC(f,F) f2pywrap##f##_
+                            ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:445:13: note: in expansion of macro ‘F_WRAPPEDFUNC’
+ extern void F_WRAPPEDFUNC(gfunc,GFUNC)(complex_double*,complex_double*,double*);
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5194:13: error: redefinition of ‘doc_f2py_rout_tegn96_up’
+ static char doc_f2py_rout_tegn96_up[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2591:13: note: previous definition of ‘doc_f2py_rout_tegn96_up’ was here
+ static char doc_f2py_rout_tegn96_up[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5201:18: error: redefinition of ‘f2py_rout_tegn96_up’
+ static PyObject *f2py_rout_tegn96_up(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2598:18: note: previous definition of ‘f2py_rout_tegn96_up’ was here
+ static PyObject *f2py_rout_tegn96_up(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5278:13: error: redefinition of ‘doc_f2py_rout_tegn96_energy’
+ static char doc_f2py_rout_tegn96_energy[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:3894:13: note: previous definition of ‘doc_f2py_rout_tegn96_energy’ was here
+ static char doc_f2py_rout_tegn96_energy[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5285:18: error: redefinition of ‘f2py_rout_tegn96_energy’
+ static PyObject *f2py_rout_tegn96_energy(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:3901:18: note: previous definition of ‘f2py_rout_tegn96_energy’ was here
+ static PyObject *f2py_rout_tegn96_energy(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5362:13: error: redefinition of ‘doc_f2py_rout_tegn96_insert’
+ static char doc_f2py_rout_tegn96_insert[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1220:13: note: previous definition of ‘doc_f2py_rout_tegn96_insert’ was here
+ static char doc_f2py_rout_tegn96_insert[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5369:18: error: redefinition of ‘f2py_rout_tegn96_insert’
+ static PyObject *f2py_rout_tegn96_insert(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1227:18: note: previous definition of ‘f2py_rout_tegn96_insert’ was here
+ static PyObject *f2py_rout_tegn96_insert(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5447:13: error: redefinition of ‘doc_f2py_rout_tegn96_srclyr’
+ static char doc_f2py_rout_tegn96_srclyr[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1305:13: note: previous definition of ‘doc_f2py_rout_tegn96_srclyr’ was here
+ static char doc_f2py_rout_tegn96_srclyr[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5453:18: error: redefinition of ‘f2py_rout_tegn96_srclyr’
+ static PyObject *f2py_rout_tegn96_srclyr(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1311:18: note: previous definition of ‘f2py_rout_tegn96_srclyr’ was here
+ static PyObject *f2py_rout_tegn96_srclyr(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5715:13: error: redefinition of ‘doc_f2py_rout_tegn96_bldsph’
+ static char doc_f2py_rout_tegn96_bldsph[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1905:13: note: previous definition of ‘doc_f2py_rout_tegn96_bldsph’ was here
+ static char doc_f2py_rout_tegn96_bldsph[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5719:18: error: redefinition of ‘f2py_rout_tegn96_bldsph’
+ static PyObject *f2py_rout_tegn96_bldsph(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1909:18: note: previous definition of ‘f2py_rout_tegn96_bldsph’ was here
+ static PyObject *f2py_rout_tegn96_bldsph(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5775:13: error: redefinition of ‘doc_f2py_rout_tegn96_gcmdln’
+ static char doc_f2py_rout_tegn96_gcmdln[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1381:13: note: previous definition of ‘doc_f2py_rout_tegn96_gcmdln’ was here
+ static char doc_f2py_rout_tegn96_gcmdln[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5788:18: error: redefinition of ‘f2py_rout_tegn96_gcmdln’
+ static PyObject *f2py_rout_tegn96_gcmdln(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1394:18: note: previous definition of ‘f2py_rout_tegn96_gcmdln’ was here
+ static PyObject *f2py_rout_tegn96_gcmdln(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5930:13: error: redefinition of ‘doc_f2py_rout_tegn96_usage’
+ static char doc_f2py_rout_tegn96_usage[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1536:13: note: previous definition of ‘doc_f2py_rout_tegn96_usage’ was here
+ static char doc_f2py_rout_tegn96_usage[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:5935:18: error: redefinition of ‘f2py_rout_tegn96_usage’
+ static PyObject *f2py_rout_tegn96_usage(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1541:18: note: previous definition of ‘f2py_rout_tegn96_usage’ was here
+ static PyObject *f2py_rout_tegn96_usage(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6001:13: error: redefinition of ‘doc_f2py_rout_tegn96_collap’
+ static char doc_f2py_rout_tegn96_collap[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1607:13: note: previous definition of ‘doc_f2py_rout_tegn96_collap’ was here
+ static char doc_f2py_rout_tegn96_collap[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6007:18: error: redefinition of ‘f2py_rout_tegn96_collap’
+ static PyObject *f2py_rout_tegn96_collap(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1613:18: note: previous definition of ‘f2py_rout_tegn96_collap’ was here
+ static PyObject *f2py_rout_tegn96_collap(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6077:13: error: redefinition of ‘doc_f2py_rout_tegn96_chksiz’
+ static char doc_f2py_rout_tegn96_chksiz[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1683:13: note: previous definition of ‘doc_f2py_rout_tegn96_chksiz’ was here
+ static char doc_f2py_rout_tegn96_chksiz[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6085:18: error: redefinition of ‘f2py_rout_tegn96_chksiz’
+ static PyObject *f2py_rout_tegn96_chksiz(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1691:18: note: previous definition of ‘f2py_rout_tegn96_chksiz’ was here
+ static PyObject *f2py_rout_tegn96_chksiz(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6698:13: error: redefinition of ‘doc_f2py_rout_tegn96_ffunc’
+ static char doc_f2py_rout_tegn96_ffunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1965:13: note: previous definition of ‘doc_f2py_rout_tegn96_ffunc’ was here
+ static char doc_f2py_rout_tegn96_ffunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6707:18: error: conflicting types for ‘f2py_rout_tegn96_ffunc’
+ static PyObject *f2py_rout_tegn96_ffunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1973:18: note: previous definition of ‘f2py_rout_tegn96_ffunc’ was here
+ static PyObject *f2py_rout_tegn96_ffunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c: In function ‘f2py_rout_tegn96_ffunc’:
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6717:18: error: redeclaration of ‘ffunc’ with no linkage
+   complex_double ffunc;
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6715:18: note: previous declaration of ‘ffunc’ was here
+   complex_double ffunc;
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6718:13: error: redefinition of ‘ffunc_capi’
+   PyObject *ffunc_capi = Py_None;
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6716:13: note: previous definition of ‘ffunc_capi’ was here
+   PyObject *ffunc_capi = Py_None;
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c: At top level:
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6785:13: error: redefinition of ‘doc_f2py_rout_tegn96_gfunc’
+ static char doc_f2py_rout_tegn96_gfunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2048:13: note: previous definition of ‘doc_f2py_rout_tegn96_gfunc’ was here
+ static char doc_f2py_rout_tegn96_gfunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6794:18: error: conflicting types for ‘f2py_rout_tegn96_gfunc’
+ static PyObject *f2py_rout_tegn96_gfunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2056:18: note: previous definition of ‘f2py_rout_tegn96_gfunc’ was here
+ static PyObject *f2py_rout_tegn96_gfunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c: In function ‘f2py_rout_tegn96_gfunc’:
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6804:18: error: redeclaration of ‘gfunc’ with no linkage
+   complex_double gfunc;
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6802:18: note: previous declaration of ‘gfunc’ was here
+   complex_double gfunc;
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6805:13: error: redefinition of ‘gfunc_capi’
+   PyObject *gfunc_capi = Py_None;
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:6803:13: note: previous definition of ‘gfunc_capi’ was here
+   PyObject *gfunc_capi = Py_None;
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c: At top level:
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:221:12: warning: ‘f2py_size’ defined but not used [-Wunused-function]
+ static int f2py_size(PyArrayObject* var, ...)
+            ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1220:13: warning: ‘doc_f2py_rout_tegn96_insert’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_insert[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1227:18: warning: ‘f2py_rout_tegn96_insert’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_insert(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1305:13: warning: ‘doc_f2py_rout_tegn96_srclyr’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_srclyr[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1311:18: warning: ‘f2py_rout_tegn96_srclyr’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_srclyr(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1381:13: warning: ‘doc_f2py_rout_tegn96_gcmdln’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_gcmdln[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1394:18: warning: ‘f2py_rout_tegn96_gcmdln’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_gcmdln(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1536:13: warning: ‘doc_f2py_rout_tegn96_usage’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_usage[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1541:18: warning: ‘f2py_rout_tegn96_usage’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_usage(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1607:13: warning: ‘doc_f2py_rout_tegn96_collap’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_collap[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1613:18: warning: ‘f2py_rout_tegn96_collap’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_collap(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1683:13: warning: ‘doc_f2py_rout_tegn96_chksiz’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_chksiz[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1691:18: warning: ‘f2py_rout_tegn96_chksiz’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_chksiz(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1905:13: warning: ‘doc_f2py_rout_tegn96_bldsph’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_bldsph[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1909:18: warning: ‘f2py_rout_tegn96_bldsph’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_bldsph(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1965:13: warning: ‘doc_f2py_rout_tegn96_ffunc’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_ffunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:1973:18: warning: ‘f2py_rout_tegn96_ffunc’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_ffunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2048:13: warning: ‘doc_f2py_rout_tegn96_gfunc’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_gfunc[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2056:18: warning: ‘f2py_rout_tegn96_gfunc’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_gfunc(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2591:13: warning: ‘doc_f2py_rout_tegn96_up’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_up[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:2598:18: warning: ‘f2py_rout_tegn96_up’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_up(const PyObject *capi_self,
+                  ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:3894:13: warning: ‘doc_f2py_rout_tegn96_energy’ defined but not used [-Wunused-variable]
+ static char doc_f2py_rout_tegn96_energy[] = "\
+             ^
+/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c:3901:18: warning: ‘f2py_rout_tegn96_energy’ defined but not used [-Wunused-function]
+ static PyObject *f2py_rout_tegn96_energy(const PyObject *capi_self,
+                  ^
+error: Command "gcc -pthread -fno-strict-aliasing -g -O2 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -fPIC -I/tmp/tmpDCpzVv/src.linux-x86_64-2.7 -I/home/leon/anaconda2/lib/python2.7/site-packages/numpy/core/include -I/home/leon/anaconda2/include/python2.7 -c /tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.c -o /tmp/tmpDCpzVv/tmp/tmpDCpzVv/src.linux-x86_64-2.7/tegn96module.o" failed with exit status 1

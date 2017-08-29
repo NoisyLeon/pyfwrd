@@ -1,9 +1,9 @@
 !    -*- f90 -*-
 ! Note: the context of this file is case sensitive.
 
-python module tegn96 ! in 
-    interface  ! in :tegn96
-        subroutine tregn96(hs_in,hr_in,ohr_in,ohs_in,refdep_in,dogam_in,nl_in,iflsph_in,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,qai_in,qbi_in,etapi_in,etasi_in,frefpi_in,frefsi_in,nt_in,t_in,cp_in,u_out,spur,sptr,spuz,sptz,sdcdh,sdcdav,sdcdah,sdcdbv,sdcdbh,sdcdn,sdcdr) ! in :tegn96:tregn96_subroutine.f
+python module tregn96 ! in 
+    interface  ! in :tregn96
+        subroutine tregn96(hs_in,hr_in,ohr_in,ohs_in,refdep_in,dogam_in,nl_in,iflsph_in,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,qai_in,qbi_in,etapi_in,etasi_in,frefpi_in,frefsi_in,nt_in,t_in,cp_in,u_out,ur_out,tur_out,uz_out,tuz_out,dcdh_out,dcdav_out,dcdah_out,dcdbv_out,dcdbh_out,dcdn_out,dcdr_out) ! in :tregn96:tregn96_subroutine.f
             real*4 :: hs_in
             real*4 :: hr_in
             real*4 :: ohr_in
@@ -28,18 +28,18 @@ python module tegn96 ! in
             integer, intent(in) :: nt_in
             real*4 dimension(nt_in),depend(nt_in) :: t_in
             real*4 dimension(nt_in),depend(nt_in) :: cp_in
-            real*8 dimension(nt_in),depend(nt_in) :: u_out
-            real*4 dimension(200),intent(out) :: spur
-            real*4 dimension(200),intent(out) :: sptr
-            real*4 dimension(200),intent(out) :: spuz
-            real*4 dimension(200),intent(out) :: sptz
-            real*4 dimension(200),intent(out) :: sdcdh
-            real*4 dimension(200),intent(out) :: sdcdav
-            real*4 dimension(200),intent(out) :: sdcdah
-            real*4 dimension(200),intent(out) :: sdcdbv
-            real*4 dimension(200),intent(out) :: sdcdbh
-            real*4 dimension(200),intent(out) :: sdcdn
-            real*4 dimension(200),intent(out) :: sdcdr
+            real*8 dimension(nt_in),depend(nt_in),intent(out) :: u_out
+            real*8 dimension(2049,200),intent(out) :: ur_out
+            real*8 dimension(2049,200),intent(out) :: tur_out
+            real*8 dimension(2049,200),intent(out) :: uz_out
+            real*8 dimension(2049,200),intent(out) :: tuz_out
+            real*8 dimension(2049,200),intent(out) :: dcdh_out
+            real*8 dimension(2049,200),intent(out) :: dcdav_out
+            real*8 dimension(2049,200),intent(out) :: dcdah_out
+            real*8 dimension(2049,200),intent(out) :: dcdbv_out
+            real*8 dimension(2049,200),intent(out) :: dcdbh_out
+            real*8 dimension(2049,200),intent(out) :: dcdn_out
+            real*8 dimension(2049,200),intent(out) :: dcdr_out
             real*8 dimension(200) :: zd
             real*8 dimension(200) :: zta
             real*8 dimension(200) :: ztc
@@ -102,7 +102,7 @@ python module tegn96 ! in
             common /sumi/ sumi0,sumi1,sumi2,sumi3,flagr,are,ugr
             common /modspec/ allfluid
         end subroutine tregn96
-        subroutine insert(dph,newlyr,ls) ! in :tegn96:tregn96_subroutine.f
+        subroutine insert(dph,newlyr,ls) ! in :tregn96:tregn96_subroutine.f
             real*4 :: dph
             logical :: newlyr
             integer :: ls
@@ -125,7 +125,7 @@ python module tegn96 ! in
             common /timod/ zd,zta,ztc,ztf,ztl,ztn,zrho,zqai,zqbi,zetap,zetas,zfrefp,zfrefs
             common /pari/ mmax
         end subroutine insert
-        subroutine srclyr(depth,lmax) ! in :tegn96:tregn96_subroutine.f
+        subroutine srclyr(depth,lmax) ! in :tregn96:tregn96_subroutine.f
             real :: depth
             integer :: lmax
             integer dimension(200) :: iwat
@@ -147,7 +147,7 @@ python module tegn96 ! in
             common /timod/ zd,zta,ztc,ztf,ztl,ztn,zrho,zqai,zqbi,zetap,zetas,zfrefp,zfrefs
             common /pari/ mmax
         end subroutine srclyr
-        subroutine gcmdln(hsfile,hrfile,hs,hr,dotmp,dogam,dderiv,nipar,verbose) ! in :tegn96:tregn96_subroutine.f
+        subroutine gcmdln(hsfile,hrfile,hs,hr,dotmp,dogam,dderiv,nipar,verbose) ! in :tregn96:tregn96_subroutine.f
             character*120 :: hsfile
             character*120 :: hrfile
             real :: hs
@@ -158,10 +158,10 @@ python module tegn96 ! in
             integer dimension(20) :: nipar
             logical :: verbose
         end subroutine gcmdln
-        subroutine usage(ostr) ! in :tegn96:tregn96_subroutine.f
+        subroutine usage(ostr) ! in :tregn96:tregn96_subroutine.f
             character*(*) :: ostr
         end subroutine usage
-        subroutine collap(ls,mmaxot) ! in :tegn96:tregn96_subroutine.f
+        subroutine collap(ls,mmaxot) ! in :tregn96:tregn96_subroutine.f
             integer :: ls
             integer :: mmaxot
             real*8 dimension(200) :: ur
@@ -178,12 +178,12 @@ python module tegn96 ! in
             real*8 dimension(200) :: dcdh
             common /eigfun/ ur,uz,tz,tr,uu0,dcdah,dcdav,dcdbh,dcdbv,dcdn,dcdr,dcdh
         end subroutine collap
-        subroutine chksiz(dp,sp,mmaxot) ! in :tegn96:tregn96_subroutine.f
+        subroutine chksiz(dp,sp,mmaxot) ! in :tregn96:tregn96_subroutine.f
             real*8 dimension(mmaxot) :: dp
             real*4 dimension(mmaxot),depend(mmaxot) :: sp
             integer, optional,check(len(dp)>=mmaxot),depend(dp) :: mmaxot=len(dp)
         end subroutine chksiz
-        subroutine sprayl(om,c,mmax,csph,usph,ugr) ! in :tegn96:tregn96_subroutine.f
+        subroutine sprayl(om,c,mmax,csph,usph,ugr) ! in :tregn96:tregn96_subroutine.f
             real*8 :: om
             real*8 :: c
             integer :: mmax
@@ -208,7 +208,7 @@ python module tegn96 ! in
             common /sphere/ vtp,dtp,rtp
             common /eigfun/ ur,uz,tz,tr,uu0,dcdah,dcdav,dcdbh,dcdbv,dcdn,dcdr,dcdh
         end subroutine sprayl
-        subroutine bldsph ! in :tegn96:tregn96_subroutine.f
+        subroutine bldsph ! in :tregn96:tregn96_subroutine.f
             real*4 dimension(200) :: vtp
             real*4 dimension(200) :: dtp
             real*4 dimension(200) :: rtp
@@ -230,39 +230,39 @@ python module tegn96 ! in
             common /timod/ zd,zta,ztc,ztf,ztl,ztn,zrho,zqai,zqbi,zetap,zetas,zfrefp,zfrefs
             common /pari/ mmax
         end subroutine bldsph
-        function ffunc(nub,dm) ! in :tegn96:tregn96_subroutine.f
+        function ffunc(nub,dm) ! in :tregn96:tregn96_subroutine.f
             complex*16 :: nub
             real*8 :: dm
             complex*16 :: ffunc
         end function ffunc
-        function gfunc(nub,dm) ! in :tegn96:tregn96_subroutine.f
+        function gfunc(nub,dm) ! in :tregn96:tregn96_subroutine.f
             complex*16 :: nub
             real*8 :: dm
             complex*16 :: gfunc
         end function gfunc
-        function h1func(nua,nub,dm) ! in :tegn96:tregn96_subroutine.f
+        function h1func(nua,nub,dm) ! in :tregn96:tregn96_subroutine.f
             complex*16 :: nua
             complex*16 :: nub
             real*8 :: dm
             complex*16 :: h1func
         end function h1func
-        function h2func(nua,nub,dm) ! in :tegn96:tregn96_subroutine.f
+        function h2func(nua,nub,dm) ! in :tregn96:tregn96_subroutine.f
             complex*16 :: nua
             complex*16 :: nub
             real*8 :: dm
             complex*16 :: h2func
         end function h2func
-        subroutine cnormc(ee,ex,nmat) ! in :tegn96:tregn96_subroutine.f
+        subroutine cnormc(ee,ex,nmat) ! in :tregn96:tregn96_subroutine.f
             complex*16 dimension(nmat) :: ee
             real*8 :: ex
             integer, optional,check(len(ee)>=nmat),depend(ee) :: nmat=len(ee)
         end subroutine cnormc
-        subroutine rnormc(ee,ex,nmat) ! in :tegn96:tregn96_subroutine.f
+        subroutine rnormc(ee,ex,nmat) ! in :tregn96:tregn96_subroutine.f
             real*8 dimension(nmat) :: ee
             real*8 :: ex
             integer, optional,check(len(ee)>=nmat),depend(ee) :: nmat=len(ee)
         end subroutine rnormc
-        subroutine svfunc(omega,wvno) ! in :tegn96:tregn96_subroutine.f
+        subroutine svfunc(omega,wvno) ! in :tregn96:tregn96_subroutine.f
             real*8 :: omega
             real*8 :: wvno
             complex*16 dimension(200,5) :: cd
@@ -308,7 +308,7 @@ python module tegn96 ! in
             common /hwat/ wh,hex
             common /modspec/ allfluid
         end subroutine svfunc
-        subroutine up(omega,wvno,fr) ! in :tegn96:tregn96_subroutine.f
+        subroutine up(omega,wvno,fr) ! in :tregn96:tregn96_subroutine.f
             real*8 :: omega
             real*8 :: wvno
             real*8 :: fr
@@ -366,7 +366,7 @@ python module tegn96 ! in
             common /save/ dd,aa,ex1,ex2
             common /engerw/ wra,wd,wba
         end subroutine up
-        subroutine dnka(ca,cosp,rsinp,sinpr,cossv,rsinsv,sinsvr,np,nsv,x11,x21,x31,x41,x12,x22,x32,x42,trho,iwat,ex,om2) ! in :tegn96:tregn96_subroutine.f
+        subroutine dnka(ca,cosp,rsinp,sinpr,cossv,rsinsv,sinsvr,np,nsv,x11,x21,x31,x41,x12,x22,x32,x42,trho,iwat,ex,om2) ! in :tregn96:tregn96_subroutine.f
             complex*16 dimension(5,5) :: ca
             complex*16 :: cosp
             complex*16 :: rsinp
@@ -389,7 +389,7 @@ python module tegn96 ! in
             real*8 :: ex
             real*8 :: om2
         end subroutine dnka
-        subroutine evalg(jbdry,m,m1,gbr,indx,wvno,om,om2,wvno2) ! in :tegn96:tregn96_subroutine.f
+        subroutine evalg(jbdry,m,m1,gbr,indx,wvno,om,om2,wvno2) ! in :tregn96:tregn96_subroutine.f
             integer :: jbdry
             integer :: m
             integer :: m1
@@ -423,7 +423,7 @@ python module tegn96 ! in
             common /modspec/ allfluid
             common /emat/ e,einv,ra,rb
         end subroutine evalg
-        subroutine gettiegn(a,b,c,d,e,f,omega2,wvno2,rp,rsv,x11,x21,x31,x41,x12,x22,x32,x42,np,nsv,m,omg,wvn,atna,atnb) ! in :tegn96:tregn96_subroutine.f
+        subroutine gettiegn(a,b,c,d,e,f,omega2,wvno2,rp,rsv,x11,x21,x31,x41,x12,x22,x32,x42,np,nsv,m,omg,wvn,atna,atnb) ! in :tregn96:tregn96_subroutine.f
             complex*16 :: a
             complex*16 :: b
             complex*16 :: c
@@ -464,7 +464,7 @@ python module tegn96 ! in
             real*8 dimension(200) :: frefs
             common /timod/ td,ta,tc,tf,tl,tn,trho,qa,qb,etap,etas,frefp,frefs
         end subroutine gettiegn
-        subroutine varsv(p,q,rp,rsv,cosp,cosq,rsinp,rsinq,sinpr,sinqr,pex,svex,iwat,dm) ! in :tegn96:tregn96_subroutine.f
+        subroutine varsv(p,q,rp,rsv,cosp,cosq,rsinp,rsinq,sinpr,sinqr,pex,svex,iwat,dm) ! in :tregn96:tregn96_subroutine.f
             complex*16 :: p
             complex*16 :: q
             complex*16 :: rp
@@ -480,7 +480,7 @@ python module tegn96 ! in
             integer :: iwat
             real*8 :: dm
         end subroutine varsv
-        subroutine hska(aa,tcosp,trsinp,tsinpr,tcossv,trsinsv,tsinsvr,np,nsv,x11,x21,x31,x41,x12,x22,x32,x42,trho,iwat,ex,om2) ! in :tegn96:tregn96_subroutine.f
+        subroutine hska(aa,tcosp,trsinp,tsinpr,tcossv,trsinsv,tsinsvr,np,nsv,x11,x21,x31,x41,x12,x22,x32,x42,trho,iwat,ex,om2) ! in :tregn96:tregn96_subroutine.f
             real*8 dimension(4,4) :: aa
             complex*16 :: tcosp
             complex*16 :: trsinp
@@ -503,7 +503,7 @@ python module tegn96 ! in
             real*8 :: ex
             real*8 :: om2
         end subroutine hska
-        subroutine down(omega,wvno) ! in :tegn96:tregn96_subroutine.f
+        subroutine down(omega,wvno) ! in :tregn96:tregn96_subroutine.f
             real*8 :: omega
             real*8 :: wvno
             complex*16 dimension(200,5) :: cd
@@ -546,7 +546,7 @@ python module tegn96 ! in
             common /eigfun/ ur,uz,tz,tr,uu0,dcdah,dcdav,dcdbh,dcdbv,dcdn,dcdr,dcdh
             common /modspec/ allfluid
         end subroutine down
-        subroutine gammap(omega,wvno,gammar) ! in :tegn96:tregn96_subroutine.f
+        subroutine gammap(omega,wvno,gammar) ! in :tregn96:tregn96_subroutine.f
             real*8 :: omega
             real*8 :: wvno
             real*8 :: gammar
@@ -582,7 +582,7 @@ python module tegn96 ! in
             common /eigfun/ ur,uz,tz,tr,uu0,dcdah,dcdav,dcdbh,dcdbv,dcdn,dcdr,dcdh
             common /pari/ mmax
         end subroutine gammap
-        subroutine energy(om,wvno,mmax) ! in :tegn96:tregn96_subroutine.f
+        subroutine energy(om,wvno,mmax) ! in :tregn96:tregn96_subroutine.f
             real*8 :: om
             real*8 :: wvno
             integer :: mmax
@@ -610,7 +610,7 @@ python module tegn96 ! in
             common /eigfun/ ur,uz,tz,tr,uu0,dcdah,dcdav,dcdbh,dcdbv,dcdn,dcdr,dcdh
             common /sumi/ sumi0,sumi1,sumi2,sumi3,flagr,are,ugr
         end subroutine energy
-        subroutine getmat(m,wvno,om,a12,a14,a21,a23,ah,av,bh,bv,eta,rho,ta,tc,tf,tl,tn,iwat) ! in :tegn96:tregn96_subroutine.f
+        subroutine getmat(m,wvno,om,a12,a14,a21,a23,ah,av,bh,bv,eta,rho,ta,tc,tf,tl,tn,iwat) ! in :tregn96:tregn96_subroutine.f
             integer :: m
             real*8 :: wvno
             real*8 :: om
@@ -647,7 +647,7 @@ python module tegn96 ! in
             common /timod/ zd,zta,ztc,ztf,ztl,ztn,zrho,zqai,zqbi,zetap,zetas,zfrefp,zfrefs
             common /pari/ mmax
         end subroutine getmat
-        function intijr(i,j,m,typelyr,om,om2,wvno,wvno2) ! in :tegn96:tregn96_subroutine.f
+        function intijr(i,j,m,typelyr,om,om2,wvno,wvno2) ! in :tregn96:tregn96_subroutine.f
             integer :: i
             integer :: j
             integer :: m
@@ -694,7 +694,7 @@ python module tegn96 ! in
             common /pari/ mmax
             common /emat/ e,einv,ra,rb
         end function intijr
-        subroutine getdcdh(om2,wvno,wvno2,fac) ! in :tegn96:tregn96_subroutine.f
+        subroutine getdcdh(om2,wvno,wvno2,fac) ! in :tregn96:tregn96_subroutine.f
             real*8 :: om2
             real*8 :: wvno
             real*8 :: wvno2
@@ -731,55 +731,55 @@ python module tegn96 ! in
             common /eigfun/ ur,uz,tz,tr,uu0,dcdah,dcdav,dcdbh,dcdbv,dcdn,dcdr,dcdh
             common /pari/ mmax
         end subroutine getdcdh
-        function mnmarg() ! in :tegn96:mnmarg.f
+        function mnmarg() ! in :tregn96:mnmarg.f
             integer :: mnmarg
         end function mnmarg
-        subroutine mgtarg(i,name) ! in :tegn96:mgtarg.f
+        subroutine mgtarg(i,name) ! in :tregn96:mgtarg.f
             integer :: i
             character*(*) :: name
         end subroutine mgtarg
-        function lgstr(str) ! in :tegn96:lgstr.f
+        function lgstr(str) ! in :tregn96:lgstr.f
             character*(*) :: str
             integer*4 :: lgstr
         end function lgstr
-        subroutine gtshed(lun,ifunc,kmode,t0,ierr) ! in :tegn96:tio.f
+        subroutine gtshed(lun,ifunc,kmode,t0,ierr) ! in :tregn96:tio.f
             integer :: lun
             integer :: ifunc
             integer :: kmode
             real*8 :: t0
             integer :: ierr
         end subroutine gtshed
-        subroutine ptshed(lun,ifunc,kmode,t0) ! in :tegn96:tio.f
+        subroutine ptshed(lun,ifunc,kmode,t0) ! in :tregn96:tio.f
             integer :: lun
             integer :: ifunc
             integer :: kmode
             real*8 :: t0
         end subroutine ptshed
-        subroutine gtsval(lun,cp,kmode,ierr) ! in :tegn96:tio.f
+        subroutine gtsval(lun,cp,kmode,ierr) ! in :tregn96:tio.f
             integer :: lun
             real*8 dimension(2000) :: cp
             integer :: kmode
             integer :: ierr
         end subroutine gtsval
-        subroutine ptsval(lun,cp,kmode) ! in :tegn96:tio.f
+        subroutine ptsval(lun,cp,kmode) ! in :tregn96:tio.f
             integer :: lun
             real*8 dimension(2000) :: cp
             integer :: kmode
         end subroutine ptsval
-        subroutine gethed(lun,ifunc,kmode,t0,ierr) ! in :tegn96:tio.f
+        subroutine gethed(lun,ifunc,kmode,t0,ierr) ! in :tregn96:tio.f
             integer :: lun
             integer :: ifunc
             integer :: kmode
             real :: t0
             integer :: ierr
         end subroutine gethed
-        subroutine puthed(lun,ifunc,kmode,t0) ! in :tegn96:tio.f
+        subroutine puthed(lun,ifunc,kmode,t0) ! in :tregn96:tio.f
             integer :: lun
             integer :: ifunc
             integer :: kmode
             real*4 :: t0
         end subroutine puthed
-        subroutine getegn(lun,lorr,intext,wvno,u,gamma,sur,sdur,suz,sduz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv,ierr) ! in :tegn96:tio.f
+        subroutine getegn(lun,lorr,intext,wvno,u,gamma,sur,sdur,suz,sduz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv,ierr) ! in :tregn96:tio.f
             integer :: lun
             integer :: lorr
             integer :: intext
@@ -805,7 +805,7 @@ python module tegn96 ! in
             real :: sumgv
             integer :: ierr
         end subroutine getegn
-        subroutine putegn(lun,lorr,intext,wvno,u,gamma,sur,sdur,suz,sduz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv) ! in :tegn96:tio.f
+        subroutine putegn(lun,lorr,intext,wvno,u,gamma,sur,sdur,suz,sduz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv) ! in :tregn96:tio.f
             integer :: lun
             integer :: lorr
             integer :: intext
@@ -830,7 +830,7 @@ python module tegn96 ! in
             real :: sumgr
             real :: sumgv
         end subroutine putegn
-        subroutine gtsmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,mname,ipar,fpar) ! in :tegn96:tio.f
+        subroutine gtsmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,mname,ipar,fpar) ! in :tregn96:tio.f
             integer :: lun
             integer :: mmax
             real*4 dimension(200) :: d
@@ -847,7 +847,7 @@ python module tegn96 ! in
             integer dimension(20) :: ipar
             real*4 dimension(20) :: fpar
         end subroutine gtsmdt
-        subroutine ptsmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,mname,ipar,fpar) ! in :tegn96:tio.f
+        subroutine ptsmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,mname,ipar,fpar) ! in :tregn96:tio.f
             integer :: lun
             integer :: mmax
             real*4 dimension(200) :: d
@@ -864,7 +864,7 @@ python module tegn96 ! in
             integer dimension(20) :: ipar
             real*4 dimension(20) :: fpar
         end subroutine ptsmdt
-        subroutine getmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,dphs,dphr,mname,ipar,fpar) ! in :tegn96:tio.f
+        subroutine getmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,dphs,dphr,mname,ipar,fpar) ! in :tregn96:tio.f
             integer :: lun
             integer :: mmax
             real*4 dimension(200) :: d
@@ -883,7 +883,7 @@ python module tegn96 ! in
             integer dimension(20) :: ipar
             real*4 dimension(20) :: fpar
         end subroutine getmdt
-        subroutine putmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,dphs,dphr,mname,ipar,fpar) ! in :tegn96:tio.f
+        subroutine putmdt(lun,mmax,d,ta,tc,tf,tl,tn,rho,qa,qb,nper,dphs,dphr,mname,ipar,fpar) ! in :tregn96:tio.f
             integer :: lun
             integer :: mmax
             real*4 dimension(200) :: d
@@ -902,7 +902,7 @@ python module tegn96 ! in
             integer dimension(20) :: ipar
             real*4 dimension(20) :: fpar
         end subroutine putmdt
-        subroutine getdrt(lun,lorr,wvno,u,gamma,sur,sdur,sd2ur,suz,sduz,sd2uz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv,ierr,mmax,dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr,ur,tur,uz,tuz,ipar) ! in :tegn96:tio.f
+        subroutine getdrt(lun,lorr,wvno,u,gamma,sur,sdur,sd2ur,suz,sduz,sd2uz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv,ierr,mmax,dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr,ur,tur,uz,tuz,ipar) ! in :tregn96:tio.f
             integer :: lun
             integer :: lorr
             real :: wvno
@@ -942,7 +942,7 @@ python module tegn96 ! in
             real*4 dimension(200) :: tuz
             integer*4 dimension(20) :: ipar
         end subroutine getdrt
-        subroutine putdrt(lun,lorr,wvno,u,gamma,sur,sdur,sd2ur,suz,sduz,sd2uz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv,mmax,dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr,ur,tur,uz,tuz,ipar) ! in :tegn96:tio.f
+        subroutine putdrt(lun,lorr,wvno,u,gamma,sur,sdur,sd2ur,suz,sduz,sd2uz,sare,wvnsrc,sur0,rur,rtr,ruz,rtz,rare,wvnrec,rur0,sumkr,sumgr,sumgv,mmax,dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr,ur,tur,uz,tuz,ipar) ! in :tregn96:tio.f
             integer :: lun
             integer :: lorr
             real :: wvno
@@ -981,9 +981,9 @@ python module tegn96 ! in
             real*4 dimension(200) :: tuz
             integer*4 dimension(20) :: ipar
         end subroutine putdrt
-        subroutine mchdep ! in :tegn96:mchdep.f
+        subroutine mchdep ! in :tregn96:mchdep.f
         end subroutine mchdep
-        subroutine getmod(rlun,mname,mmax,title,iunit,iiso,iflsph,idimen,icnvel,ierr,listmd) ! in :tegn96:tgetmod.f
+        subroutine getmod(rlun,mname,mmax,title,iunit,iiso,iflsph,idimen,icnvel,ierr,listmd) ! in :tregn96:tgetmod.f
             integer :: rlun
             character*(*) :: mname
             integer*4 :: mmax
@@ -1013,7 +1013,7 @@ python module tegn96 ! in
             common /depref/ refdep
         end subroutine getmod
     end interface 
-end python module tegn96
+end python module tregn96
 
 ! This file was auto-generated with f2py (version:2).
 ! See http://cens.ioc.ee/projects/f2py2e/

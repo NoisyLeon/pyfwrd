@@ -3,15 +3,16 @@
 
 python module tegn96 ! in 
     interface  ! in :tegn96
-        subroutine tregn96(hs_in,hr_in,ohr_in,ohs_in,refdep_in,nl_in,iflsph_in,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,qai_in,qbi_in,etapi_in,etasi_in,frefpi_in,frefsi_in,mode_in,t_in,nt_in,cp_in) ! in :tegn96:tregn96_subroutine.f
+        subroutine tregn96(hs_in,hr_in,ohr_in,ohs_in,refdep_in,dogam_in,nl_in,iflsph_in,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,qai_in,qbi_in,etapi_in,etasi_in,frefpi_in,frefsi_in,nt_in,t_in,cp_in,u_out,ur_out,tur_out,uz_out,tuz_out,dcdh_out,dcdav_out,dcdah_out,dcdbv_out,dcdbh_out,dcdn_out,dcdr_out) ! in :tegn96:tregn96_subroutine.f
             real*4 :: hs_in
             real*4 :: hr_in
             real*4 :: ohr_in
             real*4 :: ohs_in
             real*4 :: refdep_in
+            logical :: dogam_in
             integer, intent(in) :: nl_in
             integer :: iflsph_in
-            real*4 dimension(nl_in),depend(nl_in)  :: d_in
+            real*4 dimension(nl_in),depend(nl_in) :: d_in
             real*4 dimension(nl_in),depend(nl_in) :: ta_in
             real*4 dimension(nl_in),depend(nl_in) :: tc_in
             real*4 dimension(nl_in),depend(nl_in) :: tf_in
@@ -24,10 +25,21 @@ python module tegn96 ! in
             real*4 dimension(nl_in),depend(nl_in) :: etasi_in
             real*4 dimension(nl_in),depend(nl_in) :: frefpi_in
             real*4 dimension(nl_in),depend(nl_in) :: frefsi_in
-            integer*4 dimension(nt_in),depend(nt_in) :: mode_in
-            real*4 dimension(nt_in),depend(nt_in) :: t_in
             integer, intent(in) :: nt_in
+            real*4 dimension(nt_in),depend(nt_in) :: t_in
             real*4 dimension(nt_in),depend(nt_in) :: cp_in
+            real*8 dimension(nt_in),depend(nt_in),intent(out) :: u_out
+            real*8 dimension(2049,200),intent(out) :: ur_out
+            real*8 dimension(2049,200),intent(out) :: tur_out
+            real*8 dimension(2049,200),intent(out) :: uz_out
+            real*8 dimension(2049,200),intent(out) :: tuz_out
+            real*8 dimension(2049,200),intent(out) :: dcdh_out
+            real*8 dimension(2049,200),intent(out) :: dcdav_out
+            real*8 dimension(2049,200),intent(out) :: dcdah_out
+            real*8 dimension(2049,200),intent(out) :: dcdbv_out
+            real*8 dimension(2049,200),intent(out) :: dcdbh_out
+            real*8 dimension(2049,200),intent(out) :: dcdn_out
+            real*8 dimension(2049,200),intent(out) :: dcdr_out
             real*8 dimension(200) :: zd
             real*8 dimension(200) :: zta
             real*8 dimension(200) :: ztc

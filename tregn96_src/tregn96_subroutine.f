@@ -476,7 +476,7 @@ c-----
                 wvno = omega / csph
                 u_out(idisp-1) = usph 
             else
-                    u_out(idisp-1) = ugr 
+                u_out(idisp-1) = ugr 
             endif
 c            WRITE(6,*)'c(flat)=',c,' u(flat)=',ugr, idisp, Nt_in
             u_out(idisp-1) = ugr 
