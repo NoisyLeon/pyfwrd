@@ -60,7 +60,7 @@ refdep_in = 0.
 nmode = 1
 # 
 # 
-cout=tdisp96.disprs(ilvry,dt,npts,iret,verby, nfval,fval,ccmin,ccmax,\
+c_out,d_out,TA_out,TC_out,TF_out,TL_out,TN_out,TRho_out=tdisp96.disprs(ilvry,dt,npts,iret,verby, nfval,fval,ccmin,ccmax,\
                d_in,TA_in,TC_in,TF_in,TL_in,TN_in,TRho_in,\
                nl_in, iflsph_in, refdep_in, nmode, 0.5, 0.5)
 

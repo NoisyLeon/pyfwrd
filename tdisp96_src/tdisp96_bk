@@ -79,7 +79,7 @@ python module tdisp96 ! in
             real*4 dimension(nn) :: x
             integer :: isign
         end subroutine bsort
-        subroutine disprs(ilvry,dt,nn,iret,verby,nfval,fval,ccmin,ccmax,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in,c_out,d_out,ta_out,tc_out,tf_out,tl_out,tn_out,trho_out) ! in :tdisp96:tdisp96_subroutine.f
+        subroutine disprs(ilvry,dt,nn,iret,verby,nfval,fval,ccmin,ccmax,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in,c_out) ! in :tdisp96:tdisp96_subroutine.f
             integer :: ilvry
             real*4 :: dt
             integer :: nn
@@ -103,13 +103,6 @@ python module tdisp96 ! in
             real :: facl_in
             real :: facr_in
             real dimension(2049), intent(out) :: c_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: d_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: ta_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tc_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tf_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tl_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tn_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: trho_out
             double precision :: twopi
             double precision :: displ
             double precision :: dispr

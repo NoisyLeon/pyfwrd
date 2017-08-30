@@ -428,7 +428,8 @@ c
         subroutine disprs(ilvry,dt,nn,iret,
      1          verby,nfval,fval,ccmin,ccmax,
      1      d_in,TA_in,TC_in,TF_in,TL_in,TN_in,TRho_in,
-     1      nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in,c_out)
+     1      nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in,
+     1      c_out,d_out,TA_out,TC_out,TF_out,TL_out,TN_out,TRho_out)
 c-----
 c       search poles in either C-T or F-K domains.
 c       To generate synthetic seismograms, F-K domain searching is
@@ -467,6 +468,8 @@ C       Input model arrays, added by LF
 c       Output, added by LF
         real c_out(NPERIOD)
         integer ic
+        real*4 d_out(nl_in),TA_out(nl_in),TC_out(nl_in),TF_out(nl_in)
+        real*4 TL_out(nl_in),TN_out(nl_in),TRho_out(nl_in)
         
         common/timod/d(NL),TA(NL),TC(NL),TF(NL),TL(NL),TN(NL),
      1      TRho(NL),
@@ -604,6 +607,16 @@ c-----
         if(nsph.gt.0)then
             call sphere(ilvry)
         endif
+        do 340 i=1,mmax
+            d_out(i)=d(i) 
+            TA_out(i)=TA(i) 
+            TC_out(i)=TC(i)
+            TF_out(i)=TF(i)
+            TN_out(i)=TN(i)
+            TL_out(i)=TL(i)
+            TRho_out(i)=Trho(i)
+  340       continue
+        
         if (verby)then
             write(LOT,30)
             write(LOT,40)
@@ -617,8 +630,10 @@ c-----
                 write(LOT,10) d(i),TA(i),TC(i),
      1           TF(i),TL(i),TN(i),Trho(i)
   341       continue
-            write(LOT,20) TA(mmax),TC(mmax),TF(mmax),TL(mmax),
+            write(LOT,10) d(mmax),TA(mmax),TC(mmax),TF(mmax),TL(mmax),
      1         TN(mmax),TRho(mmax)
+c            write(LOT,20) TA(mmax),TC(mmax),TF(mmax),TL(mmax),    (original)
+c     1         TN(mmax),TRho(mmax)
         endif
 c-----
 c       look at the model, determined the range of velocities

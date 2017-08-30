@@ -874,3 +874,43 @@ class model1d(object):
         else:
             return self.get_r_love_parameters(r)
         
+    def get_cps_model(self, dArr, nl, dh):
+        if dArr.size==0:
+            dArr = np.ones(nl, dtype = np.float32)*dh
+        else:
+            nl = len(dArr)
+        ALst=[]; CLst=[]; LLst=[]; FLst=[]; NLst=[]; rhoLst=[]
+        z0   = 0.
+        z1   = dArr[0]
+        for i in xrange(nl):
+            r0  = 6371000.-z0
+            r1  = 6371000.-z1
+            rho0, A0, C0, F0, L0, N0  = self.get_r_love_parameters(r0)
+            rho1, A1, C1, F1, L1, N1  = self.get_r_love_parameters(r1)
+            rho = (rho0+rho1)/np.float32(1e3)/2.
+            rhoLst.append(rho)
+            A   = (A0+A1)/1.e10/2.
+            ALst.append(A)
+            C   = (C0+C1)/1.e10/2.
+            CLst.append(C)
+            F   = (F0+F1)/1.e10/2.
+            FLst.append(F)
+            L   = (L0+L1)/1.e10/2.
+            LLst.append(L)
+            N   = (N0+N1)/1.e10/2.
+            NLst.append(N)
+            z0  += dArr[i]
+            z1  += dArr[i]
+        dArr    /=1000.
+        rhoArr  = np.array(rhoLst, dtype=np.float32)
+        AArr    = np.array(ALst, dtype=np.float32)
+        CArr    = np.array(CLst, dtype=np.float32)
+        FArr    = np.array(FLst, dtype=np.float32)
+        LArr    = np.array(LLst, dtype=np.float32)
+        NArr    = np.array(NLst, dtype=np.float32)
+        return dArr, rhoArr, AArr, CArr, FArr, LArr, NArr
+    
+        
+    
+    
+        
