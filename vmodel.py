@@ -191,6 +191,8 @@ spec = [('VsvArr', numba.float32[:]),
         ('LArrL', numba.float32[:]),
         ('FArrL', numba.float32[:]),
         ('NArrL', numba.float32[:]),
+        ('dipArr', numba.float32[:]),
+        ('strikeArr', numba.float32[:]),
         ('flat', numba.int32),
         ('rmin', numba.float32)
         ]
@@ -212,6 +214,7 @@ class model1d(object):
     """
     def __init__(self):
         self.flat   = 1
+        #
         return
     
     def get_data_vel(self, vsv, vsh, vpv, vph, eta, rho, radius):
@@ -875,10 +878,28 @@ class model1d(object):
             return self.get_r_love_parameters(r)
         
     def get_cps_model(self, dArr, nl, dh):
+        """
+        Get the layerized model for CPS
+        Note that the unit is different from the default unit of the class
+        ===================================================================
+        ::: Input Parameters :::
+        dArr            - numpy array of layer thickness (unit - km)
+        nl              - number of layers
+        dh              - thickness of each layer (unit - km)
+        nl and dh will be used if and only if dArr.size = 0
+        ::: Output :::
+        dArr            - layer thickness array (unit - km)
+        rhoArr          - density array (unit - g/cm^3)
+        AArr, CArr, FArr- Love parameters (unit - GPa)
+        LArr, NArr
+        ===================================================================
+        """
         if dArr.size==0:
-            dArr = np.ones(nl, dtype = np.float32)*dh
+            dh  *= 1000. 
+            dArr= np.ones(nl, dtype = np.float32)*np.float32(dh)
         else:
-            nl = len(dArr)
+            dArr    *= 1000.
+            nl      = dArr.size
         ALst=[]; CLst=[]; LLst=[]; FLst=[]; NLst=[]; rhoLst=[]
         z0   = 0.
         z1   = dArr[0]
@@ -887,20 +908,23 @@ class model1d(object):
             r1  = 6371000.-z1
             rho0, A0, C0, F0, L0, N0  = self.get_r_love_parameters(r0)
             rho1, A1, C1, F1, L1, N1  = self.get_r_love_parameters(r1)
+            # density is converted from kg/m^3 to g/cm^3
             rho = (rho0+rho1)/np.float32(1e3)/2.
             rhoLst.append(rho)
-            A   = (A0+A1)/1.e10/2.
+            # Love parameters are converted from Pa to GPa
+            A   = (A0+A1)/1.e9/2.
             ALst.append(A)
-            C   = (C0+C1)/1.e10/2.
+            C   = (C0+C1)/1.e9/2.
             CLst.append(C)
-            F   = (F0+F1)/1.e10/2.
+            F   = (F0+F1)/1.e9/2.
             FLst.append(F)
-            L   = (L0+L1)/1.e10/2.
+            L   = (L0+L1)/1.e9/2.
             LLst.append(L)
-            N   = (N0+N1)/1.e10/2.
+            N   = (N0+N1)/1.e9/2.
             NLst.append(N)
             z0  += dArr[i]
             z1  += dArr[i]
+        # layer thickness is converted from m to km
         dArr    /=1000.
         rhoArr  = np.array(rhoLst, dtype=np.float32)
         AArr    = np.array(ALst, dtype=np.float32)

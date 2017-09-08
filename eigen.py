@@ -560,13 +560,7 @@ class eigen_solver(object):
         self.nmodes = 1
         return
     
-    
-    # def initialization(self):
-    #     self.T      = np.arange(self.Tmin,self.Tmax + self.dT, self.dT, dtype=np.float32)
-    #     self.c      = np.arange(self.cmin,self.cmax + self.dc ,self.dc , dtype=np.float32)
-    #     self.omega  = 2 * np.pi / T
-    
-    def initialization(self):
+    def init_default(self):
         Tmin   = 10.
         Tmax   = 50.
         dT     = 5.
@@ -578,29 +572,7 @@ class eigen_solver(object):
         self.c      = _get_array(cmin, cmax, dc)
         self.omega  = _value_divide_array(2.*np.pi, self.T)
         self.r      = _get_array(rmin, 6371000., self.dr)
-        # r1          = _get_array(6171000., 6371000., 1000.)
-        # dr1         = np.ones(r1.size, dtype=np.float32)
-        # r2          = _get_array(self.rmin, 6171000.-5000., 5000.)
-        # dr2         = np.ones(r2.size, dtype=np.float32)*5.
-        # self.r      = _merge_array(r2, r1)
-        # ###
-        # self.dr     = _merge_array(dr2, dr1)
-        ###
-        
-    # def init2(self):
-    #     
-    #     self.T      = _get_array(self.Tmin, self.Tmax, self.dT)
-    #     self.c      = _get_array(self.cmin, self.cmax, self.dc)
-    #     self.omega  = _value_divide_array(2.*np.pi, self.T)
-    #     # self.r      = _get_array(self.rmin, 6371000., self.dr)
-    #     r1          = _get_array(6171000., 6371000., 1000.)
-    #     # dr1         = np.ones(r1.size, dtype=np.float32)
-    #     r2          = _get_array(self.rmin, 6171000.-5000., 5000.)
-    #     # dr2         = np.ones(r2.size, dtype=np.float32)*5.
-    #     self.r      = _merge_array(r2, r1)
-        # ###
-        # self.dr     = _merge_array(dr2, dr1)
-        ###
+        return
         
     def init_dbase(self, T, c, rmin, dr, nmodes):
         
