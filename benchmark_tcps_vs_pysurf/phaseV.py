@@ -1,3 +1,6 @@
+import sys
+sys.path.append('/home/leon/code/pysurf')
+
 import eigen, tcps
 import vmodel
 import numpy as np
@@ -16,7 +19,12 @@ tcps1 = tcps.tcps_solver(m)
 tcps1.init_default()
 tcps1.solve_PSV()
 
+tcps2 = tcps.tcps_solver(m)
+tcps2.init_default_2()
+tcps2.verbose=1
+tcps2.solve_PSV()
 
-plt.plot((eig1.T), (eig1.Vph[0,:]/1000.), 'o')
-plt.plot(tcps1.T, tcps1.Vph, 'x')
-plt.show()
+
+# plt.plot((eig1.T), (eig1.Vph[0,:]/1000.), 'ro', ms=10)
+# plt.plot(tcps1.T, tcps1.Vph, 'bx', ms=10)
+# plt.show()

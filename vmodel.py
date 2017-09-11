@@ -765,7 +765,7 @@ class model1d(object):
     
     def get_r_love_parameters(self, r):
         """
-        Return Love paramaters and density given a radius
+        Return Love paramaters and density given a radius, always yield the RIGHT value if repeated radius grid points appear
         """
         if r < self.rmin: raise ValueError('Required radius is out of the model range!')
         ind_l = -1; ind_r = -1
@@ -780,7 +780,42 @@ class model1d(object):
             ind_l += 1
             ind_r += 1
         if ind_l == ind_r:
-            if self.rArr[ind_l] == self.rArr[ind_l+1]: ind_l+=1
+            if self.rArr[ind_l] == self.rArr[ind_l+1]: ind_l+=1 # the difference compared with get_r_love_parameters_left
+            return self.rhoArr[ind_l], self.AArr[ind_l], self.CArr[ind_l], \
+                self.FArr[ind_l], self.LArr[ind_l], self.NArr[ind_l]
+        r_left  = self.rArr[ind_l]
+        r_right = self.rArr[ind_r]
+        rhol    = self.rhoArr[ind_l]; rhor  =   self.rhoArr[ind_r]
+        rho     = rhol + (r - r_left)*(rhor-rhol)/(r_right - r_left)
+        Al      = self.AArr[ind_l]; Ar  =   self.AArr[ind_r]
+        A       = Al + (r - r_left)*(Ar-Al)/(r_right - r_left)
+        Cl      = self.CArr[ind_l]; Cr  =   self.CArr[ind_r]
+        C       = Cl + (r - r_left)*(Cr-Cl)/(r_right - r_left)    
+        Fl      = self.FArr[ind_l]; Fr  =   self.FArr[ind_r]
+        F       = Fl + (r - r_left)*(Fr-Fl)/(r_right - r_left)
+        Ll      = self.LArr[ind_l]; Lr  =   self.LArr[ind_r]
+        L       = Ll + (r - r_left)*(Lr-Ll)/(r_right - r_left)
+        Nl      = self.NArr[ind_l]; Nr  =   self.NArr[ind_r]
+        N       = Nl + (r - r_left)*(Nr-Nl)/(r_right - r_left)
+        return rho, A, C, F, L, N
+    
+    def get_r_love_parameters_left(self, r):
+        """
+        Return Love paramaters and density given a radius, always yield the LEFT value if repeated radius grid points appear
+        """
+        if r < self.rmin: raise ValueError('Required radius is out of the model range!')
+        ind_l = -1; ind_r = -1
+        for _r in self.rArr:
+            if r < _r:
+                ind_r += 1
+                break
+            if r == _r:
+                ind_l += 1
+                ind_r += 1
+                break
+            ind_l += 1
+            ind_r += 1
+        if ind_l == ind_r:
             return self.rhoArr[ind_l], self.AArr[ind_l], self.CArr[ind_l], \
                 self.FArr[ind_l], self.LArr[ind_l], self.NArr[ind_l]
         r_left  = self.rArr[ind_l]
@@ -906,7 +941,7 @@ class model1d(object):
         for i in xrange(nl):
             r0  = 6371000.-z0
             r1  = 6371000.-z1
-            rho0, A0, C0, F0, L0, N0  = self.get_r_love_parameters(r0)
+            rho0, A0, C0, F0, L0, N0  = self.get_r_love_parameters_left(r0) # top point value needs to use left value in radius array
             rho1, A1, C1, F1, L1, N1  = self.get_r_love_parameters(r1)
             # density is converted from kg/m^3 to g/cm^3
             rho = (rho0+rho1)/np.float32(1e3)/2.
@@ -923,7 +958,7 @@ class model1d(object):
             N   = (N0+N1)/1.e9/2.
             NLst.append(N)
             z0  += dArr[i]
-            z1  += dArr[i]
+            z1  += dArr[i+1]
         # layer thickness is converted from m to km
         dArr    /=1000.
         rhoArr  = np.array(rhoLst, dtype=np.float32)

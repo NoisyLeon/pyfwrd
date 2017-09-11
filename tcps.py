@@ -109,17 +109,26 @@ class tcps_solver(object):
         self.egn96  = True
         return
     
-    def init_default(self):
-        Tmin   = 5.
-        Tmax   = 100.
-        dT     = 2.
+    def init_default(self, dh=1., nl=200):
+        Tmin        = 5.
+        Tmax        = 100.
+        dT          = 5.
         self.cmin   = -1.
         self.cmax   = -1.
         self.T      = _get_array(Tmin, Tmax, dT)
         self.freq   = _value_divide_array(1., self.T)
-        dh          = 1.
-        nl          = 200
         self.dArr   = np.ones(nl, dtype = np.float32)*np.float32(dh)
+        return
+    
+    def init_default_2(self):
+        Tmin        = 5.
+        Tmax        = 100.
+        dT          = 5.
+        self.cmin   = -1.
+        self.cmax   = -1.
+        self.T      = _get_array(Tmin, Tmax, dT)
+        self.freq   = _value_divide_array(1., self.T)
+        self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
         
     # def init_dbase(self, T, c, rmin, dr, nmodes):
@@ -132,37 +141,37 @@ class tcps_solver(object):
     #     self.nmodes = nmodes
     #     return
     
-    def init_output(self, wavetype):
-        Nt              = self.T.size
-        Nz              = self.r.size
-        Vph             = np.zeros(self.nmodes*Nt, np.float32)
-        self.Vph        = Vph.reshape(self.nmodes, Nt)
-        self.Vgr        = self.Vph.copy()
-        eArr            = np.zeros(self.nmodes*Nt, np.int32)
-        self.eArr       = eArr.reshape(self.nmodes, Nt)
-        tempdata        = np.zeros(self.nmodes*Nt*Nz, np.float32)
-        tempdata        = tempdata.reshape(self.nmodes, Nt, Nz)
-        if wavetype==1:
-            self.r1data     = tempdata.copy()
-            self.r2data     = tempdata.copy()
-            self.r3data     = tempdata.copy()
-            self.r4data     = tempdata.copy()
-        else:
-            self.l1data     = tempdata.copy()
-            self.l2data     = tempdata.copy()
-        self.Kadata     = tempdata.copy()
-        self.Kcdata     = tempdata.copy()
-        self.Kfdata     = tempdata.copy()
-        self.Kldata     = tempdata.copy()
-        self.Kndata     = tempdata.copy()
-        self.Krhodata   = tempdata.copy()
-        self.Krho0data  = tempdata.copy()
-        self.Kvphdata   = tempdata.copy()
-        self.Kvpvdata   = tempdata.copy()
-        self.Kvshdata   = tempdata.copy()
-        self.Kvsvdata   = tempdata.copy()
-        self.Ketadata   = tempdata.copy()
-        return
+    # def init_output(self, wavetype):
+    #     Nt              = self.T.size
+    #     Nz              = self.r.size
+    #     Vph             = np.zeros(self.nmodes*Nt, np.float32)
+    #     self.Vph        = Vph.reshape(self.nmodes, Nt)
+    #     self.Vgr        = self.Vph.copy()
+    #     eArr            = np.zeros(self.nmodes*Nt, np.int32)
+    #     self.eArr       = eArr.reshape(self.nmodes, Nt)
+    #     tempdata        = np.zeros(self.nmodes*Nt*Nz, np.float32)
+    #     tempdata        = tempdata.reshape(self.nmodes, Nt, Nz)
+    #     if wavetype==1:
+    #         self.r1data     = tempdata.copy()
+    #         self.r2data     = tempdata.copy()
+    #         self.r3data     = tempdata.copy()
+    #         self.r4data     = tempdata.copy()
+    #     else:
+    #         self.l1data     = tempdata.copy()
+    #         self.l2data     = tempdata.copy()
+    #     self.Kadata     = tempdata.copy()
+    #     self.Kcdata     = tempdata.copy()
+    #     self.Kfdata     = tempdata.copy()
+    #     self.Kldata     = tempdata.copy()
+    #     self.Kndata     = tempdata.copy()
+    #     self.Krhodata   = tempdata.copy()
+    #     self.Krho0data  = tempdata.copy()
+    #     self.Kvphdata   = tempdata.copy()
+    #     self.Kvpvdata   = tempdata.copy()
+    #     self.Kvshdata   = tempdata.copy()
+    #     self.Kvsvdata   = tempdata.copy()
+    #     self.Ketadata   = tempdata.copy()
+    #     return
     
     def solve_PSV(self):
         #- root-finding algorithm using tdisp96, compute phase velocities ------------------------

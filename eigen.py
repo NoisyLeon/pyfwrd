@@ -563,11 +563,11 @@ class eigen_solver(object):
     def init_default(self):
         Tmin   = 5.
         Tmax   = 100.
-        dT     = 2.
+        dT     = 5.
         cmin   = 3000.
         cmax   = 5000.
         dc     = 50.
-        rmin   = 6171.*1000.
+        rmin   = 5971.*1000.
         self.T      = _get_array(Tmin, Tmax, dT)
         self.c      = _get_array(cmin, cmax, dc)
         self.omega  = _value_divide_array(2.*np.pi, self.T)
