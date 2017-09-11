@@ -561,12 +561,12 @@ class eigen_solver(object):
         return
     
     def init_default(self):
-        Tmin   = 10.
-        Tmax   = 50.
-        dT     = 5.
+        Tmin   = 5.
+        Tmax   = 100.
+        dT     = 2.
         cmin   = 3000.
         cmax   = 5000.
-        dc     = 100.
+        dc     = 50.
         rmin   = 6171.*1000.
         self.T      = _get_array(Tmin, Tmax, dT)
         self.c      = _get_array(cmin, cmax, dc)
@@ -585,6 +585,10 @@ class eigen_solver(object):
         return
     
     def init_output(self, wavetype):
+        """
+        Krho0data   - density kernel in terms of Love parameters
+        Krhodata    - density kernel in terms of velocities
+        """
         Nt              = self.T.size
         Nz              = self.r.size
         Vph             = np.zeros(self.nmodes*Nt, np.float32)
@@ -607,8 +611,8 @@ class eigen_solver(object):
         self.Kfdata     = tempdata.copy()
         self.Kldata     = tempdata.copy()
         self.Kndata     = tempdata.copy()
-        self.Krhodata   = tempdata.copy()
         self.Krho0data  = tempdata.copy()
+        self.Krhodata   = tempdata.copy()
         self.Kvphdata   = tempdata.copy()
         self.Kvpvdata   = tempdata.copy()
         self.Kvshdata   = tempdata.copy()

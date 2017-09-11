@@ -13,6 +13,7 @@ Numba is used for speeding up of the code.
 """
 
 import tdisp96
+import tregn96, tlegn96
 import numba
 import numpy as np
 import vmodel
@@ -92,21 +93,26 @@ spec = [('model',       model_type),
         ('Ketadata',    numba.float32[:, :, :]),
         ('Krhodata',    numba.float32[:, :, :]),
         ('freq',       numba.float32[:]),
-        ('nmodes',      numba.int32)
+        ('nmodes',      numba.int32),
+        ('verbose',      numba.int32)
         ]
 
 # @numba.jitclass(spec)
 class tcps_solver(object):
     
     def __init__(self, inmodel):
+        if not isinstance(inmodel, vmodel.model1d):
+            raise ValueError('Input model should be of type vmodel.model1d !')
         self.model  = inmodel
         self.nmodes = 1
+        self.verbose= 0
+        self.egn96  = True
         return
     
     def init_default(self):
-        Tmin   = 10.
-        Tmax   = 50.
-        dT     = 5.
+        Tmin   = 5.
+        Tmax   = 100.
+        dT     = 2.
         self.cmin   = -1.
         self.cmax   = -1.
         self.T      = _get_array(Tmin, Tmax, dT)
@@ -159,19 +165,90 @@ class tcps_solver(object):
         return
     
     def solve_PSV(self):
-        #- root-finding algorithm ---------------------------------------------------------------------
+        #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
         # self.init_output(1)
         dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_cps_model(self.dArr, 200, 1.)
-        verby = 1
         nfval = self.freq.size
         if self.model.flat == 0:
             iflsph_in = 2
         else:
             iflsph_in = 0
         ilvry = 2
-        c_out,d_out,TA_out,TC_out,TF_out,TL_out,TN_out,TRho_out = tdisp96.disprs(ilvry, 1., nfval, 1, verby, nfval, np.append(self.freq, np.zeros(2049-nfval)), self.cmin,self.cmax,\
-               dArr, AArr,CArr,FArr,LArr,NArr,rhoArr,\
-               dArr.size, iflsph_in, 0., self.nmodes, 0.5, 0.5)
+        c_out,d_out,TA_out,TC_out,TF_out,TL_out,TN_out,TRho_out = tdisp96.disprs(ilvry, 1., nfval, 1, self.verbose, nfval, \
+                np.append(self.freq, np.zeros(2049-nfval)), self.cmin,self.cmax, dArr, AArr,CArr,FArr,LArr,NArr,rhoArr, dArr.size,\
+                iflsph_in, 0., self.nmodes, 0.5, 0.5)
+        self.ilvry  = ilvry
+        self.Vph    = c_out[:nfval]
+        if self.model.flat == 0:
+            self.dsph   = d_out
+            self.Asph   = TA_out
+            self.Csph   = TC_out
+            self.Lsph   = TL_out
+            self.Fsph   = TF_out
+            self.Nsph   = TN_out
+            self.rhosph = TRho_out
+        #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
+        if self.egn96:
+            hs_in       = 0.
+            hr_in       = 0.
+            ohr_in      = 0.
+            ohs_in      = 0.
+            refdep_in   = 0.
+            dogam       = False # No attenuation
+            nl_in       = dArr.size
+            if self.model.flat == 0:
+                d_in    = d_out
+                TA_in   = TA_out
+                TC_in   = TC_out
+                TF_in   = TF_out
+                TL_in   = TL_out
+                TN_in   = TN_out
+                TRho_in = TRho_out
+            else:
+                d_in    = dArr
+                TA_in   = AArr
+                TC_in   = CArr
+                TF_in   = FArr
+                TL_in   = LArr
+                TN_in   = NArr
+                TRho_in = rhoArr
+            qai_in      = np.ones(nl_in)*1.e6
+            qbi_in      = np.ones(nl_in)*1.e6
+            etapi_in    = np.zeros(nl_in)
+            etasi_in    = np.zeros(nl_in)
+            frefpi_in   = np.ones(nl_in)
+            frefsi_in   = np.ones(nl_in)
+            u_out, ur, tur, uz, tuz, dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr = tregn96.tregn96(hs_in, hr_in, ohr_in, ohs_in,\
+                refdep_in, dogam, nl_in, iflsph_in, d_in, TA_in, TC_in, TF_in, TL_in, TN_in, TRho_in, \
+                qai_in,qbi_in,etapi_in,etasi_in, frefpi_in, frefsi_in, self.T.size, self.T, self.Vph)
+            # store output
+            self.Vgr        = u_out
+            # eigenfunctions
+            self.r1data     = ur[:nfval,:]
+            self.r2data     = tur[:nfval,:]
+            self.r3data     = uz[:nfval,:]
+            self.r4data     = tuz[:nfval,:]
+            # sensitivity kernels
+            self.Kvphdata   = dcdah[:nfval,:]
+            self.Kvpvdata   = dcdav[:nfval,:]
+            self.Kvshdata   = dcdbh[:nfval,:]
+            self.Kvsvdata   = dcdbv[:nfval,:]
+            # self.Ketadata   = tempdata.copy()
+            self.Krhodata   = dcdr[:nfval,:]
+            
+            #
+            # self.Kadata     = tempdata.copy()
+            # self.Kcdata     = tempdata.copy()
+            # self.Kfdata     = tempdata.copy()
+            # self.Kldata     = tempdata.copy()
+            self.Kndata     = dcdn[:nfval,:]
+            # self.Krho0data   = tempdata.copy()
+    
+    
+        
+            
+        
+        
         
     
     

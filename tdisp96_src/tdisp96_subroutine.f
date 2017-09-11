@@ -289,9 +289,9 @@ c-----
             
         enddo
  2000   continue
-        WRITE(6,*)'psvhalf mt,mb:',mt,mb
-        WRITE(6,*)'psvhalf betmn,betmx:',betmn,betmx
-        WRITE(6,*)'psvhalf cmin,cmax:',cmin,cmax
+c        WRITE(6,*)'psvhalf mt,mb:',mt,mb
+c        WRITE(6,*)'psvhalf betmn,betmx:',betmn,betmx
+c        WRITE(6,*)'psvhalf cmin,cmax:',cmin,cmax
         return
         end
 
