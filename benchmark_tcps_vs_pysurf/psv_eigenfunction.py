@@ -1,0 +1,53 @@
+import sys
+sys.path.append('/home/leon/code/pysurf')
+
+"""
+Conclusion:
+
+eigen's r1 and r3 are only accurate for intermediate periods, need correction
+
+eigen's r3 has opposite sign compared with tcps's r3
+
+eigen's r2 and r4 seems to be wrong (extremely large values), need correction
+
+
+"""
+import eigen, tcps
+import vmodel
+import numpy as np
+import matplotlib.pyplot as plt
+
+m=vmodel.model1d()
+m=vmodel.model1d()
+m=vmodel.read_model(m, 'ak135.txt')
+# m.earth_flattening()
+eig1 = eigen.eigen_solver(m)
+eig1.init_default()
+eig1.solve_PSV()
+
+
+tcps1 = tcps.tcps_solver(m)
+tcps1.init_default()
+tcps1.solve_PSV()
+
+tcps2 = tcps.tcps_solver(m)
+tcps2.init_default(nl=100., dh=2.)
+tcps2.verbose=1
+tcps2.solve_PSV()
+
+
+# i=5
+# plt.plot((6371000. - eig1.r[::-1])/1000., (eig1.r3data[0,i,::-1]), 'ro-', ms=10)
+# plt.plot(tcps1.dArr.cumsum(), tcps1.r3data[i, :], 'bo-', ms=10)
+    
+for i in xrange(10):
+    # plt.figure()
+    plt.plot((6371000. - eig1.r[::-1])/1000., (eig1.r3data[0,i,::-1]), 'ro-', ms=10)
+    plt.plot(tcps1.dArr.cumsum(), -tcps1.r3data[i, :], 'bo-', ms=10)
+# plt.plot(tcps2.dArr.cumsum(), tcps2.r1data[5, :], 'kx-', ms=10)
+# 
+# plt.figure()
+# plt.plot((eig1.T), (eig1.Vgr[0,:]/1000.), 'ro', ms=10)
+# plt.plot(tcps1.T, tcps1.Vgr, 'b^', ms=10)
+plt.show()
+

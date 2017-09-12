@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Module for surface wave eigenfunction and dispersion computation
+Module for surface wave eigenfunction and dispersion computation, benchmark with CPS ongoing!
 
 The code is based on the surf package by Andreas Fichtner.
 Numba is used for speeding up of the code.

@@ -200,31 +200,40 @@ spec = [('VsvArr', numba.float32[:]),
 @numba.jitclass(spec)
 class model1d(object):
     """
-    Class defining a 1D Earth model
-    ===============================================================================
-    Parameters:
+    An object for handling a 1D Earth model
+    =====================================================================================================================
+    ::: Parameters :::
     VsvArr, VshArr, - Vsv, Vsh, Vpv, Vph velocity (unit - m/s)
     VpvArr, VphArr  
     rhoArr          - density (kg/m^3)
-    etaArr          - eta(F/(A-2L)) dimentionless
+    etaArr          - eta(F/(A-2L)) dimensionless
     AArr, CArr, FArr- Love parameters (unit - Pa)
     LArr, NArr
+    rArr            - radius array (unit - m), sorted from the rmin to rmax(6371000. m)
     flat            - = 0 spherical Earth, = 1 flat Earth (default)
-    ===============================================================================
+                        Note: different from CPS
+    arrays with *R  - Love parameters and density arrays after Earth flattening transformation for PSV motion
+    arrays with *L  - Love parameters and density arrays after Earth flattening transformation for SH motion
+    rArrS           - radius array after Earth flattening transformation
+    dipArr,strikeArr- dip/strike angles, will be used for tilted hexagonal symmetric media
+    =====================================================================================================================
     """
     def __init__(self):
         self.flat   = 1
-        #
         return
     
     def get_data_vel(self, vsv, vsh, vpv, vph, eta, rho, radius):
         """
-        Get model data given velocity arrays
+        Get model data given velocity/density/radius arrays
         """
         self.rArr   = radius
         self.rhoArr = rho
+        if np.any(vsv<500.) or np.any(vsh<500.) or np.any(vpv<500.) or np.any(vph<500.) or np.any(rho<500.):
+            raise ValueError('Wrong unit for model parameters!')
+        if np.any(radius< 10000.):
+            raise ValueError('Wrong unit for radius!')
         ###
-        # Velocity
+        # assign velocities
         ###
         self.VsvArr = vsv
         self.VshArr = vsh
@@ -232,7 +241,7 @@ class model1d(object):
         self.VphArr = vph
         self.etaArr = eta
         ###
-        # Love parameters
+        # compute Love parameters
         ###
         self.AArr   = rho * vph**2
         self.CArr   = rho * vpv**2
@@ -243,6 +252,8 @@ class model1d(object):
     
     def earth_flattening_kennett(self):
         """
+        Earth flattening transformation using Kennett's formulas.
+        Ref.
         Kennett 2009, Seismic Wave Propagation in a Stratified Medium, p16
         """
         z           = np.float32(6371000.)*np.log(np.float32(6371000.)/self.rArr)
@@ -263,7 +274,6 @@ class model1d(object):
         self.FArr   = self.etaArr * (self.AArr - np.float32(2.)* self.LArr)
         self.NArr   = self.rhoArr * self.VshArr**2
         self.rArr   = np.float32(6371000.)-z
-        
         return
     
     def earth_flattening(self):
@@ -299,7 +309,6 @@ class model1d(object):
         self.rArrS  = np.float32(6371000.)-z
         self.rmin   = self.rArrS[0]
         return
-        
     
     def get_radius(self, zmax, dz):
         """
@@ -312,23 +321,19 @@ class model1d(object):
         self.rArr   - radius array (unit - m)
         ===============================================================================
         """
-        rmin    = 6371.0 - zmax
-        # # Nr      = int((6371. - rmin)/dz + 1)
-        # # rlst    = []
-        # # for i in xrange(Nr): rlst.append(1000.*(i+rmin)*dz)
-        # # self.rArr   = np.array(rlst, dtype=np.float32)
+        rmin        = 6371.0 - zmax
         self.rArr   = _get_array(rmin*1000., 6371000., dz*1000.)
         return
     
     def model_prem(self):
         """
-        Get 1D PREM model (Dziewonski & Anderson, PEPI 1981) for 
-        a radius r in m. The reference frequency is 1 Hz. Crust continued into the ocean.
+        PREM model (Dziewonski & Anderson, PEPI 1981)
+        The reference frequency is 1 Hz. Crust continued into the ocean.
         """
         ALst=[]; CLst=[]; LLst=[]; FLst=[]; NLst=[]; rhoLst=[]
         vsvLst=[]; vpvLst=[]; vshLst=[]; vphLst=[]; etaLst=[]
         for r in self.rArr:
-            #- normalised radius
+            #- normalized radius
             x = r / 6371000.0
             #- march through the various depth levels -----------------------------------------------------
             #- upper crust
@@ -467,6 +472,9 @@ class model1d(object):
         return
     
     def model_ak135_cps(self):
+        """
+        ak135 model from CPS
+        """
         ak135_cps_arr = np.array([
                 0.00000000e+00,   5.80000000e+00,   3.46000000e+00,   2.72000000e+00, 
                 2.00000000e+01,   5.80000000e+00,   3.46000000e+00,   2.72000000e+00,
@@ -676,45 +684,43 @@ class model1d(object):
                 5.05324060e+03,   1.02655000e+01,   0.00000000e+00,   1.20730000e+01,
                 5.05324060e+03,   1.02799000e+01,   0.00000000e+00,   1.21000000e+01,
                 5.10357020e+03,   1.02872000e+01,   0.00000000e+00,   1.21262000e+01], dtype = np.float32)
-        data    = ak135_cps_arr.reshape( ak135_cps_arr.size/4, 4)
+        data        = ak135_cps_arr.reshape( ak135_cps_arr.size/4, 4)
         # assign model parameters
-        z       = data[:, 0]
-        radius  = (np.float32(6371.)-z)*np.float32(1000.)
-        rho     = data[:, 3]*np.float32(1000.)
-        vpv     = data[:, 1]*np.float32(1000.)
-        vsv     = data[:, 2]*np.float32(1000.)
-        vph     = vpv
-        vsh     = vsv
-        eta     = np.ones(vph.size, dtype=np.float32)
+        z           = data[:, 0]
+        radius      = (np.float32(6371.)-z)*np.float32(1000.)
+        rho         = data[:, 3]*np.float32(1000.)
+        vpv         = data[:, 1]*np.float32(1000.)
+        vsv         = data[:, 2]*np.float32(1000.)
+        vph         = vpv
+        vsh         = vsv
+        eta         = np.ones(vph.size, dtype=np.float32)
         # revert the array
-        vsv     = vsv[::-1]
-        vsh     = vsh[::-1]
-        vpv     = vpv[::-1]
-        vph     = vph[::-1]
-        eta     = eta[::-1]
-        rho     = rho[::-1]
-        radius  = radius[::-1]
+        vsv         = vsv[::-1]
+        vsh         = vsh[::-1]
+        vpv         = vpv[::-1]
+        vph         = vph[::-1]
+        eta         = eta[::-1]
+        rho         = rho[::-1]
+        radius      = radius[::-1]
         # discard data with zero shear wave velocity
-        ind     = (vsv!=0.)
-        vsv     = vsv[ind]
-        vsh     = vsh[ind]
-        vpv     = vpv[ind]
-        vph     = vph[ind]
-        eta     = eta[ind]
-        rho     = rho[ind]
-        radius  = radius[ind]        
-        # # # # assign zero shear velocity to 0.001 m/s
-        # # # ind     = (vsv==0.)
-        # # # vsv[ind]= np.float32(0.01)
-        # # # vsh[ind]= np.float32(0.01)
+        ind         = (vsv!=0.)
+        vsv         = vsv[ind]
+        vsh         = vsh[ind]
+        vpv         = vpv[ind]
+        vph         = vph[ind]
+        eta         = eta[ind]
+        rho         = rho[ind]
+        radius      = radius[ind]        
         self.get_data_vel(vsv, vsh, vpv, vph, eta, rho, radius)
         self.rmin   = self.rArr.min()
         return
     
     def trim(self, zmax):
         """
-        Trim the model given a maximum depth
+        Trim the model given a maximum depth(unit - km)
         """
+        if zmax >= 6371.:
+            raise ValueError('Input maximum depth should have a unit of km !')
         rmin        = (np.float32(6371.)-zmax)*np.float32(1000.)
         ind         = self.rArr > rmin
         Nt          = (self.rArr[ind]).size
@@ -737,7 +743,6 @@ class model1d(object):
         if self.flat == 0:
             self.earth_flattening()
         return
-        
         
     def get_ind_Love_parameters(self, i):
         """
@@ -765,7 +770,8 @@ class model1d(object):
     
     def get_r_love_parameters(self, r):
         """
-        Return Love paramaters and density given a radius, always yield the RIGHT value if repeated radius grid points appear
+        Return Love paramaters and density given a radius
+        NOTE : always yield the RIGHT value if repeated radius grid points appear
         """
         if r < self.rmin: raise ValueError('Required radius is out of the model range!')
         ind_l = -1; ind_r = -1
@@ -801,7 +807,8 @@ class model1d(object):
     
     def get_r_love_parameters_left(self, r):
         """
-        Return Love paramaters and density given a radius, always yield the LEFT value if repeated radius grid points appear
+        Return Love paramaters and density given a radius
+        NOTE : always yield the LEFT value if repeated radius grid points appear
         """
         if r < self.rmin: raise ValueError('Required radius is out of the model range!')
         ind_l = -1; ind_r = -1
@@ -837,6 +844,7 @@ class model1d(object):
     def get_r_love_parameters_PSV(self, r):
         """
         Return Love paramaters and density given a radius, for P-SV waves
+        NOTE : always yield the RIGHT value if repeated radius grid points appear
         """
         if r < self.rmin: raise ValueError('Required radius is out of the model range!')
         if self.flat == 0:
@@ -852,7 +860,7 @@ class model1d(object):
                 ind_l += 1
                 ind_r += 1
             if ind_l == ind_r:
-                if self.rArrS[ind_l] == self.rArrS[ind_l+1]: ind_l+=1
+                if self.rArrS[ind_l] == self.rArrS[ind_l+1]: ind_l+=1 #  yield the RIGHT values
                 return self.rhoArrR[ind_l], self.AArrR[ind_l], self.CArrR[ind_l], \
                     self.FArrR[ind_l], self.LArrR[ind_l], self.NArrR[ind_l]
             r_left  = self.rArrS[ind_l]
@@ -876,6 +884,7 @@ class model1d(object):
     def get_r_love_parameters_SH(self, r):
         """
         Return Love paramaters and density given a radius, for SH waves
+        NOTE : always yield the RIGHT value if repeated radius grid points appear
         """
         if r < self.rmin: raise ValueError('Required radius is out of the model range!')
         if self.flat == 0:
@@ -911,15 +920,56 @@ class model1d(object):
             return rho, A, C, F, L, N
         else:
             return self.get_r_love_parameters(r)
+    
+    #####################################################################
+    # functions for layerized model
+    #####################################################################
+    def check_layer_model(self):
+        r_inv   = self.rArr[::-1]
+        rho_inv = self.rhoArr[::-1]
+        A_inv   = self.AArr[::-1]
+        C_inv   = self.CArr[::-1]
+        F_inv   = self.FArr[::-1]
+        L_inv   = self.LArr[::-1]
+        N_inv   = self.NArr[::-1]
+        for i in xrange(r_inv.size):
+            if i == 0:
+                if r_inv[i] != 6371000.:
+                    return False
+                else:
+                    continue
+            if i % 2 != 0: continue
+            r0  = r_inv[i-1]; r1 = r_inv[i]
+            if r0 != r1:
+                return False
+            A0  = A_inv[i-2]; A1 = A_inv[i-1]
+            if A0 != A1:
+                return False
+            C0  = C_inv[i-2]; C1 = C_inv[i-1]
+            if C0 != C1:
+                return False
+            F0  = F_inv[i-2]; F1 = F_inv[i-1]
+            if F0 != F1:
+                return False
+            L0  = L_inv[i-2]; L1 = L_inv[i-1]
+            if L0 != L1:
+                return False
+            N0  = N_inv[i-2]; N1 = N_inv[i-1]
+            if N0 != N1:
+                return False
+        return True
+            
+            
         
+    
     def get_cps_model(self, dArr, nl, dh):
         """
         Get the layerized model for CPS
-        Note that the unit is different from the default unit of the class
+        Note: the unit is different from the default unit of the object
         ===================================================================
         ::: Input Parameters :::
         dArr            - numpy array of layer thickness (unit - km)
-        nl              - number of layers
+        nl              - number of layers 
         dh              - thickness of each layer (unit - km)
         nl and dh will be used if and only if dArr.size = 0
         ::: Output :::
@@ -930,8 +980,8 @@ class model1d(object):
         ===================================================================
         """
         if dArr.size==0:
-            dh  *= 1000. 
-            dArr= np.ones(nl, dtype = np.float32)*np.float32(dh)
+            dh      *= 1000. 
+            dArr    = np.ones(nl, dtype = np.float32)*np.float32(dh)
         else:
             dArr    *= 1000.
             nl      = dArr.size
@@ -969,7 +1019,5 @@ class model1d(object):
         NArr    = np.array(NLst, dtype=np.float32)
         return dArr, rhoArr, AArr, CArr, FArr, LArr, NArr
     
-        
     
     
-        

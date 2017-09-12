@@ -102,7 +102,7 @@ class tcps_solver(object):
     
     def __init__(self, inmodel):
         if not isinstance(inmodel, vmodel.model1d):
-            raise ValueError('Input model should be of type vmodel.model1d !')
+            raise ValueError('Input model should be type of vmodel.model1d !')
         self.model  = inmodel
         self.nmodes = 1
         self.verbose= 0
@@ -233,24 +233,24 @@ class tcps_solver(object):
             # store output
             self.Vgr        = u_out
             # eigenfunctions
-            self.r1data     = ur[:nfval,:]
-            self.r2data     = tur[:nfval,:]
-            self.r3data     = uz[:nfval,:]
-            self.r4data     = tuz[:nfval,:]
+            self.r1data     = uz[:nfval,:nl_in]
+            self.r2data     = tuz[:nfval,:nl_in]
+            self.r3data     = ur[:nfval,:nl_in]
+            self.r4data     = tur[:nfval,:nl_in]
             # sensitivity kernels
-            self.Kvphdata   = dcdah[:nfval,:]
-            self.Kvpvdata   = dcdav[:nfval,:]
-            self.Kvshdata   = dcdbh[:nfval,:]
-            self.Kvsvdata   = dcdbv[:nfval,:]
+            self.Kvphdata   = dcdah[:nfval,:nl_in]
+            self.Kvpvdata   = dcdav[:nfval,:nl_in]
+            self.Kvshdata   = dcdbh[:nfval,:nl_in]
+            self.Kvsvdata   = dcdbv[:nfval,:nl_in]
             # self.Ketadata   = tempdata.copy()
-            self.Krhodata   = dcdr[:nfval,:]
+            self.Krhodata   = dcdr[:nfval,:nl_in]
             
             #
             # self.Kadata     = tempdata.copy()
             # self.Kcdata     = tempdata.copy()
             # self.Kfdata     = tempdata.copy()
             # self.Kldata     = tempdata.copy()
-            self.Kndata     = dcdn[:nfval,:]
+            self.Kndata     = dcdn[:nfval,:nl_in]
             # self.Krho0data   = tempdata.copy()
     
     
