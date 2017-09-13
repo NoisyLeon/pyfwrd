@@ -12,6 +12,7 @@ Numba is used for speeding up of the code.
 """
 import numpy as np
 import numba
+import matplotlib.pyplot as plt
 
 @numba.jit(numba.float32[:](numba.float32, numba.float32, numba.float32))
 def _get_array(xmin, xmax, dx):
@@ -166,6 +167,44 @@ def read_axisem_bm(model, infname):
     model.get_data_vel(vsvArr, vshArr, vpvArr, vphArr, etaArr, rhoArr, rArr)        
     return model
 
+def plot(model, dtype='vsv', unit='km', showfig=True):
+    dtype   = dtype.lower()
+    if unit == 'km': factor= 1000.
+    elif unit == 'm': factor = 1.
+    else: raise ValueError('Unexpected unit: '+unit)
+    depth   = (6371000. - model.rArr[::-1])/factor
+    if dtype == 'rho':
+        data    = model.rhoArr.copy()
+    elif dtype == 'vsv':
+        data    = model.VsvArr.copy()
+    elif dtype == 'vsh':
+        data    = model.VshArr.copy()
+    elif dtype == 'vpv':
+        data    = model.VpvArr.copy()
+    elif dtype == 'vph':
+        data    = model.VphArr.copy()
+    elif dtype == 'eta':
+        data    = model.etaArr.copy()
+    data    = data[::-1]
+    if unit == 'km':
+        dunitdict = {'rho': r'$\rho (g/cm^3)$', 'vsv': 'vsv (km/s)', 'vsh': 'vsh (km/s)', 'vpv': 'vpv (km/s)',\
+                    'vph': 'vph (km/s)', 'eta': r'$\eta$' }
+    else:
+        dunitdict = {'rho': r'$\rho (kg/m^3)$', 'vsv': 'vsv (m/s)', 'vsh': 'vsh (m/s)', 'vpv': 'vpv (m/s)',\
+                    'vph': 'vph (m/s)', 'eta': r'$\eta$' }
+    data = data/factor
+    ax=plt.subplot()
+    plt.plot(data, depth, 'o-', ms=10, lw=3)
+    plt.xlabel(dunitdict[dtype], fontsize=30)
+    plt.ylabel('Depth ('+unit+')', fontsize=30)
+    plt.gca().invert_yaxis()
+    ax.tick_params(axis='x', labelsize=20)
+    ax.tick_params(axis='y', labelsize=20)
+    if showfig: plt.show()
+    
+
+
+
 spec = [('VsvArr', numba.float32[:]),
         ('VpvArr', numba.float32[:]),
         ('VshArr', numba.float32[:]),
@@ -228,6 +267,8 @@ class model1d(object):
         """
         self.rArr   = radius
         self.rhoArr = rho
+        if radius[-1] != 6371000.:
+            raise ValueError('Last element of radius array should be 6371000. meter !')
         if np.any(vsv<500.) or np.any(vsh<500.) or np.any(vpv<500.) or np.any(vph<500.) or np.any(rho<500.):
             raise ValueError('Wrong unit for model parameters!')
         if np.any(radius< 10000.):
@@ -925,7 +966,12 @@ class model1d(object):
     # functions for layerized model
     #####################################################################
     def check_layer_model(self):
+        """
+        Check if the model is a layerized one or not
+        """
         r_inv   = self.rArr[::-1]
+        if r_inv.size %2 !=0:
+            return False
         rho_inv = self.rhoArr[::-1]
         A_inv   = self.AArr[::-1]
         C_inv   = self.CArr[::-1]
@@ -958,11 +1004,14 @@ class model1d(object):
             if N0 != N1:
                 return False
         return True
-            
-            
-        
     
-    def get_cps_model(self, dArr, nl, dh):
+    # def get_default_layer_model(self):
+    #     if not self.check_layer_model():
+    #         raise ValueError('The model is not a layerized one!')
+    #     for i in xrange(r_inv.size):
+    #     dArr = 
+    
+    def get_layer_model(self, dArr, nl, dh):
         """
         Get the layerized model for CPS
         Note: the unit is different from the default unit of the object

@@ -176,7 +176,7 @@ class tcps_solver(object):
     def solve_PSV(self):
         #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
         # self.init_output(1)
-        dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_cps_model(self.dArr, 200, 1.)
+        dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 200, 1.)
         nfval = self.freq.size
         if self.model.flat == 0:
             iflsph_in = 2
