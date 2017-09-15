@@ -214,6 +214,7 @@ spec = [('VsvArr', numba.float32[:]),
         ('rhoArrR', numba.float32[:]),
         ('rhoArrL', numba.float32[:]),
         ('rArr', numba.float32[:]),
+        ('zArr', numba.float32[:]),
         ('rArrS', numba.float32[:]),
         ('AArr', numba.float32[:]),
         ('CArr', numba.float32[:]),
@@ -249,6 +250,7 @@ class model1d(object):
     AArr, CArr, FArr- Love parameters (unit - Pa)
     LArr, NArr
     rArr            - radius array (unit - m), sorted from the rmin to rmax(6371000. m)
+    zArr            - depth array (unit - km), sorted as rArr
     flat            - = 0 spherical Earth, = 1 flat Earth (default)
                         Note: different from CPS
     arrays with *R  - Love parameters and density arrays after Earth flattening transformation for PSV motion
@@ -291,6 +293,28 @@ class model1d(object):
         self.NArr   = rho * vsh**2
         return
     
+    def vel2love(self):
+        """
+        velocity parameters to Love parameters
+        """
+        self.AArr   = self.rhoArr * (self.VphArr)**2
+        self.CArr   = self.rhoArr * (self.VpvArr)**2
+        self.LArr   = self.rhoArr * (self.VsvArr)**2
+        self.FArr   = self.etaArr * (self.AArr - np.float32(2.)* self.LArr)
+        self.NArr   = self.rhoArr * (self.VshArr)**2
+        return
+        
+    def love2vel(self):
+        """
+        Love parameters to velocity parameters
+        """
+        self.VphArr = np.sqrt(self.AArr/self.rhoArr)
+        self.VpvArr = np.sqrt(self.CArr/self.rhoArr)
+        self.VshArr = np.sqrt(self.NArr/self.rhoArr)
+        self.VsvArr = np.sqrt(self.LArr/self.rhoArr)
+        self.etaArr = self.FArr/(self.AArr - np.float32(2.)* self.LArr)
+        return
+        
     def earth_flattening_kennett(self):
         """
         Earth flattening transformation using Kennett's formulas.
@@ -756,7 +780,7 @@ class model1d(object):
         self.rmin   = self.rArr.min()
         return
     
-    def trim(self, zmax):
+    def trim_simple(self, zmax):
         """
         Trim the model given a maximum depth(unit - km)
         """
@@ -783,6 +807,70 @@ class model1d(object):
         self.etaArr = self.etaArr[ind]
         if self.flat == 0:
             self.earth_flattening()
+        return
+    
+    def trim(self, zmax):
+        """
+        Trim the model given a maximum depth(unit - km)
+        """
+        if zmax >= 6371.:
+            raise ValueError('Input maximum depth should have a unit of km !')
+        rmin        = (np.float32(6371.)-zmax)*np.float32(1000.)
+        ind         = np.where(self.rArr == rmin)[0]
+        if ind.size == 0:
+            ind2    = np.where(self.rArr > 6171000.0)[0]
+            ind0    = ind2[0]-1
+            rl      = self.rArr[ind0];      rr      = self.rArr[ind0+1]
+            rhol    = self.rhoArr[ind0];    rhor    = self.rhoArr[ind0+1]
+            Al      = self.AArr[ind0];      Ar      = self.AArr[ind0+1]
+            Cl      = self.CArr[ind0];      Cr      = self.CArr[ind0+1]
+            Fl      = self.FArr[ind0];      Fr      = self.FArr[ind0+1]
+            Ll      = self.LArr[ind0];      Lr      = self.LArr[ind0+1]
+            Nl      = self.NArr[ind0];      Nr      = self.NArr[ind0+1]
+            vsvl    = self.VsvArr[ind0];    vsvr    = self.VsvArr[ind0+1]
+            vshl    = self.VshArr[ind0];    vshr    = self.VshArr[ind0+1]
+            vpvl    = self.VpvArr[ind0];    vpvr    = self.VpvArr[ind0+1]
+            vphl    = self.VphArr[ind0];    vphr    = self.VphArr[ind0+1]
+            etal    = self.etaArr[ind0];    etar    = self.etaArr[ind0+1]
+            changel = True
+        elif ind.size > 2:
+            raise ValueError('More than TWO repeated radius value, check the model !')
+        else:
+            if ind.size == 2:
+                ind0 = ind[1]
+            else:
+                ind0 = ind[0]
+            changel = False
+        self.rArr   = self.rArr[ind0:]
+        self.rhoArr = self.rhoArr[ind0:]
+        # Love parameters
+        self.AArr   = self.AArr[ind0:]
+        self.CArr   = self.CArr[ind0:]
+        self.FArr   = self.FArr[ind0:]
+        self.LArr   = self.LArr[ind0:]
+        self.NArr   = self.NArr[ind0:]
+        # velocity
+        self.VsvArr = self.VsvArr[ind0:]
+        self.VshArr = self.VshArr[ind0:]
+        self.VpvArr = self.VpvArr[ind0:]
+        self.VphArr = self.VphArr[ind0:]
+        self.etaArr = self.etaArr[ind0:]
+        # change the first element value, linear interpolation is applied
+        if changel:
+            self.rArr[0]    = rmin
+            self.rhoArr[0]  = rhol + (rmin - rl)*(rhor-rhol)/(rr - rl)
+            # Love parameters
+            self.AArr[0]    = Al + (rmin - rl)*(Ar-Al)/(rr - rl)
+            self.CArr[0]    = Cl + (rmin - rl)*(Cr-Cl)/(rr - rl)
+            self.FArr[0]    = Fl + (rmin - rl)*(Fr-Fl)/(rr - rl)
+            self.LArr[0]    = Ll + (rmin - rl)*(Lr-Ll)/(rr - rl)
+            self.NArr[0]    = Nl + (rmin - rl)*(Nr-Nl)/(rr - rl)
+            # velocity
+            self.VsvArr[0]  = vsvl + (rmin - rl)*(vsvr-vsvl)/(rr - rl)
+            self.VshArr[0]  = vshl + (rmin - rl)*(vshr-vshl)/(rr - rl)
+            self.VpvArr[0]  = vpvl + (rmin - rl)*(vpvr-vpvl)/(rr - rl)
+            self.VphArr[0]  = vphl + (rmin - rl)*(vphr-vphl)/(rr - rl)
+            self.etaArr[0]  = etal + (rmin - rl)*(etar-etal)/(rr - rl)
         return
         
     def get_ind_Love_parameters(self, i):
@@ -965,13 +1053,14 @@ class model1d(object):
     #####################################################################
     # functions for layerized model
     #####################################################################
-    def check_layer_model(self):
+    def is_layer_model(self):
         """
         Check if the model is a layerized one or not
         """
         r_inv   = self.rArr[::-1]
         if r_inv.size %2 !=0:
             return False
+        self.vel2love()
         rho_inv = self.rhoArr[::-1]
         A_inv   = self.AArr[::-1]
         C_inv   = self.CArr[::-1]
@@ -1005,11 +1094,589 @@ class model1d(object):
                 return False
         return True
     
-    # def get_default_layer_model(self):
-    #     if not self.check_layer_model():
-    #         raise ValueError('The model is not a layerized one!')
-    #     for i in xrange(r_inv.size):
-    #     dArr = 
+
+    def add_perturb_layer(self, zmin, zmax, dtype, val, rel):
+        """
+        Add/perturb a layer given zmin/zmax
+        ===============================================================================
+        Input Parameters:
+        zmin/zmax   - min/max depth (unit -km)
+        dtype       - datatype for the perturbation
+                        0: vsv
+                        1: vsh
+                        2: vpv
+                        3: vph
+                        4: eta
+                        5: rho
+        val         - perturbed/absolute value
+        rel         - relative or absolute perturbation (True : relative)
+        ===============================================================================
+        NOTE:
+        Benchmarked cases:
+        A. one layer
+        1. one layer, both overlap
+            m.add_perturb_layer(0., 20., 0, 1., False)
+            m.add_perturb_layer(0., 20., 0, -.5, True)
+        2. one layer, both overlap, rmax not at the surface
+            m.add_perturb_layer(20., 35., 0, 1., False)
+            m.add_perturb_layer(20., 35., 0, -.5, True)
+        3. one layer, rmax overlap
+            m.add_perturb_layer(0., 10., 0, 1., False)
+            m.add_perturb_layer(0., 10., 0, -.5, True)
+        4. one layer, rmax overlap, rmax not at the surface
+            m.add_perturb_layer(20., 25., 0, 1., False)
+            m.add_perturb_layer(20., 25., 0, -.5, True)
+        5. one layer, rmin overlap
+            m.add_perturb_layer(25., 35., 0, 1., False)
+            m.add_perturb_layer(25., 35., 0, -.5, True)
+        6. one layer, rmin overlap, rmin at the bottom
+            m.add_perturb_layer(197, 200., 0, 1., False)
+            m.add_perturb_layer(197, 200., 0, -.5, True)
+        7. both overlap, , rmin at the bottom
+            m.add_perturb_layer(165, 200., 0, 1., False)
+            m.add_perturb_layer(165, 200., 0, -.5, True)
+        B. multiple layer
+        1. multiple layer, both overlap
+            m.add_perturb_layer(0., 35, 0, 1., False)
+            m.add_perturb_layer(0., 35, 0, -.5, True)
+        2. multiple layer, both overlap, rmax not at the surface
+            m.add_perturb_layer(20., 77, 0, 1., False)
+            m.add_perturb_layer(20., 77, 0, -.5, True)
+        3. multiple layer, rmax overlap
+            m.add_perturb_layer(0., 75, 0, 1., False)
+            m.add_perturb_layer(0., 75, 0, -.5, True)
+        4. multiple layer, rmax overlap, rmax not at the surface
+            m.add_perturb_layer(20., 75, 0, 1., False)
+            m.add_perturb_layer(20., 75, 0, -.5, True)
+        5. multiple layer, rmin overlap
+            m.add_perturb_layer(13., 77, 0, 1., False)
+            m.add_perturb_layer(13., 77, 0, -.5, True)
+        6. multiple layer, rmin overlap, rmin at the bottom
+            m.add_perturb_layer(13., 200., 0, 1., False)
+            m.add_perturb_layer(13., 200., 0, -.5, True)
+        7. multiple layer, both overlap, , rmin at the bottom
+            m.add_perturb_layer(20., 200., 0, 1., False)
+            m.add_perturb_layer(20., 200., 0, -.5, True)
+        """
+        if rel:
+            if val <= -1.: raise ValueError('Unacceptable value for added layer!')
+        else:
+            if val <= 0.: raise ValueError('Unacceptable value for added layer!')
+            val = val *np.float32(1000.)
+        if not self.is_layer_model():
+            raise ValueError('The model is not a layerized one!')
+        if zmin >= zmax:
+            raise ValueError('Minimum depth should be smaller than maximum depth!')
+        rmax    = (np.float32(6371.)-zmin)*np.float32(1000.)
+        rmin    = (np.float32(6371.)-zmax)*np.float32(1000.)
+        if self.rArr[-1] < rmin or self.rArr[0] > rmax or self.rArr[-1] < rmax:
+            raise ValueError('Input depth range out of bound!')
+        rLst    = []; vsvLst=[]; vshLst=[]; vpvLst=[]; vphLst=[]; etaLst=[]; rhoLst=[]
+        add0    = False; add1   = False
+        for i in xrange(self.rArr.size):
+            r   = self.rArr[i]
+            vsv = self.VsvArr[i]
+            vsh = self.VshArr[i]
+            vpv = self.VpvArr[i]
+            vph = self.VphArr[i]
+            eta = self.etaArr[i]
+            rho = self.rhoArr[i]
+            if r < rmin or ((r >= rmax) and add1):
+                rLst.append(r)
+                vsvLst.append(vsv)
+                vshLst.append(vsh)
+                vpvLst.append(vpv)
+                vphLst.append(vph)
+                etaLst.append(eta)
+                rhoLst.append(rho)
+                continue
+            if r == rmin:
+                if i == 0 or self.rArr[i+1] > r:
+                    if dtype == 0:
+                        if rel: vsv = (1.+val)*vsv
+                        else:   vsv = val
+                    if dtype == 1:
+                        if rel: vsh = (1.+val)*vsh
+                        else:   vsh = val
+                    if dtype == 2:
+                        if rel: vpv = (1.+val)*vpv
+                        else:   vpv = val
+                    if dtype == 3:
+                        if rel: vph = (1.+val)*vph
+                        else:   vph = val
+                    if dtype == 4:
+                        if rel: eta = (1.+val)*eta
+                        else:   eta = val
+                    if dtype == 5:
+                        if rel: rho = (1.+val)*rho
+                        else:   rho = val
+                    add0 = True
+                rLst.append(r)
+                vsvLst.append(vsv)
+                vshLst.append(vsh)
+                vpvLst.append(vpv)
+                vphLst.append(vph)
+                etaLst.append(eta)
+                rhoLst.append(rho)
+                continue
+            if r == rmax and add0:
+                if add1: raise ValueError('DEBUG!')      
+                if dtype == 0:
+                    if rel: vsv = (1.+val)*vsv
+                    else:   vsv = val
+                if dtype == 1:
+                    if rel: vsh = (1.+val)*vsh
+                    else:   vsh = val
+                if dtype == 2:
+                    if rel: vpv = (1.+val)*vpv
+                    else:   vpv = val
+                if dtype == 3:
+                    if rel: vph = (1.+val)*vph
+                    else:   vph = val
+                if dtype == 4:
+                    if rel: eta = (1.+val)*eta
+                    else:   eta = val
+                if dtype == 5:
+                    if rel: rho = (1.+val)*rho
+                    else:   rho = val
+                rLst.append(r)
+                vsvLst.append(vsv)
+                vshLst.append(vsh)
+                vpvLst.append(vpv)
+                vphLst.append(vph)
+                etaLst.append(eta)
+                rhoLst.append(rho)
+                add1 = True
+                continue
+            # radius value is larger than rmin, but smaller/equal to rmax
+            if r <= rmax: 
+                if not add0:
+                    # if rmin grid points has not been added
+                    # left value for rmin
+                    rLst.append(rmin)
+                    vsvLst.append(vsv)
+                    vshLst.append(vsh)
+                    vpvLst.append(vpv)
+                    vphLst.append(vph)
+                    etaLst.append(eta)
+                    rhoLst.append(rho)
+                    if dtype == 0:
+                        if rel: vsv = (1.+val)*vsv
+                        else:   vsv = val
+                    if dtype == 1:
+                        if rel: vsh = (1.+val)*vsh
+                        else:   vsh = val
+                    if dtype == 2:
+                        if rel: vpv = (1.+val)*vpv
+                        else:   vpv = val
+                    if dtype == 3:
+                        if rel: vph = (1.+val)*vph
+                        else:   vph = val
+                    if dtype == 4:
+                        if rel: eta = (1.+val)*eta
+                        else:   eta = val
+                    if dtype == 5:
+                        if rel: rho = (1.+val)*rho
+                        else:   rho = val
+                    # right value for rmin
+                    rLst.append(rmin)
+                    vsvLst.append(vsv)
+                    vshLst.append(vsh)
+                    vpvLst.append(vpv)
+                    vphLst.append(vph)
+                    etaLst.append(eta)
+                    rhoLst.append(rho)
+                    add0    = True
+                    if add1: raise ValueError('DEBUG!')
+                    rLst.append(r)
+                    vsvLst.append(vsv)
+                    vshLst.append(vsh)
+                    vpvLst.append(vpv)
+                    vphLst.append(vph)
+                    etaLst.append(eta)
+                    rhoLst.append(rho)
+                    if r == rmax: add1 = True
+                    continue
+                else:
+                    if dtype == 0:
+                        if rel: vsv = (1.+val)*vsv
+                        else:   vsv = val
+                    if dtype == 1:
+                        if rel: vsh = (1.+val)*vsh
+                        else:   vsh = val
+                    if dtype == 2:
+                        if rel: vpv = (1.+val)*vpv
+                        else:   vpv = val
+                    if dtype == 3:
+                        if rel: vph = (1.+val)*vph
+                        else:   vph = val
+                    if dtype == 4:
+                        if rel: eta = (1.+val)*eta
+                        else:   eta = val
+                    if dtype == 5:
+                        if rel: rho = (1.+val)*rho
+                        else:   rho = val
+                    rLst.append(r)
+                    vsvLst.append(vsv)
+                    vshLst.append(vsh)
+                    vpvLst.append(vpv)
+                    vphLst.append(vph)
+                    etaLst.append(eta)
+                    rhoLst.append(rho)
+                    if r == rmax: add1 = True
+                    continue
+            else: 
+                if add1: raise ValueError('DEBUG!')                
+                if not add0:
+                    # left value for rmin
+                    rLst.append(rmin)
+                    vsvLst.append(vsv)
+                    vshLst.append(vsh)
+                    vpvLst.append(vpv)
+                    vphLst.append(vph)
+                    etaLst.append(eta)
+                    rhoLst.append(rho)
+                    if dtype == 0:
+                        if rel: vsv = (1.+val)*vsv
+                        else:   vsv = val
+                    if dtype == 1:
+                        if rel: vsh = (1.+val)*vsh
+                        else:   vsh = val
+                    if dtype == 2:
+                        if rel: vpv = (1.+val)*vpv
+                        else:   vpv = val
+                    if dtype == 3:
+                        if rel: vph = (1.+val)*vph
+                        else:   vph = val
+                    if dtype == 4:
+                        if rel: eta = (1.+val)*eta
+                        else:   eta = val
+                    if dtype == 5:
+                        if rel: rho = (1.+val)*rho
+                        else:   rho = val
+                    # right value for rmin
+                    rLst.append(rmin)
+                    vsvLst.append(vsv)
+                    vshLst.append(vsh)
+                    vpvLst.append(vpv)
+                    vphLst.append(vph)
+                    etaLst.append(eta)
+                    rhoLst.append(rho)
+                    add0    = True
+                # add rmax values to the list
+                add1 = True
+                # left value for rmax
+                rLst.append(rmax)
+                vsvLst.append(vsvLst[-1])
+                vshLst.append(vshLst[-1])
+                vpvLst.append(vpvLst[-1])
+                vphLst.append(vphLst[-1])
+                etaLst.append(etaLst[-1])
+                rhoLst.append(rhoLst[-1])
+                # right value for rmax
+                rLst.append(rmax)
+                vsvLst.append(self.VsvArr[i])
+                vshLst.append(self.VshArr[i])
+                vpvLst.append(self.VpvArr[i])
+                vphLst.append(self.VphArr[i])
+                etaLst.append(self.etaArr[i])
+                rhoLst.append(self.rhoArr[i])
+                # left value for r
+                rLst.append(r)
+                vsvLst.append(self.VsvArr[i])
+                vshLst.append(self.VshArr[i])
+                vpvLst.append(self.VpvArr[i])
+                vphLst.append(self.VphArr[i])
+                etaLst.append(self.etaArr[i])
+                rhoLst.append(self.rhoArr[i])
+                continue
+        self.rArr   = np.array(rLst, dtype=np.float32)
+        self.zArr   = (np.float32(6371000.) - self.rArr)/np.float32(1000.)
+        self.rhoArr = np.array(rhoLst, dtype=np.float32)
+        self.VsvArr = np.array(vsvLst, dtype=np.float32)
+        self.VshArr = np.array(vshLst, dtype=np.float32)
+        self.VpvArr = np.array(vpvLst, dtype=np.float32)
+        self.VphArr = np.array(vphLst, dtype=np.float32)
+        self.etaArr = np.array(etaLst, dtype=np.float32)
+        self.vel2love()
+        if not self.is_layer_model():
+            raise ValueError('DEBUG: The model is no longer a layerized one!')
+        return
+    
+    def add_perturb_layer_love(self, zmin, zmax, dtype, val, rel):
+        """
+        Add/perturb a layer given zmin/zmax
+        ===============================================================================
+        Input Parameters:
+        zmin/zmax   - min/max depth (unit -km)
+        dtype       - datatype for the perturbation
+                        0: A
+                        1: C
+                        2: F
+                        3: L
+                        4: N
+                        5: rho
+        val         - perturbed/absolute value
+        rel         - relative or absolute perturbation (True : relative)
+        ===============================================================================
+        """
+        if rel:
+            if val <= -1.: raise ValueError('Unacceptable value for added layer!')
+        else:
+            if val <= 0.: raise ValueError('Unacceptable value for added layer!')
+            val = val *np.float32(1000.)
+        if not self.is_layer_model():
+            raise ValueError('The model is not a layerized one!')
+        if zmin >= zmax:
+            raise ValueError('Minimum depth should be smaller than maximum depth!')
+        rmax    = (np.float32(6371.)-zmin)*np.float32(1000.)
+        rmin    = (np.float32(6371.)-zmax)*np.float32(1000.)
+        if self.rArr[-1] < rmin or self.rArr[0] > rmax or self.rArr[-1] < rmax:
+            raise ValueError('Input depth range out of bound!')
+        rLst    = []; ALst=[]; CLst=[]; FLst=[]; LLst=[]; NLst=[]; rhoLst=[]
+        add0    = False; add1   = False
+        for i in xrange(self.rArr.size):
+            r   = self.rArr[i]
+            A   = self.AArr[i]
+            C   = self.CArr[i]
+            F   = self.FArr[i]
+            L   = self.LArr[i]
+            N   = self.NArr[i]
+            rho = self.rhoArr[i]
+            if r < rmin or ((r >= rmax) and add1):
+                rLst.append(r)
+                ALst.append(A)
+                CLst.append(C)
+                FLst.append(F)
+                LLst.append(L)
+                NLst.append(N)
+                rhoLst.append(rho)
+                continue
+            if r == rmin:
+                if i == 0 or self.rArr[i+1] > r:
+                    if dtype == 0:
+                        if rel: A = (1.+val)*A
+                        else:   A = val
+                    if dtype == 1:
+                        if rel: C = (1.+val)*C
+                        else:   C = val
+                    if dtype == 2:
+                        if rel: F = (1.+val)*F
+                        else:   F = val
+                    if dtype == 3:
+                        if rel: L = (1.+val)*L
+                        else:   L = val
+                    if dtype == 4:
+                        if rel: N = (1.+val)*N
+                        else:   N = val
+                    if dtype == 5:
+                        if rel: rho = (1.+val)*rho
+                        else:   rho = val
+                    add0 = True
+                rLst.append(r)
+                ALst.append(A)
+                CLst.append(C)
+                FLst.append(F)
+                LLst.append(L)
+                NLst.append(N)
+                rhoLst.append(rho)
+                continue
+            if r == rmax and add0:
+                if add1: raise ValueError('DEBUG!')      
+                if dtype == 0:
+                    if rel: A = (1.+val)*A
+                    else:   A = val
+                if dtype == 1:
+                    if rel: C = (1.+val)*C
+                    else:   C = val
+                if dtype == 2:
+                    if rel: F = (1.+val)*F
+                    else:   F = val
+                if dtype == 3:
+                    if rel: L = (1.+val)*L
+                    else:   L = val
+                if dtype == 4:
+                    if rel: N = (1.+val)*N
+                    else:   N = val
+                if dtype == 5:
+                    if rel: rho = (1.+val)*rho
+                    else:   rho = val
+                rLst.append(r)
+                ALst.append(A)
+                CLst.append(C)
+                FLst.append(F)
+                LLst.append(L)
+                NLst.append(N)
+                rhoLst.append(rho)
+                add1 = True
+                continue
+            # radius value is larger than rmin, but smaller/equal to rmax
+            if r <= rmax: 
+                if not add0:
+                    # if rmin grid points has not been added
+                    # left value for rmin
+                    rLst.append(rmin)
+                    ALst.append(A)
+                    CLst.append(C)
+                    FLst.append(F)
+                    LLst.append(L)
+                    NLst.append(N)
+                    rhoLst.append(rho)
+                    if dtype == 0:
+                        if rel: A = (1.+val)*A
+                        else:   A = val
+                    if dtype == 1:
+                        if rel: C = (1.+val)*C
+                        else:   C = val
+                    if dtype == 2:
+                        if rel: F = (1.+val)*F
+                        else:   F = val
+                    if dtype == 3:
+                        if rel: L = (1.+val)*L
+                        else:   L = val
+                    if dtype == 4:
+                        if rel: N = (1.+val)*N
+                        else:   N = val
+                    if dtype == 5:
+                        if rel: rho = (1.+val)*rho
+                        else:   rho = val
+                    # right value for rmin
+                    rLst.append(rmin)
+                    ALst.append(A)
+                    CLst.append(C)
+                    FLst.append(F)
+                    LLst.append(L)
+                    NLst.append(N)
+                    rhoLst.append(rho)
+                    add0    = True
+                    if add1: raise ValueError('DEBUG!')
+                    rLst.append(r)
+                    ALst.append(A)
+                    CLst.append(C)
+                    FLst.append(F)
+                    LLst.append(L)
+                    NLst.append(N)
+                    rhoLst.append(rho)
+                    if r == rmax: add1 = True
+                    continue
+                else:
+                    if dtype == 0:
+                        if rel: A = (1.+val)*A
+                        else:   A = val
+                    if dtype == 1:
+                        if rel: C = (1.+val)*C
+                        else:   C = val
+                    if dtype == 2:
+                        if rel: F = (1.+val)*F
+                        else:   F = val
+                    if dtype == 3:
+                        if rel: L = (1.+val)*L
+                        else:   L = val
+                    if dtype == 4:
+                        if rel: N = (1.+val)*N
+                        else:   N = val
+                    if dtype == 5:
+                        if rel: rho = (1.+val)*rho
+                        else:   rho = val
+                    rLst.append(r)
+                    ALst.append(A)
+                    CLst.append(C)
+                    FLst.append(F)
+                    LLst.append(L)
+                    NLst.append(N)
+                    rhoLst.append(rho)
+                    if r == rmax: add1 = True
+                    continue
+            else: 
+                if add1: raise ValueError('DEBUG!')                
+                if not add0:
+                    # left value for rmin
+                    rLst.append(rmin)
+                    ALst.append(A)
+                    CLst.append(C)
+                    FLst.append(F)
+                    LLst.append(L)
+                    NLst.append(N)
+                    rhoLst.append(rho)
+                    if dtype == 0:
+                        if rel: A = (1.+val)*A
+                        else:   A = val
+                    if dtype == 1:
+                        if rel: C = (1.+val)*C
+                        else:   C = val
+                    if dtype == 2:
+                        if rel: F = (1.+val)*F
+                        else:   F = val
+                    if dtype == 3:
+                        if rel: L = (1.+val)*L
+                        else:   L = val
+                    if dtype == 4:
+                        if rel: N = (1.+val)*N
+                        else:   N = val
+                    if dtype == 5:
+                        if rel: rho = (1.+val)*rho
+                        else:   rho = val
+                    # right value for rmin
+                    rLst.append(rmin)
+                    ALst.append(A)
+                    CLst.append(C)
+                    FLst.append(F)
+                    LLst.append(L)
+                    NLst.append(N)
+                    rhoLst.append(rho)
+                    add0    = True
+                # add rmax values to the list
+                add1 = True
+                # left value for rmax
+                rLst.append(rmax)
+                ALst.append(ALst[-1])
+                CLst.append(CLst[-1])
+                FLst.append(FLst[-1])
+                LLst.append(LLst[-1])
+                NLst.append(NLst[-1])
+                rhoLst.append(rhoLst[-1])
+                # right value for rmax
+                rLst.append(rmax)
+                ALst.append(self.AArr[i])
+                CLst.append(self.CArr[i])
+                FLst.append(self.FArr[i])
+                LLst.append(self.LArr[i])
+                NLst.append(self.NArr[i])
+                rhoLst.append(self.rhoArr[i])
+                # left value for r
+                rLst.append(r)
+                ALst.append(self.AArr[i])
+                CLst.append(self.CArr[i])
+                FLst.append(self.FArr[i])
+                LLst.append(self.LArr[i])
+                NLst.append(self.NArr[i])
+                rhoLst.append(self.rhoArr[i])
+                continue
+        self.rArr   = np.array(rLst, dtype=np.float32)
+        self.zArr   = (np.float32(6371000.) - self.rArr)/np.float32(1000.)
+        self.rhoArr = np.array(rhoLst, dtype=np.float32)
+        self.AArr = np.array(ALst, dtype=np.float32)
+        self.CArr = np.array(CLst, dtype=np.float32)
+        self.FArr = np.array(FLst, dtype=np.float32)
+        self.LArr = np.array(LLst, dtype=np.float32)
+        self.NArr = np.array(NLst, dtype=np.float32)
+        self.love2vel()
+        if not self.is_layer_model():
+            raise ValueError('DEBUG: The model is no longer a layerized one!')
+        return
+        
+    def get_default_layer_model(self):
+        """
+        Get default layerized model, the model need to be a layerized one
+        """
+        if not self.is_layer_model():
+            raise ValueError('The model is not a layerized one!')
+        r_inv   = self.rArr[::-1]
+        dArr    = np.zeros(r_inv.size/2, dtype=np.float32)
+        ind_odd = np.arange(r_inv.size/2)*2 +1
+        ind_even= np.arange(r_inv.size/2)*2 
+        dArr    = (r_inv[ind_even] - r_inv[ind_odd])/np.float32(1000.)
+        return self.get_layer_model(dArr, 1, 1.)
     
     def get_layer_model(self, dArr, nl, dh):
         """
