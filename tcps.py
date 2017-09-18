@@ -64,40 +64,7 @@ def _abs_max_(array):
         if np.abs(array[i]) > mvalue: mvalue = np.abs(array[i])
     return mvalue
 
-spec = [('model',       model_type),
-        ('dr',          numba.float32),
-        ('cmin',          numba.float32),
-        ('cmax',          numba.float32),
-        ('dArr',        numba.float32[:]),
-        ('T',           numba.float32[:]),
-        ('c',           numba.float32[:]),
-        ('Vph',         numba.float32[:, :]),
-        ('Vgr',         numba.float32[:, :]),
-        ('eArr',        numba.int32[:, :]),
-        ('r1data',      numba.float32[:, :, :]),
-        ('r2data',      numba.float32[:, :, :]),
-        ('r3data',      numba.float32[:, :, :]),
-        ('r4data',      numba.float32[:, :, :]),
-        ('l1data',      numba.float32[:, :, :]),
-        ('l2data',      numba.float32[:, :, :]),
-        ('Kadata',      numba.float32[:, :, :]),
-        ('Kcdata',      numba.float32[:, :, :]),
-        ('Kfdata',      numba.float32[:, :, :]),
-        ('Kldata',      numba.float32[:, :, :]),
-        ('Kndata',      numba.float32[:, :, :]),
-        ('Krho0data',   numba.float32[:, :, :]),
-        ('Kvphdata',    numba.float32[:, :, :]),
-        ('Kvpvdata',    numba.float32[:, :, :]),
-        ('Kvshdata',    numba.float32[:, :, :]),
-        ('Kvsvdata',    numba.float32[:, :, :]),
-        ('Ketadata',    numba.float32[:, :, :]),
-        ('Krhodata',    numba.float32[:, :, :]),
-        ('freq',       numba.float32[:]),
-        ('nmodes',      numba.int32),
-        ('verbose',      numba.int32)
-        ]
 
-# @numba.jitclass(spec)
 class tcps_solver(object):
     
     def __init__(self, inmodel):
@@ -205,12 +172,12 @@ class tcps_solver(object):
             refdep_in   = 0.
             dogam       = False # No attenuation
             nl_in       = dArr.size
-            self.kArr   = 2.*np.pi/self.Vph/self.T
-            k           = np.tile(self.kArr, (nl_in, 1))
-            k           = k.T
+            k           = 2.*np.pi/self.Vph/self.T
+            k2d         = np.tile(k, (nl_in, 1))
+            k2d         = k2d.T
             omega       = 2.*np.pi/self.T
-            omega       = np.tile(omega, (nl_in, 1))
-            omega       = omega.T
+            omega2d     = np.tile(omega, (nl_in, 1))
+            omega2d     = omega2d.T
             if self.model.flat == 0:
                 d_in    = d_out
                 TA_in   = TA_out
@@ -248,31 +215,53 @@ class tcps_solver(object):
             self.dcdav  = dcdav[:nfval,:nl_in]
             self.dcdbh  = dcdbh[:nfval,:nl_in]
             self.dcdbv  = dcdbv[:nfval,:nl_in]
-            # self.Ketadata   = tempdata.copy()
             self.dcdr   = dcdr[:nfval,:nl_in]
-            
-            #
-            # self.Kadata     = tempdata.copy()
-            # self.Kcdata     = tempdata.copy()
-            # self.Kfdata     = tempdata.copy()
-            # self.Kldata     = tempdata.copy()
             self.dcdn   = dcdn[:nfval,:nl_in]
-            # self.Krho0data   = tempdata.copy()
-            #
+            # Love parameters and density in the shape of nfval, nl_in
             A           = np.tile(TA_in, (nfval,1))
             C           = np.tile(TC_in, (nfval,1))
             F           = np.tile(TF_in, (nfval,1))
             L           = np.tile(TL_in, (nfval,1))
             N           = np.tile(TN_in, (nfval,1))
             rho         = np.tile(TRho_in, (nfval,1))
-             # derivative of eigenfunctions, $5.8 of R.Herrmann
-            self.durdz  = 1./L*self.tur - k*self.uz
-            self.duzdz  = k*F/C*self.ur + self.tuz/C
-            self.durdz1 = (self.ur[:-1] - self.ur[1:])/(self.dArr[1]-self.dArr[0])
-            self.duzdz1 = (self.uz[:-1] - self.uz[1:])/(self.dArr[1]-self.dArr[0])
+            d           = np.tile(d_in, (nfval,1))
+            eta         = F/(A-2.*L)
+            # derivative of eigenfunctions, $5.8 of R.Herrmann
+            self.durdz  = 1./L*self.tur - k2d*self.uz
+            self.duzdz  = k2d*F/C*self.ur + self.tuz/C
+            # integrals for the Lagranian
+            I0          = np.sum( rho*(self.uz**2+self.ur**2)*d, axis=1)
+            I1          = np.sum( (L*(self.uz**2)+A*(self.ur**2))*d, axis=1)
+            I2          = np.sum( (L*self.uz*self.durdz - F*self.ur*self.duzdz)*d, axis=1)
+            I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2))*d, axis=1)
+            # U           = (k*I1+I2)/omega/I0
+            I02d        = np.tile(I0, (nl_in, 1))
+            I02d        = I02d.T
+            U2d         = np.tile(self.Vgr, (nl_in, 1))
+            U2d         = U2d.T
+            # U2d3         = np.tile(U, (nl_in, 1))
+            # U2d3         = U2d3.T
+            # # # I0          = np.sum( rho*(self.uz**2+self.ur**2), axis=1)
+            # # # I1          = np.sum( (L*(self.uz**2)+A*(self.ur**2)), axis=1)
+            # # # I2          = np.sum( (L*self.uz*self.durdz - F*self.ur*self.duzdz), axis=1)
+            # # # I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2)), axis=1)
+            self.I0 = I0
+            self.I1 = I1
+            self.I2 = I2
+            self.I3 = I3
+            ##############################################
+            # For benchmark purposes
+            ##############################################
+            # derivative of eigenfunctions
+            self.durdz1 = -(self.ur[:,:-1] - self.ur[:, 1:])/self.dArr[0]
+            self.duzdz1 = -(self.uz[:, :-1] - self.uz[:, 1:])/self.dArr[0]
+            self.Vgr1   = (k*I1+I2)/omega/I0
+            # derived kernels from eigen functions
+            self.dcdah1 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d/I02d
+            # self.dcdah2 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d3/I02d
             
-            # self.dtuzdz = -rho*(omega**2)*self.tuz + k*self.tur
-            # self.dturdz = (-rho*(omega**2) + (k**2)*(A-(F**2)/C))*self.ur - k*F/C*self.tuz
+            
+            
             
             
     
