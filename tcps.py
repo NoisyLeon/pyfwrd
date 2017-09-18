@@ -205,6 +205,12 @@ class tcps_solver(object):
             refdep_in   = 0.
             dogam       = False # No attenuation
             nl_in       = dArr.size
+            self.kArr   = 2.*np.pi/self.Vph/self.T
+            k           = np.tile(self.kArr, (nl_in, 1))
+            k           = k.T
+            omega       = 2.*np.pi/self.T
+            omega       = np.tile(omega, (nl_in, 1))
+            omega       = omega.T
             if self.model.flat == 0:
                 d_in    = d_out
                 TA_in   = TA_out
@@ -231,27 +237,44 @@ class tcps_solver(object):
                 refdep_in, dogam, nl_in, iflsph_in, d_in, TA_in, TC_in, TF_in, TL_in, TN_in, TRho_in, \
                 qai_in,qbi_in,etapi_in,etasi_in, frefpi_in, frefsi_in, self.T.size, self.T, self.Vph)
             # store output
-            self.Vgr        = u_out
+            self.Vgr    = u_out
             # eigenfunctions
-            self.r1data     = uz[:nfval,:nl_in]
-            self.r2data     = tuz[:nfval,:nl_in]
-            self.r3data     = ur[:nfval,:nl_in]
-            self.r4data     = tur[:nfval,:nl_in]
+            self.uz     = uz[:nfval,:nl_in]
+            self.tuz    = tuz[:nfval,:nl_in]
+            self.ur     = ur[:nfval,:nl_in]
+            self.tur    = tur[:nfval,:nl_in]
             # sensitivity kernels
-            self.Kvphdata   = dcdah[:nfval,:nl_in]
-            self.Kvpvdata   = dcdav[:nfval,:nl_in]
-            self.Kvshdata   = dcdbh[:nfval,:nl_in]
-            self.Kvsvdata   = dcdbv[:nfval,:nl_in]
+            self.dcdah  = dcdah[:nfval,:nl_in]
+            self.dcdav  = dcdav[:nfval,:nl_in]
+            self.dcdbh  = dcdbh[:nfval,:nl_in]
+            self.dcdbv  = dcdbv[:nfval,:nl_in]
             # self.Ketadata   = tempdata.copy()
-            self.Krhodata   = dcdr[:nfval,:nl_in]
+            self.dcdr   = dcdr[:nfval,:nl_in]
             
             #
             # self.Kadata     = tempdata.copy()
             # self.Kcdata     = tempdata.copy()
             # self.Kfdata     = tempdata.copy()
             # self.Kldata     = tempdata.copy()
-            self.Kndata     = dcdn[:nfval,:nl_in]
+            self.dcdn   = dcdn[:nfval,:nl_in]
             # self.Krho0data   = tempdata.copy()
+            #
+            A           = np.tile(TA_in, (nfval,1))
+            C           = np.tile(TC_in, (nfval,1))
+            F           = np.tile(TF_in, (nfval,1))
+            L           = np.tile(TL_in, (nfval,1))
+            N           = np.tile(TN_in, (nfval,1))
+            rho         = np.tile(TRho_in, (nfval,1))
+             # derivative of eigenfunctions, $5.8 of R.Herrmann
+            self.durdz  = 1./L*self.tur - k*self.uz
+            self.duzdz  = k*F/C*self.ur + self.tuz/C
+            self.durdz1 = (self.ur[:-1] - self.ur[1:])/(self.dArr[1]-self.dArr[0])
+            self.duzdz1 = (self.uz[:-1] - self.uz[1:])/(self.dArr[1]-self.dArr[0])
+            
+            # self.dtuzdz = -rho*(omega**2)*self.tuz + k*self.tur
+            # self.dturdz = (-rho*(omega**2) + (k**2)*(A-(F**2)/C))*self.ur - k*F/C*self.tuz
+            
+            
     
     
     

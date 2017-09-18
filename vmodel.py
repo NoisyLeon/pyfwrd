@@ -263,6 +263,10 @@ class model1d(object):
         self.flat   = 1
         return
     
+    def get_depth(self):
+        self.zArr   = (np.float32(6371000.) - self.rArr)/np.float32(1000.)
+        return
+    
     def get_data_vel(self, vsv, vsh, vpv, vph, eta, rho, radius):
         """
         Get model data given velocity/density/radius arrays
@@ -1399,6 +1403,7 @@ class model1d(object):
         self.VphArr = np.array(vphLst, dtype=np.float32)
         self.etaArr = np.array(etaLst, dtype=np.float32)
         self.vel2love()
+        self.get_depth()
         if not self.is_layer_model():
             raise ValueError('DEBUG: The model is no longer a layerized one!')
         return
@@ -1653,14 +1658,14 @@ class model1d(object):
                 rhoLst.append(self.rhoArr[i])
                 continue
         self.rArr   = np.array(rLst, dtype=np.float32)
-        self.zArr   = (np.float32(6371000.) - self.rArr)/np.float32(1000.)
         self.rhoArr = np.array(rhoLst, dtype=np.float32)
-        self.AArr = np.array(ALst, dtype=np.float32)
-        self.CArr = np.array(CLst, dtype=np.float32)
-        self.FArr = np.array(FLst, dtype=np.float32)
-        self.LArr = np.array(LLst, dtype=np.float32)
-        self.NArr = np.array(NLst, dtype=np.float32)
+        self.AArr   = np.array(ALst, dtype=np.float32)
+        self.CArr   = np.array(CLst, dtype=np.float32)
+        self.FArr   = np.array(FLst, dtype=np.float32)
+        self.LArr   = np.array(LLst, dtype=np.float32)
+        self.NArr   = np.array(NLst, dtype=np.float32)
         self.love2vel()
+        self.get_depth()
         if not self.is_layer_model():
             raise ValueError('DEBUG: The model is no longer a layerized one!')
         return
