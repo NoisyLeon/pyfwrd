@@ -1056,6 +1056,8 @@ class model1d(object):
     
     #####################################################################
     # functions for layerized model
+    # The unit for the input/output uses is the same as CPS,
+    # i.e. km/s, GPa, km etc.
     #####################################################################
     def is_layer_model(self):
         """

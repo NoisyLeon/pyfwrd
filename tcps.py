@@ -142,7 +142,6 @@ class tcps_solver(object):
     
     def solve_PSV(self):
         #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
-        # self.init_output(1)
         dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 200, 1.)
         nfval = self.freq.size
         if self.model.flat == 0:
@@ -234,11 +233,13 @@ class tcps_solver(object):
             I1          = np.sum( (L*(self.uz**2)+A*(self.ur**2))*d, axis=1)
             I2          = np.sum( (L*self.uz*self.durdz - F*self.ur*self.duzdz)*d, axis=1)
             I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2))*d, axis=1)
-            # U           = (k*I1+I2)/omega/I0
+            # # U           = (k*I1+I2)/omega/I0
             I02d        = np.tile(I0, (nl_in, 1))
             I02d        = I02d.T
             U2d         = np.tile(self.Vgr, (nl_in, 1))
             U2d         = U2d.T
+            C2d         = np.tile(self.Vph, (nl_in, 1))
+            C2d         = C2d.T
             # U2d3         = np.tile(U, (nl_in, 1))
             # U2d3         = U2d3.T
             # # # I0          = np.sum( rho*(self.uz**2+self.ur**2), axis=1)
@@ -253,12 +254,26 @@ class tcps_solver(object):
             # For benchmark purposes
             ##############################################
             # derivative of eigenfunctions
-            self.durdz1 = -(self.ur[:,:-1] - self.ur[:, 1:])/self.dArr[0]
-            self.duzdz1 = -(self.uz[:, :-1] - self.uz[:, 1:])/self.dArr[0]
+            self.durdz1 = -(self.ur[:,:-1] - self.ur[:,1:])/self.dArr[0]
+            self.duzdz1 = -(self.uz[:,:-1] - self.uz[:,1:])/self.dArr[0]
             self.Vgr1   = (k*I1+I2)/omega/I0
-            # derived kernels from eigen functions
-            self.dcdah1 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d/I02d
-            # self.dcdah2 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d3/I02d
+            
+            # derived kernels from eigenfunctions, p 299 in Herrmann's notes
+            self.dcdah1 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d/I02d*d
+            # # self.dcdah2 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d3/I02d
+            self.dcdav1 = rho*np.sqrt(C/rho)*(1./k2d*self.duzdz)**2/U2d/I02d*d
+            self.dcdbv1 = rho*np.sqrt(L/rho)*( (self.uz)**2 + 2./k2d*self.uz*self.durdz + 4.*eta/k2d*self.ur*self.duzdz+\
+                        (1./k2d*self.durdz)**2 )/U2d/I02d*d
+            self.dcdr1  = -C2d**2/2./U2d/I02d*d*( (self.ur)**2 + (self.uz)**2)  \
+                            + 1./2./U2d/I02d*d*A/rho*(self.ur)**2 + 1./2./U2d/I02d*d*C/rho*(1./k2d*self.duzdz)**2\
+                            - 1./U2d/I02d*d/k2d*eta*(A/rho-2.*L/rho)*self.ur*self.duzdz \
+                            + 1./2./U2d/I02d*d*L/rho*( (self.uz)**2 + 2./k2d*self.uz*self.durdz+ (1./k2d*self.durdz)**2)
+            self.dcdn1  = -1./U2d/I02d*d/k2d*F/eta*self.duzdz*self.ur
+    
+    def get_perturb_disp(self, inmodel):
+        self.model1     = inmodel
+        
+            
             
             
             
