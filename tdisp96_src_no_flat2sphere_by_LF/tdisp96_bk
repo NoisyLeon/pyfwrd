@@ -79,7 +79,7 @@ python module tdisp96 ! in
             real*4 dimension(nn) :: x
             integer :: isign
         end subroutine bsort
-        subroutine disprs(ilvry,dt,nn,iret,verby,nfval,fval,ccmin,ccmax,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in,c_out,d_out,ta_out,tc_out,tf_out,tl_out,tn_out,trho_out) ! in :tdisp96:tdisp96_subroutine.f
+        subroutine disprs(ilvry,dt,nn,iret,verby,nfval,fval,ccmin,ccmax,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,nl_in,iflsph_in,refdep_in,mode_in,facl_in,facr_in,c_out) ! in :tdisp96:tdisp96_subroutine.f
             integer :: ilvry
             real*4 :: dt
             integer :: nn
@@ -103,13 +103,6 @@ python module tdisp96 ! in
             real :: facl_in
             real :: facr_in
             real dimension(2049), intent(out) :: c_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: d_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: ta_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tc_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tf_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tl_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tn_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: trho_out
             double precision :: twopi
             double precision :: displ
             double precision :: dispr
@@ -439,86 +432,6 @@ python module tdisp96 ! in
             common /modlly/ mmax
             common /modspec/ allfluid
         end subroutine evalg
-        subroutine flat2sphere(ilvry,dt,nn,iret,verby,nfval,fval,ccmin,ccmax,d_in,ta_in,tc_in,tf_in,tl_in,tn_in,trho_in,nl_in,refdep_in,mode_in,facl_in,facr_in,d_out,ta_out,tc_out,tf_out,tl_out,tn_out,trho_out) ! in :tdisp96:flat2sphere_subroutine.f
-            integer :: ilvry
-            real*4 :: dt
-            integer :: nn
-            integer :: iret
-            logical :: verby
-            integer :: nfval
-            real dimension(2049) :: fval
-            real*4 :: ccmin
-            real*4 :: ccmax
-            real*4 dimension(nl_in),depend(nl_in) :: d_in
-            real*4 dimension(nl_in),depend(nl_in) :: ta_in
-            real*4 dimension(nl_in),depend(nl_in) :: tc_in
-            real*4 dimension(nl_in),depend(nl_in) :: tf_in
-            real*4 dimension(nl_in),depend(nl_in) :: tl_in
-            real*4 dimension(nl_in),depend(nl_in) :: tn_in
-            real*4 dimension(nl_in),depend(nl_in) :: trho_in
-            integer, intent(in) :: nl_in
-            double precision :: refdep_in
-            integer :: mode_in
-            real :: facl_in
-            real :: facr_in
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: d_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: ta_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tc_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tf_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tl_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: tn_out
-            real*4 dimension(nl_in),depend(nl_in), intent(out) :: trho_out
-            double precision :: twopi
-            double precision :: displ
-            double precision :: dispr
-            real*4 dimension(200) :: d
-            real*4 dimension(200) :: ta
-            real*4 dimension(200) :: tc
-            real*4 dimension(200) :: tf
-            real*4 dimension(200) :: tl
-            real*4 dimension(200) :: tn
-            real*4 dimension(200) :: trho
-            real*4 dimension(200) :: qa
-            real*4 dimension(200) :: qb
-            real*4 dimension(200) :: etap
-            real*4 dimension(200) :: etas
-            real*4 dimension(200) :: frefp
-            real*4 dimension(200) :: frefs
-            double precision dimension(2000) :: cp
-            double precision dimension(2000) :: dcc
-            double precision dimension(2000) :: c
-            integer :: nlost
-            integer :: index
-            integer :: nroot1
-            integer dimension(200) :: iwat
-            real dimension(200) :: od
-            real dimension(200) :: ota
-            real dimension(200) :: otc
-            real dimension(200) :: otl
-            real dimension(200) :: otn
-            real dimension(200) :: otf
-            real dimension(200) :: otrho
-            real dimension(200) :: oqa
-            real dimension(200) :: oqb
-            real dimension(200) :: oetap
-            real dimension(200) :: oetas
-            real dimension(200) :: ofrefp
-            real dimension(200) :: ofrefs
-            real :: refdep
-            integer :: mmax
-            integer :: mode
-            integer dimension(2) :: mvts
-            real*4 dimension(400,2) :: vts
-            common /pard/ twopi,displ,dispr
-            common /timod/ d,ta,tc,tf,tl,tn,trho,qa,qb,etap,etas,frefp,frefs
-            common /phas/ cp
-            common /stor/ dcc,c,nlost,index,nroot1
-            common /water/ iwat
-            common /timodel/ od,ota,otc,otl,otn,otf,otrho,oqa,oqb,oetap,oetas,ofrefp,ofrefs
-            common /depref/ refdep
-            common /pari/ mmax,mode
-            common /vels/ mvts,vts
-        end subroutine flat2sphere
         function mnmarg() ! in :tdisp96:mnmarg.f
             integer :: mnmarg
         end function mnmarg

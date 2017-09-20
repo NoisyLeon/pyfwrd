@@ -1014,6 +1014,45 @@ class model1d(object):
         else:
             return self.get_r_love_parameters(r)
     
+    def get_r_love_parameters_PSV_left(self, r):
+        """
+        Return Love paramaters and density given a radius, for P-SV waves
+        NOTE : always yield the RIGHT value if repeated radius grid points appear
+        """
+        if r < self.rmin: raise ValueError('Required radius is out of the model range!')
+        if self.flat == 0:
+            ind_l = -1; ind_r = -1
+            for _r in self.rArrS:
+                if r < _r:
+                    ind_r += 1
+                    break
+                if r == _r:
+                    ind_l += 1
+                    ind_r += 1
+                    break
+                ind_l += 1
+                ind_r += 1
+            if ind_l == ind_r:
+                return self.rhoArrR[ind_l], self.AArrR[ind_l], self.CArrR[ind_l], \
+                    self.FArrR[ind_l], self.LArrR[ind_l], self.NArrR[ind_l]
+            r_left  = self.rArrS[ind_l]
+            r_right = self.rArrS[ind_r]
+            rhol    = self.rhoArrR[ind_l]; rhor  =   self.rhoArrR[ind_r]
+            rho     = rhol + (r - r_left)*(rhor-rhol)/(r_right - r_left)
+            Al      = self.AArrR[ind_l]; Ar  =   self.AArrR[ind_r]
+            A       = Al + (r - r_left)*(Ar-Al)/(r_right - r_left)
+            Cl      = self.CArrR[ind_l]; Cr  =   self.CArrR[ind_r]
+            C       = Cl + (r - r_left)*(Cr-Cl)/(r_right - r_left)    
+            Fl      = self.FArrR[ind_l]; Fr  =   self.FArrR[ind_r]
+            F       = Fl + (r - r_left)*(Fr-Fl)/(r_right - r_left)
+            Ll      = self.LArrR[ind_l]; Lr  =   self.LArrR[ind_r]
+            L       = Ll + (r - r_left)*(Lr-Ll)/(r_right - r_left)
+            Nl      = self.NArrR[ind_l]; Nr  =   self.NArrR[ind_r]
+            N       = Nl + (r - r_left)*(Nr-Nl)/(r_right - r_left)
+            return rho, A, C, F, L, N
+        else:
+            return self.get_r_love_parameters(r)
+    
     def get_r_love_parameters_SH(self, r):
         """
         Return Love paramaters and density given a radius, for SH waves
@@ -1741,6 +1780,7 @@ class model1d(object):
         LArr    = np.array(LLst, dtype=np.float32)
         NArr    = np.array(NLst, dtype=np.float32)
         return dArr, rhoArr, AArr, CArr, FArr, LArr, NArr
+    
     
     
     

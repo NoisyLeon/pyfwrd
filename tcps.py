@@ -102,11 +102,23 @@ class tcps_solver(object):
         """
         Love parameters to velocity parameters
         """
-        self.ahArr  = np.sqrt(self.AArr/self.rhoArr)
-        self.avArr  = np.sqrt(self.CArr/self.rhoArr)
-        self.bhArr  = np.sqrt(self.NArr/self.rhoArr)
-        self.bvArr  = np.sqrt(self.LArr/self.rhoArr)
-        self.nArr   = self.FArr/(self.AArr - np.float32(2.)* self.LArr)
+        if self.model.flat == 1:
+            self.ahArr  = np.sqrt(self.AArr/self.rhoArr)
+            self.avArr  = np.sqrt(self.CArr/self.rhoArr)
+            self.bhArr  = np.sqrt(self.NArr/self.rhoArr)
+            self.bvArr  = np.sqrt(self.LArr/self.rhoArr)
+            self.nArr   = self.FArr/(self.AArr - np.float32(2.)* self.LArr)
+        else:
+            self.ahArr  = np.sqrt(self.Asph/self.rhosph)
+            self.avArr  = np.sqrt(self.Csph/self.rhosph)
+            self.bhArr  = np.sqrt(self.Nsph/self.rhosph)
+            self.bvArr  = np.sqrt(self.Lsph/self.rhosph)
+            self.nArr   = self.Fsph/(self.Asph - np.float32(2.)* self.Lsph)
+        # # self.ahArr  = np.sqrt(self.AArr/self.rhoArr)
+        # # self.avArr  = np.sqrt(self.CArr/self.rhoArr)
+        # # self.bhArr  = np.sqrt(self.NArr/self.rhoArr)
+        # # self.bvArr  = np.sqrt(self.LArr/self.rhoArr)
+        # # self.nArr   = self.FArr/(self.AArr - np.float32(2.)* self.LArr)
         return
     
     # def init_dbase(self, T, c, rmin, dr, nmodes):
@@ -150,6 +162,7 @@ class tcps_solver(object):
     #     self.Kvsvdata   = tempdata.copy()
     #     self.Ketadata   = tempdata.copy()
     #     return
+    
     
     def solve_PSV(self):
         #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
