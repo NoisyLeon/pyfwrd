@@ -97,7 +97,18 @@ class tcps_solver(object):
         self.freq   = _value_divide_array(1., self.T)
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
-        
+    
+    def love2vel(self):
+        """
+        Love parameters to velocity parameters
+        """
+        self.ahArr  = np.sqrt(self.AArr/self.rhoArr)
+        self.avArr  = np.sqrt(self.CArr/self.rhoArr)
+        self.bhArr  = np.sqrt(self.NArr/self.rhoArr)
+        self.bvArr  = np.sqrt(self.LArr/self.rhoArr)
+        self.nArr   = self.FArr/(self.AArr - np.float32(2.)* self.LArr)
+        return
+    
     # def init_dbase(self, T, c, rmin, dr, nmodes):
     #     
     #     self.T      = T
@@ -162,6 +173,13 @@ class tcps_solver(object):
             self.Fsph   = TF_out
             self.Nsph   = TN_out
             self.rhosph = TRho_out
+        self.AArr   = AArr
+        self.CArr   = CArr
+        self.LArr   = LArr
+        self.FArr   = FArr
+        self.NArr   = NArr
+        self.rhoArr = rhoArr
+        self.love2vel()
         #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
         if self.egn96:
             hs_in       = 0.
@@ -270,10 +288,34 @@ class tcps_solver(object):
                             + 1./2./U2d/I02d*d*L/rho*( (self.uz)**2 + 2./k2d*self.uz*self.durdz+ (1./k2d*self.durdz)**2)
             self.dcdn1  = -1./U2d/I02d*d/k2d*F/eta*self.duzdz*self.ur
     
-    def get_perturb_disp(self, inmodel):
-        self.model1     = inmodel
+    def psv_perturb_disp_vel(self, insolver):
+        nfval   = self.freq.size
+        dav     = np.tile( insolver.avArr- self.avArr, (nfval,1))
+        dah     = np.tile( insolver.ahArr- self.ahArr, (nfval,1))
+        dbv     = np.tile( insolver.bvArr- self.bvArr, (nfval,1))
+        dn      = np.tile( insolver.nArr- self.nArr  , (nfval,1)) 
+        dr      = np.tile( insolver.rhoArr- self.rhoArr, (nfval,1))
+        dc      = np.zeros(nfval, np.float32)
+        if (np.nonzero(dav)[0]).size!=0:
+            print 'dav'
+            dc  += np.sum( dav*self.dcdav, axis=1)
+        if (np.nonzero(dah)[0]).size!=0:
+            print 'dah'
+            dc  += np.sum( dah*self.dcdah, axis=1)
+        if (np.nonzero(dbv)[0]).size!=0:
+            print 'dbv'
+            dc  += np.sum( dbv*self.dcdbv, axis=1)
+        if (np.nonzero(dr)[0]).size!=0:
+            print 'dr'
+            dc  += np.sum( dr*self.dcdr, axis=1)
+        if (np.nonzero(dn)[0]).size!=0:
+            print 'dn'
+            dc  += np.sum( dn*self.dcdn, axis=1)
+        self.Vph_pre    = self.Vph + dc
         
-            
+        
+        
+        
             
             
             

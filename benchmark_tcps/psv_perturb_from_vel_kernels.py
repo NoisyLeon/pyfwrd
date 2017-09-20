@@ -5,8 +5,8 @@ sys.path.append('/home/leon/code/pysurf')
 Conclusion:
 
 Flat Earth:
-1. dh = 1., 2., 4.; derived kernels are correct.
-    But the larger the dh, the larger the difference between the directly-computed and derived kernels!
+1. 
+    
 
 Spherical Earth:
 1. dh = 1., 2., 4.; derived kernels are correct
@@ -28,26 +28,22 @@ tcps1.solve_PSV()
 
 # 
 tcps2 = tcps.tcps_solver(m)
-tcps2.init_default(nl=100, dh=2.)
-tcps2.verbose=1
+m.add_perturb_layer(0., 10., 4, -0.6,True)
+tcps2.init_default()
+# tcps2.verbose=1
 tcps2.solve_PSV()
 
-tcps3 = tcps.tcps_solver(m)
-tcps3.init_default(nl=50., dh=4.)
-tcps3.verbose=1
-tcps3.solve_PSV()
+tcps1.psv_perturb_disp_vel(tcps2)
+# tcps3 = tcps.tcps_solver(m)
+# tcps3.init_default(nl=50., dh=4.)
+# tcps3.verbose=1
+# tcps3.solve_PSV()
 
-# 
-# 
-i=5
-# # plt.plot(tcps1.dArr.cumsum(), np.abs(tcps1.dcdah[i, :]-tcps1.dcdah1[i, :])/tcps1.dcdah[i, :], 'ro-', ms=10)
-# # plt.plot(tcps1.dArr.cumsum(), np.abs(tcps1.dcdah[i, :]-tcps1.dcdah2[i, :])/tcps1.dcdah[i, :], 'bo-', ms=10)
-# 
-plt.plot(tcps1.dArr.cumsum(), tcps1.dcdbv[i, :], 'o-', ms=10)
-plt.plot(tcps1.dArr.cumsum(), tcps1.dcdbv1[i, :], '^-', ms=10)
-plt.plot(tcps2.dArr.cumsum(), tcps2.dcdbv[i, :], 'o-', ms=10)
-plt.plot(tcps2.dArr.cumsum(), tcps2.dcdbv1[i, :], '^-', ms=10)
-plt.plot(tcps3.dArr.cumsum(), tcps3.dcdbv[i, :], 'o-', ms=10)
-plt.plot(tcps3.dArr.cumsum(), tcps3.dcdbv1[i, :], '^-', ms=10)
+
+
+plt.plot(tcps1.T, tcps1.Vph, 'o', ms=10)
+plt.plot(tcps1.T, tcps1.Vph_pre, '^', ms=10)
+plt.plot(tcps2.T, tcps2.Vph, 'x', ms=10)
+
 plt.show()
 
