@@ -102,23 +102,23 @@ class tcps_solver(object):
         """
         Love parameters to velocity parameters
         """
-        if self.model.flat == 1:
-            self.ahArr  = np.sqrt(self.AArr/self.rhoArr)
-            self.avArr  = np.sqrt(self.CArr/self.rhoArr)
-            self.bhArr  = np.sqrt(self.NArr/self.rhoArr)
-            self.bvArr  = np.sqrt(self.LArr/self.rhoArr)
-            self.nArr   = self.FArr/(self.AArr - np.float32(2.)* self.LArr)
-        else:
-            self.ahArr  = np.sqrt(self.Asph/self.rhosph)
-            self.avArr  = np.sqrt(self.Csph/self.rhosph)
-            self.bhArr  = np.sqrt(self.Nsph/self.rhosph)
-            self.bvArr  = np.sqrt(self.Lsph/self.rhosph)
-            self.nArr   = self.Fsph/(self.Asph - np.float32(2.)* self.Lsph)
-        # # self.ahArr  = np.sqrt(self.AArr/self.rhoArr)
-        # # self.avArr  = np.sqrt(self.CArr/self.rhoArr)
-        # # self.bhArr  = np.sqrt(self.NArr/self.rhoArr)
-        # # self.bvArr  = np.sqrt(self.LArr/self.rhoArr)
-        # # self.nArr   = self.FArr/(self.AArr - np.float32(2.)* self.LArr)
+        # # # if self.model.flat == 1:
+        # # #     self.ahArr  = np.sqrt(self.AArr/self.rhoArr)
+        # # #     self.avArr  = np.sqrt(self.CArr/self.rhoArr)
+        # # #     self.bhArr  = np.sqrt(self.NArr/self.rhoArr)
+        # # #     self.bvArr  = np.sqrt(self.LArr/self.rhoArr)
+        # # #     self.nArr   = self.FArr/(self.AArr - np.float32(2.)* self.LArr)
+        # # # else:
+        # # #     self.ahArr  = np.sqrt(self.Asph/self.rhosph)
+        # # #     self.avArr  = np.sqrt(self.Csph/self.rhosph)
+        # # #     self.bhArr  = np.sqrt(self.Nsph/self.rhosph)
+        # # #     self.bvArr  = np.sqrt(self.Lsph/self.rhosph)
+        # # #     self.nArr   = self.Fsph/(self.Asph - np.float32(2.)* self.Lsph)
+        self.ahArr  = np.sqrt(self.AArr/self.rhoArr)
+        self.avArr  = np.sqrt(self.CArr/self.rhoArr)
+        self.bhArr  = np.sqrt(self.NArr/self.rhoArr)
+        self.bvArr  = np.sqrt(self.LArr/self.rhoArr)
+        self.nArr   = self.FArr/(self.AArr - np.float32(2.)* self.LArr)
         return
     
     # def init_dbase(self, T, c, rmin, dr, nmodes):
@@ -240,13 +240,15 @@ class tcps_solver(object):
             self.tuz    = tuz[:nfval,:nl_in]
             self.ur     = ur[:nfval,:nl_in]
             self.tur    = tur[:nfval,:nl_in]
-            # sensitivity kernels
+            # sensitivity kernels for velocity parameters
             self.dcdah  = dcdah[:nfval,:nl_in]
             self.dcdav  = dcdav[:nfval,:nl_in]
             self.dcdbh  = dcdbh[:nfval,:nl_in]
             self.dcdbv  = dcdbv[:nfval,:nl_in]
             self.dcdr   = dcdr[:nfval,:nl_in]
             self.dcdn   = dcdn[:nfval,:nl_in]
+            # sensitivity kernels for Love parameters, derived from velocity kernels using chain rule
+            
             # Love parameters and density in the shape of nfval, nl_in
             A           = np.tile(TA_in, (nfval,1))
             C           = np.tile(TC_in, (nfval,1))
