@@ -247,8 +247,6 @@ class tcps_solver(object):
             self.dcdbv  = dcdbv[:nfval,:nl_in]
             self.dcdr   = dcdr[:nfval,:nl_in]
             self.dcdn   = dcdn[:nfval,:nl_in]
-            # sensitivity kernels for Love parameters, derived from velocity kernels using chain rule
-            
             # Love parameters and density in the shape of nfval, nl_in
             A           = np.tile(TA_in, (nfval,1))
             C           = np.tile(TC_in, (nfval,1))
@@ -273,16 +271,26 @@ class tcps_solver(object):
             U2d         = U2d.T
             C2d         = np.tile(self.Vph, (nl_in, 1))
             C2d         = C2d.T
+            # sensitivity kernels for Love parameters, derived from velocity kernels using chain rule
+            self.dcdA   = 0.5/np.sqrt(A*rho)*self.dcdah - F/((A-2.*L)**2)*self.dcdn
+            self.dcdC   = 0.5/np.sqrt(C*rho)*self.dcdav
+            self.dcdF   = 1./(A-2.*L)*self.dcdn
+            self.dcdL   = 0.5/np.sqrt(L*rho)*self.dcdbv + 2.*F/((A-2.*L)**2)*self.dcdn
+            self.dcdN   = 0.5/np.sqrt(N*rho)*self.dcdbh
+            # density kernel for Love parameters and density
+            self.dcdrl  = -0.5*self.dcdah*np.sqrt(A/(rho**3)) - 0.5*self.dcdav*np.sqrt(C/(rho**3))\
+                            -0.5*self.dcdbh*np.sqrt(N/(rho**3)) -0.5*self.dcdbv*np.sqrt(L/(rho**3))\
+                                + self.dcdr
             # U2d3         = np.tile(U, (nl_in, 1))
             # U2d3         = U2d3.T
             # # # I0          = np.sum( rho*(self.uz**2+self.ur**2), axis=1)
             # # # I1          = np.sum( (L*(self.uz**2)+A*(self.ur**2)), axis=1)
             # # # I2          = np.sum( (L*self.uz*self.durdz - F*self.ur*self.duzdz), axis=1)
             # # # I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2)), axis=1)
-            self.I0 = I0
-            self.I1 = I1
-            self.I2 = I2
-            self.I3 = I3
+            # self.I0 = I0
+            # self.I1 = I1
+            # self.I2 = I2
+            # self.I3 = I3
             ##############################################
             # For benchmark purposes
             ##############################################
@@ -327,6 +335,32 @@ class tcps_solver(object):
             print 'dn'
             dc  += np.sum( dn*self.dcdn, axis=1)
         self.Vph_pre    = self.Vph + dc
+        
+    def psv_perturb_disp_love(self, insolver):
+        nfval   = self.freq.size
+        dA      = np.tile( insolver.AArr- self.AArr, (nfval,1))
+        dC      = np.tile( insolver.CArr- self.CArr, (nfval,1))
+        dF      = np.tile( insolver.FArr- self.FArr, (nfval,1))
+        dL      = np.tile( insolver.LArr- self.LArr, (nfval,1))
+        dN      = np.tile( insolver.NArr- self.NArr  , (nfval,1)) 
+        dr      = np.tile( insolver.rhoArr- self.rhoArr, (nfval,1))
+        dc      = np.zeros(nfval, np.float32)
+        if (np.nonzero(dA)[0]).size!=0:
+            print 'dA'
+            dc  += np.sum( dA*self.dcdA, axis=1)
+        if (np.nonzero(dC)[0]).size!=0:
+            print 'dC'
+            dc  += np.sum( dC*self.dcdC, axis=1)
+        if (np.nonzero(dF)[0]).size!=0:
+            print 'dF'
+            dc  += np.sum( dF*self.dcdF, axis=1)
+        if (np.nonzero(dL)[0]).size!=0:
+            print 'dL'
+            dc  += np.sum( dL*self.dcdL, axis=1)
+        if (np.nonzero(dr)[0]).size!=0:
+            print 'dr'
+            dc  += np.sum( dr*self.dcdrl, axis=1)
+        self.Vph_pre2    = self.Vph + dc
         
         
         

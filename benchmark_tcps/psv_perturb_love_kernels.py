@@ -6,6 +6,7 @@ Conclusion:
 
 Flat Earth:
 1. perturb top, 0-10 km, results are normal
+
 2. perturb mid, 30-40 km,
  results are normal
 3. perturb bottom, 180-200 km, results are normal
@@ -49,7 +50,7 @@ import matplotlib.pyplot as plt
 
 m=vmodel.model1d()
 m.model_ak135_cps()
-m.flat=0
+m.flat=1
 
 tcps1 = tcps.tcps_solver(m)
 tcps1.init_default()
@@ -57,12 +58,14 @@ tcps1.solve_PSV()
 
 
 tcps2 = tcps.tcps_solver(m)
-m.add_perturb_layer(0, 200., 0, 0.02, True)
+m.add_perturb_layer_love(0, 10., 0, 0.1, True)
 tcps2.init_default()
 # tcps2.verbose=1
 tcps2.solve_PSV()
 
 tcps1.psv_perturb_disp_vel(tcps2)
+tcps1.psv_perturb_disp_love(tcps2)
+
 
 # v1 = tcps1.Vph_pre.copy()
 # tcps1.model.flat=1
@@ -71,14 +74,27 @@ tcps1.psv_perturb_disp_vel(tcps2)
 # tcps2.love2vel()
 # tcps1.psv_perturb_disp_vel(tcps2)
 # v2 = tcps1.Vph_pre.copy()
-
+plt.figure()
 plt.plot(tcps1.T, tcps1.Vph, 'o', ms=10)
 plt.plot(tcps1.T, tcps1.Vph_pre, 'y^', ms=10)
+plt.plot(tcps2.T, tcps2.Vph, 'kx', ms=15)
+
+plt.figure()
+plt.plot(tcps1.T, tcps1.Vph, 'o', ms=10)
+plt.plot(tcps1.T, tcps1.Vph_pre2, 'g^', ms=10)
 plt.plot(tcps2.T, tcps2.Vph, 'kx', ms=15)
 
 # plt.plot(tcps1.T, tcps1.Vph, 'o', ms=10)
 # plt.plot(tcps1.T, v1, 'y^', ms=10)
 # plt.plot(tcps2.T, tcps2.Vph, 'kx', ms=15)
-
+print np.abs(tcps1.Vph_pre - tcps1.Vph_pre2)*1000.
 plt.show()
 
+# i=3
+# plt.plot(tcps1.dArr.cumsum(), tcps1.dcdA[i, :], 'b-', lw=3, ms=10)
+# plt.plot(tcps1.dArr.cumsum(), tcps1.dcdC[i, :], 'b--', lw=3,ms=10)
+# plt.plot(tcps1.dArr.cumsum(), tcps1.dcdF[i, :], 'g-', lw=3,ms=10)
+# plt.plot(tcps1.dArr.cumsum(), tcps1.dcdL[i, :], 'r--', lw=3,ms=10)
+# plt.plot(tcps1.dArr.cumsum(), tcps1.dcdN[i, :], 'r-', lw=3,ms=10)
+# plt.xlim(0, 100)
+# plt.show()
