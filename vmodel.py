@@ -1153,7 +1153,7 @@ class model1d(object):
                         3: vph
                         4: eta
                         5: rho
-        val         - perturbed/absolute value
+        val         - perturbed/absolute value (for absolute value, unit is km)
         rel         - relative or absolute perturbation (True : relative)
         ===============================================================================
         NOTE:
@@ -1206,8 +1206,9 @@ class model1d(object):
         if rel:
             if val <= -1.: raise ValueError('Unacceptable value for added layer!')
         else:
-            if val <= 0.: raise ValueError('Unacceptable value for added layer!')
-            val = val *np.float32(1000.)
+            if val < 0.: raise ValueError('Unacceptable value for added layer!')
+            if dtype !=4:
+                val = val *np.float32(1000.)
         if not self.is_layer_model():
             raise ValueError('The model is not a layerized one!')
         if zmin >= zmax:
@@ -1462,15 +1463,18 @@ class model1d(object):
                         3: L
                         4: N
                         5: rho
-        val         - perturbed/absolute value
+        val         - perturbed/absolute value (for absolute value, unit is GPa)
         rel         - relative or absolute perturbation (True : relative)
         ===============================================================================
         """
         if rel:
             if val <= -1.: raise ValueError('Unacceptable value for added layer!')
         else:
-            if val <= 0.: raise ValueError('Unacceptable value for added layer!')
-            val = val *np.float32(1000.)
+            if val < 0.: raise ValueError('Unacceptable value for added layer!')
+            if dtype == 5:
+                val = val *np.float32(1000.)
+            else:
+                val = val *np.float32(1e9)
         if not self.is_layer_model():
             raise ValueError('The model is not a layerized one!')
         if zmin >= zmax:
