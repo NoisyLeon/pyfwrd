@@ -66,7 +66,19 @@ def _abs_max_(array):
 
 
 class tcps_solver(object):
-    
+    """
+    An object solving for dispersion curves, eigenfunctions and sensitivity kernels, use tdisp96 and tregn96/tlegn96
+    =====================================================================================================================
+    ::: Parameters :::
+    model           - 1D Earth model object
+    nmodes          - number of modes  
+    egn96           - solve for eigenfunctions/kernels or not (default - True)
+    cmin/cmax       - minimum/maximum velocity for root searching (default - -1.)
+    T/freq          - period/frequency array
+    dArr            - layer array (unit - km)
+    ilvry           - 1 - Love wave, 2 - Rayleigh wave
+    =====================================================================================================================
+    """
     def __init__(self, inmodel):
         if not isinstance(inmodel, vmodel.model1d):
             raise ValueError('Input model should be type of vmodel.model1d !')
@@ -101,6 +113,12 @@ class tcps_solver(object):
     def love2vel(self):
         """
         Love parameters to velocity parameters
+        ::: Output :::
+        ahArr   - vph
+        avArr   - vpv
+        bhArr   - vsh
+        bvArr   - vsv
+        nArr    - eta
         """
         # # # if self.model.flat == 1:
         # # #     self.ahArr  = np.sqrt(self.AArr/self.rhoArr)
@@ -165,11 +183,34 @@ class tcps_solver(object):
     
     
     def solve_PSV(self):
+        """
+        Solve P-SV motion dispersion curves, eigenfunctions and sensitivity kernels
+        ===================================================================================================
+        ::: Output :::
+        : Model :
+        dArr, AArr, CArr, FArr, LArr, NArr, rhoArr  - layerized model
+        dsph, Asph, Csph, Fsph, Lsph, Nsph, rhosph  - flattening transformed Earth model
+        : dispersion :
+        Vph, Vgr    - phase/group velocity
+        : eigenfunctions :
+        uz, ur      - vertical/radial displacement functions
+        tuz, tur    - vertical/radial stress functions
+        duzdz, durdz- derivatives of vertical/radial displacement functions
+        : velocity/density sensitivity kernels :
+        dcdah/dcdav - vph/vpv kernel
+        dcdbh/dcdbv - vsh/vsv kernel
+        dcdn        - eta kernel
+        dcdr        - density kernel
+        : Love parameter/density sensitivity kernels, derived from the kernels above using chain rule :
+        dcdA, dcdC, dcdF, dcdL, dcdN    - Love parameter kernels
+        dcdrl                           - density kernel
+        ===================================================================================================
+        """
         #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
         dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 200, 1.)
         nfval   = self.freq.size
         if self.model.flat == 0:
-            iflsph_in = 2
+            iflsph_in = 1
         else:
             iflsph_in = 0
         ilvry   = 2
@@ -178,6 +219,7 @@ class tcps_solver(object):
                 iflsph_in, 0., self.nmodes, 0.5, 0.5)
         self.ilvry  = ilvry
         self.Vph    = c_out[:nfval]
+        # Save flat transformed model is spherical flag is on
         if self.model.flat == 0:
             self.dsph   = d_out
             self.Asph   = TA_out
@@ -193,7 +235,7 @@ class tcps_solver(object):
         self.NArr   = NArr
         self.rhoArr = rhoArr
         self.love2vel()
-        #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
+        #- compute eigenfunction/kernels
         if self.egn96:
             hs_in       = 0.
             hr_in       = 0.
@@ -233,14 +275,16 @@ class tcps_solver(object):
             u_out, ur, tur, uz, tuz, dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr = tregn96.tregn96(hs_in, hr_in, ohr_in, ohs_in,\
                 refdep_in, dogam, nl_in, iflsph_in, d_in, TA_in, TC_in, TF_in, TL_in, TN_in, TRho_in, \
                 qai_in,qbi_in,etapi_in,etasi_in, frefpi_in, frefsi_in, self.T.size, self.T, self.Vph)
+            ######################################################
             # store output
+            ######################################################
             self.Vgr    = u_out
             # eigenfunctions
             self.uz     = uz[:nfval,:nl_in]
             self.tuz    = tuz[:nfval,:nl_in]
             self.ur     = ur[:nfval,:nl_in]
             self.tur    = tur[:nfval,:nl_in]
-            # sensitivity kernels for velocity parameters
+            # sensitivity kernels for velocity parameters and density
             self.dcdah  = dcdah[:nfval,:nl_in]
             self.dcdav  = dcdav[:nfval,:nl_in]
             self.dcdbh  = dcdbh[:nfval,:nl_in]
@@ -248,22 +292,29 @@ class tcps_solver(object):
             self.dcdr   = dcdr[:nfval,:nl_in]
             self.dcdn   = dcdn[:nfval,:nl_in]
             # Love parameters and density in the shape of nfval, nl_in
-            A           = np.tile(TA_in, (nfval,1))
-            C           = np.tile(TC_in, (nfval,1))
-            F           = np.tile(TF_in, (nfval,1))
-            L           = np.tile(TL_in, (nfval,1))
-            N           = np.tile(TN_in, (nfval,1))
-            rho         = np.tile(TRho_in, (nfval,1))
-            d           = np.tile(d_in, (nfval,1))
+            # # A           = np.tile(TA_in, (nfval,1))
+            # # C           = np.tile(TC_in, (nfval,1))
+            # # F           = np.tile(TF_in, (nfval,1))
+            # # L           = np.tile(TL_in, (nfval,1))
+            # # N           = np.tile(TN_in, (nfval,1))
+            # # rho         = np.tile(TRho_in, (nfval,1))
+            # # d           = np.tile(d_in, (nfval,1))
+            A           = np.tile(AArr, (nfval,1))
+            C           = np.tile(CArr, (nfval,1))
+            F           = np.tile(FArr, (nfval,1))
+            L           = np.tile(LArr, (nfval,1))
+            N           = np.tile(NArr, (nfval,1))
+            rho         = np.tile(rhoArr, (nfval,1))
+            d           = np.tile(dArr, (nfval,1))
             eta         = F/(A-2.*L)
             # derivative of eigenfunctions, $5.8 of R.Herrmann
             self.durdz  = 1./L*self.tur - k2d*self.uz
             self.duzdz  = k2d*F/C*self.ur + self.tuz/C
             # integrals for the Lagranian
-            I0          = np.sum( rho*(self.uz**2+self.ur**2)*d, axis=1)
-            I1          = np.sum( (L*(self.uz**2)+A*(self.ur**2))*d, axis=1)
-            I2          = np.sum( (L*self.uz*self.durdz - F*self.ur*self.duzdz)*d, axis=1)
-            I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2))*d, axis=1)
+            # # # I0          = np.sum( rho*(self.uz**2+self.ur**2)*d, axis=1)
+            # # # I1          = np.sum( (L*(self.uz**2)+A*(self.ur**2))*d, axis=1)
+            # # # I2          = np.sum( (L*self.uz*self.durdz - F*self.ur*self.duzdz)*d, axis=1)
+            # # # I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2))*d, axis=1)
             # # U           = (k*I1+I2)/omega/I0
             I02d        = np.tile(I0, (nl_in, 1))
             I02d        = I02d.T
@@ -271,13 +322,19 @@ class tcps_solver(object):
             U2d         = U2d.T
             C2d         = np.tile(self.Vph, (nl_in, 1))
             C2d         = C2d.T
-            # sensitivity kernels for Love parameters, derived from velocity kernels using chain rule
+            # sensitivity kernels for Love parameters and density, derived from velocity kernels using chain rule
+            # NOTE: benchmark of love kernels predict somewhat different perturbed values compared with those using velocity kernel
+            # Possible reason:
+            #       By using the chain rule, infinitesimal perturbations for all the parameters is assumed.
+            #       However, for the benckmark cases, the perturbation can be large.
+            #       e.g. ah = sqrt(A/rho), dah = 0.5/sqrt(A*rho)*dA. But, if dA is large, dah = sqrt(A+dA/rho) - sqrt(A/rho) != 0.5/sqrt(A*rho)*dA
+            #      
             self.dcdA   = 0.5/np.sqrt(A*rho)*self.dcdah - F/((A-2.*L)**2)*self.dcdn
             self.dcdC   = 0.5/np.sqrt(C*rho)*self.dcdav
             self.dcdF   = 1./(A-2.*L)*self.dcdn
             self.dcdL   = 0.5/np.sqrt(L*rho)*self.dcdbv + 2.*F/((A-2.*L)**2)*self.dcdn
             self.dcdN   = 0.5/np.sqrt(N*rho)*self.dcdbh
-            # density kernel for Love parameters and density
+            # density kernel
             self.dcdrl  = -0.5*self.dcdah*np.sqrt(A/(rho**3)) - 0.5*self.dcdav*np.sqrt(C/(rho**3))\
                             -0.5*self.dcdbh*np.sqrt(N/(rho**3)) -0.5*self.dcdbv*np.sqrt(L/(rho**3))\
                                 + self.dcdr
@@ -312,6 +369,9 @@ class tcps_solver(object):
             self.dcdn1  = -1./U2d/I02d*d/k2d*F/eta*self.duzdz*self.ur
     
     def psv_perturb_disp_vel(self, insolver):
+        """
+        Get dispersion curves for perturbed model, using velocity kernels
+        """
         nfval   = self.freq.size
         dav     = np.tile( insolver.avArr- self.avArr, (nfval,1))
         dah     = np.tile( insolver.ahArr- self.ahArr, (nfval,1))
@@ -337,6 +397,9 @@ class tcps_solver(object):
         self.Vph_pre    = self.Vph + dc
         
     def psv_perturb_disp_love(self, insolver):
+        """
+        Get dispersion curves for perturbed model, using Love kernels
+        """
         nfval   = self.freq.size
         dA      = np.tile( insolver.AArr- self.AArr, (nfval,1))
         dC      = np.tile( insolver.CArr- self.CArr, (nfval,1))
@@ -361,6 +424,192 @@ class tcps_solver(object):
             print 'dr'
             dc  += np.sum( dr*self.dcdrl, axis=1)
         self.Vph_pre2    = self.Vph + dc
+        
+    def solve_SH(self):
+        """
+        Solve SH motion dispersion curves, eigenfunctions and sensitivity kernels
+        ===================================================================================================
+        ::: Output :::
+        : Model :
+        dArr, AArr, CArr, FArr, LArr, NArr, rhoArr  - layerized model
+        dsph, Asph, Csph, Fsph, Lsph, Nsph, rhosph  - flattening transformed Earth model
+        : dispersion :
+        Vph, Vgr    - phase/group velocity
+        : eigenfunctions :
+        uz, ur      - vertical/radial displacement functions
+        tuz, tur    - vertical/radial stress functions
+        duzdz, durdz- derivatives of vertical/radial displacement functions
+        : velocity/density sensitivity kernels :
+        dcdah/dcdav - vph/vpv kernel
+        dcdbh/dcdbv - vsh/vsv kernel
+        dcdn        - eta kernel
+        dcdr        - density kernel
+        : Love parameter/density sensitivity kernels, derived from the kernels above using chain rule :
+        dcdA, dcdC, dcdF, dcdL, dcdN    - Love parameter kernels
+        dcdrl                           - density kernel
+        ===================================================================================================
+        """
+        #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
+        dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 200, 1.)
+        nfval   = self.freq.size
+        if self.model.flat == 0:
+            iflsph_in = 1
+        else:
+            iflsph_in = 0
+        ilvry   = 1
+        c_out,d_out,TA_out,TC_out,TF_out,TL_out,TN_out,TRho_out = tdisp96.disprs(ilvry, 1., nfval, 1, self.verbose, nfval, \
+                np.append(self.freq, np.zeros(2049-nfval)), self.cmin,self.cmax, dArr, AArr,CArr,FArr,LArr,NArr,rhoArr, dArr.size,\
+                iflsph_in, 0., self.nmodes, 0.5, 0.5)
+        self.ilvry  = ilvry
+        self.Vph    = c_out[:nfval]
+        # Save flat transformed model is spherical flag is on
+        if self.model.flat == 0:
+            self.dsph   = d_out
+            self.Asph   = TA_out
+            self.Csph   = TC_out
+            self.Lsph   = TL_out
+            self.Fsph   = TF_out
+            self.Nsph   = TN_out
+            self.rhosph = TRho_out
+        self.AArr   = AArr
+        self.CArr   = CArr
+        self.LArr   = LArr
+        self.FArr   = FArr
+        self.NArr   = NArr
+        self.rhoArr = rhoArr
+        self.love2vel()
+        #- compute eigenfunction/kernels
+        if self.egn96:
+            hs_in       = 0.
+            hr_in       = 0.
+            ohr_in      = 0.
+            ohs_in      = 0.
+            refdep_in   = 0.
+            dogam       = False # No attenuation
+            nl_in       = dArr.size
+            k           = 2.*np.pi/self.Vph/self.T
+            k2d         = np.tile(k, (nl_in, 1))
+            k2d         = k2d.T
+            omega       = 2.*np.pi/self.T
+            omega2d     = np.tile(omega, (nl_in, 1))
+            omega2d     = omega2d.T
+            if self.model.flat == 0:
+                d_in    = d_out
+                TA_in   = TA_out
+                TC_in   = TC_out
+                TF_in   = TF_out
+                TL_in   = TL_out
+                TN_in   = TN_out
+                TRho_in = TRho_out
+            else:
+                d_in    = dArr
+                TA_in   = AArr
+                TC_in   = CArr
+                TF_in   = FArr
+                TL_in   = LArr
+                TN_in   = NArr
+                TRho_in = rhoArr
+            qai_in      = np.ones(nl_in)*1.e6
+            qbi_in      = np.ones(nl_in)*1.e6
+            etapi_in    = np.zeros(nl_in)
+            etasi_in    = np.zeros(nl_in)
+            frefpi_in   = np.ones(nl_in)
+            frefsi_in   = np.ones(nl_in)
+            u_out, ut, tut, dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr = tlegn96.tlegn96(hs_in, hr_in, ohr_in, ohs_in,\
+                refdep_in, dogam, nl_in, iflsph_in, d_in, TA_in, TC_in, TF_in, TL_in, TN_in, TRho_in, \
+                qai_in,qbi_in,etapi_in,etasi_in, frefpi_in, frefsi_in, self.T.size, self.T, self.Vph)
+            ######################################################
+            # store output
+            ######################################################
+            self.Vgr    = u_out
+            # eigenfunctions
+            self.ut     = ut[:nfval,:nl_in]
+            self.tut    = tut[:nfval,:nl_in]
+            # sensitivity kernels for velocity parameters and density
+            self.dcdah  = np.zeros((nfval, nl_in), dtype=np.float32)
+            self.dcdav  = np.zeros((nfval, nl_in), dtype=np.float32)
+            self.dcdbh  = dcdbh[:nfval,:nl_in]
+            self.dcdbv  = dcdbv[:nfval,:nl_in]
+            self.dcdr   = dcdr[:nfval,:nl_in]
+            self.dcdn   = np.zeros((nfval, nl_in), dtype=np.float32)
+            # Love parameters and density in the shape of nfval, nl_in
+            # # A           = np.tile(TA_in, (nfval,1))
+            # # C           = np.tile(TC_in, (nfval,1))
+            # # F           = np.tile(TF_in, (nfval,1))
+            # # L           = np.tile(TL_in, (nfval,1))
+            # # N           = np.tile(TN_in, (nfval,1))
+            # # rho         = np.tile(TRho_in, (nfval,1))
+            # # d           = np.tile(d_in, (nfval,1))
+            A           = np.tile(AArr, (nfval,1))
+            C           = np.tile(CArr, (nfval,1))
+            F           = np.tile(FArr, (nfval,1))
+            L           = np.tile(LArr, (nfval,1))
+            N           = np.tile(NArr, (nfval,1))
+            rho         = np.tile(rhoArr, (nfval,1))
+            d           = np.tile(dArr, (nfval,1))
+            eta         = F/(A-2.*L)
+            # derivative of eigenfunctions, $5.8 of R.Herrmann
+            self.dutdz  = self.tut/L
+            ### continue here
+            
+        #     self.duzdz  = k2d*F/C*self.ur + self.tuz/C
+        #     # integrals for the Lagranian
+        #     I0          = np.sum( rho*(self.uz**2+self.ur**2)*d, axis=1)
+        #     I1          = np.sum( (L*(self.uz**2)+A*(self.ur**2))*d, axis=1)
+        #     I2          = np.sum( (L*self.uz*self.durdz - F*self.ur*self.duzdz)*d, axis=1)
+        #     I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2))*d, axis=1)
+        #     # # U           = (k*I1+I2)/omega/I0
+        #     I02d        = np.tile(I0, (nl_in, 1))
+        #     I02d        = I02d.T
+        #     U2d         = np.tile(self.Vgr, (nl_in, 1))
+        #     U2d         = U2d.T
+        #     C2d         = np.tile(self.Vph, (nl_in, 1))
+        #     C2d         = C2d.T
+        #     # sensitivity kernels for Love parameters and density, derived from velocity kernels using chain rule
+        #     # NOTE: benchmark of love kernels predict somewhat different perturbed values compared with those using velocity kernel
+        #     # Possible reason:
+        #     #       By using the chain rule, infinitesimal perturbations for all the parameters is assumed.
+        #     #       However, for the benckmark cases, the perturbation can be large.
+        #     #       e.g. ah = sqrt(A/rho), dah = 0.5/sqrt(A*rho)*dA. But, if dA is large, dah = sqrt(A+dA/rho) - sqrt(A/rho) != 0.5/sqrt(A*rho)*dA
+        #     #      
+        #     self.dcdA   = 0.5/np.sqrt(A*rho)*self.dcdah - F/((A-2.*L)**2)*self.dcdn
+        #     self.dcdC   = 0.5/np.sqrt(C*rho)*self.dcdav
+        #     self.dcdF   = 1./(A-2.*L)*self.dcdn
+        #     self.dcdL   = 0.5/np.sqrt(L*rho)*self.dcdbv + 2.*F/((A-2.*L)**2)*self.dcdn
+        #     self.dcdN   = 0.5/np.sqrt(N*rho)*self.dcdbh
+        #     # density kernel
+        #     self.dcdrl  = -0.5*self.dcdah*np.sqrt(A/(rho**3)) - 0.5*self.dcdav*np.sqrt(C/(rho**3))\
+        #                     -0.5*self.dcdbh*np.sqrt(N/(rho**3)) -0.5*self.dcdbv*np.sqrt(L/(rho**3))\
+        #                         + self.dcdr
+        #     # U2d3         = np.tile(U, (nl_in, 1))
+        #     # U2d3         = U2d3.T
+        #     # # # I0          = np.sum( rho*(self.uz**2+self.ur**2), axis=1)
+        #     # # # I1          = np.sum( (L*(self.uz**2)+A*(self.ur**2)), axis=1)
+        #     # # # I2          = np.sum( (L*self.uz*self.durdz - F*self.ur*self.duzdz), axis=1)
+        #     # # # I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2)), axis=1)
+        #     # self.I0 = I0
+        #     # self.I1 = I1
+        #     # self.I2 = I2
+        #     # self.I3 = I3
+        #     ##############################################
+        #     # For benchmark purposes
+        #     ##############################################
+        #     # derivative of eigenfunctions
+        #     self.durdz1 = -(self.ur[:,:-1] - self.ur[:,1:])/self.dArr[0]
+        #     self.duzdz1 = -(self.uz[:,:-1] - self.uz[:,1:])/self.dArr[0]
+        #     self.Vgr1   = (k*I1+I2)/omega/I0
+        #     
+        #     # derived kernels from eigenfunctions, p 299 in Herrmann's notes
+        #     self.dcdah1 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d/I02d*d
+        #     # # self.dcdah2 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d3/I02d
+        #     self.dcdav1 = rho*np.sqrt(C/rho)*(1./k2d*self.duzdz)**2/U2d/I02d*d
+        #     self.dcdbv1 = rho*np.sqrt(L/rho)*( (self.uz)**2 + 2./k2d*self.uz*self.durdz + 4.*eta/k2d*self.ur*self.duzdz+\
+        #                 (1./k2d*self.durdz)**2 )/U2d/I02d*d
+        #     self.dcdr1  = -C2d**2/2./U2d/I02d*d*( (self.ur)**2 + (self.uz)**2)  \
+        #                     + 1./2./U2d/I02d*d*A/rho*(self.ur)**2 + 1./2./U2d/I02d*d*C/rho*(1./k2d*self.duzdz)**2\
+        #                     - 1./U2d/I02d*d/k2d*eta*(A/rho-2.*L/rho)*self.ur*self.duzdz \
+        #                     + 1./2./U2d/I02d*d*L/rho*( (self.uz)**2 + 2./k2d*self.uz*self.durdz+ (1./k2d*self.durdz)**2)
+        #     self.dcdn1  = -1./U2d/I02d*d/k2d*F/eta*self.duzdz*self.ur
         
         
         

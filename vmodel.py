@@ -1092,7 +1092,36 @@ class model1d(object):
             return rho, A, C, F, L, N
         else:
             return self.get_r_love_parameters(r)
-    
+    ####################################################################
+    # functions related to elastic tensor manipulations
+    ####################################################################
+    def is_stable(self):
+        """
+        Check that the elastic constants matrix is positive definite 
+        That is, check that the structure is stable to small strains. This
+        is done by finding the eigenvalues of the Voigt elastic stiffness matrix
+        by diagonalization and checking that they are all positive.
+        See Born & Huang, "Dynamical Theory of Crystal Lattices" (1954) page 141.
+        """
+        for i in xrange(self.rArr.size):
+            A           = self.AArr[i]
+            C           = self.CArr[i]
+            F           = self.FArr[i]
+            L           = self.LArr[i]
+            N           = self.NArr[i]
+            r           = self.rArr[i]
+            Cvoigt      = np.zeros((6,6), dtype=np.float32)
+            Cvoigt[0,0] = A; Cvoigt[1,1] =A; Cvoigt[2,2]=C; Cvoigt[3,3]=L; Cvoigt[4,4]=L; Cvoigt[5,5]=N
+            Cvoigt[0,1] = A-2.*N; Cvoigt[1,0] = A-2.*N
+            Cvoigt[0,2] = F; Cvoigt[2,0] = F
+            Cvoigt[1,2] = F; Cvoigt[2,1] = F
+            (eigenvalues, eigenvectors) = np.linalg.eig(Cvoigt)
+            if not (eigenvalues.min() > 0.0):
+                print self.rArr[i],'m NOT stable!'
+                return False
+                # raise ValueError('Elastic tensor is not stable to small strains (Voigt matrix is not positive definite) at r='+rstr+' m')
+        # if verbose: print 'Stability checked! Eigenvalues:', eigenvalues
+        return True
     #####################################################################
     # functions for layerized model
     # The unit for the input/output uses is the same as CPS,
@@ -1784,6 +1813,8 @@ class model1d(object):
         LArr    = np.array(LLst, dtype=np.float32)
         NArr    = np.array(NLst, dtype=np.float32)
         return dArr, rhoArr, AArr, CArr, FArr, LArr, NArr
+    
+    
     
     
     
