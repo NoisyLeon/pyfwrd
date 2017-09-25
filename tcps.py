@@ -550,14 +550,11 @@ class tcps_solver(object):
             eta         = F/(A-2.*L)
             # derivative of eigenfunctions, $5.8 of R.Herrmann
             self.dutdz  = self.tut/L
-            ### continue here
-            
-        #     self.duzdz  = k2d*F/C*self.ur + self.tuz/C
-        #     # integrals for the Lagranian
-        #     I0          = np.sum( rho*(self.uz**2+self.ur**2)*d, axis=1)
-        #     I1          = np.sum( (L*(self.uz**2)+A*(self.ur**2))*d, axis=1)
-        #     I2          = np.sum( (L*self.uz*self.durdz - F*self.ur*self.duzdz)*d, axis=1)
-        #     I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2))*d, axis=1)
+            # integrals for the Lagranian
+            I0          = np.sum( rho*(self.ut**2)*d, axis=1)
+            I1          = np.sum( N*(self.ut**2)*d, axis=1)
+            I2          = np.sum( L*(self.dutdz**2)*d, axis=1)
+            # I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2))*d, axis=1)
         #     # # U           = (k*I1+I2)/omega/I0
         #     I02d        = np.tile(I0, (nl_in, 1))
         #     I02d        = I02d.T
@@ -591,13 +588,12 @@ class tcps_solver(object):
         #     # self.I1 = I1
         #     # self.I2 = I2
         #     # self.I3 = I3
-        #     ##############################################
-        #     # For benchmark purposes
-        #     ##############################################
-        #     # derivative of eigenfunctions
-        #     self.durdz1 = -(self.ur[:,:-1] - self.ur[:,1:])/self.dArr[0]
-        #     self.duzdz1 = -(self.uz[:,:-1] - self.uz[:,1:])/self.dArr[0]
-        #     self.Vgr1   = (k*I1+I2)/omega/I0
+            ##############################################
+            # For benchmark purposes
+            ##############################################
+            # derivative of eigenfunctions
+            self.dutdz1 = -(self.ut[:,:-1] - self.ut[:,1:])/self.dArr[0]
+            self.Vgr1   = (k*I1)/omega/I0
         #     
         #     # derived kernels from eigenfunctions, p 299 in Herrmann's notes
         #     self.dcdah1 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d/I02d*d

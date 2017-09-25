@@ -82,6 +82,7 @@ c for nfrq=512 and npad = 8192 gainfac= 8
 
 c      print *, 'enter maximum frequency'
 c      read(*,*), frqmax
+c   Maximum frequency
         frqmax=1.0
        if (frqmax.gt.1) then
 	        nfrq=1024
