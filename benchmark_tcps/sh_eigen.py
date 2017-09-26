@@ -33,10 +33,13 @@ tcps2.solve_SH()
 # 
 # 
 # i=5
-# plt.plot(tcps1.dArr.cumsum(), tcps1.dutdz[i, :], 'ro-', ms=10)
-# plt.plot(tcps1.dArr[1:].cumsum(), tcps1.dutdz1[i, :], 'bo-', ms=10)
+plt.plot(tcps1.dArr.cumsum(), tcps1.dutdz[i, :], 'ro-', ms=10)
+plt.plot(tcps1.dArr[1:].cumsum(), tcps1.dutdz1[i, :], 'bo-', ms=10)
 # #     
-# for i in xrange(10):
+for i in xrange(10):
+    plt.plot(tcps1.dArr.cumsum(), tcps1.dcdbv[i, :], 'ro-', ms=10)
+    plt.plot(tcps1.dArr.cumsum(), tcps1.dcdbh[i, :], 'bo-', ms=10)
+
 #     # plt.figure()
 #     plt.plot(tcps1.dArr.cumsum(), tcps1.ut[i, :], 'ro-', ms=10)
 #     plt.plot(tcps2.dArr.cumsum(), tcps2.ut[i, :], 'bo-', ms=10)

@@ -316,12 +316,12 @@ class tcps_solver(object):
             # # # I2          = np.sum( (L*self.uz*self.durdz - F*self.ur*self.duzdz)*d, axis=1)
             # # # I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2))*d, axis=1)
             # # U           = (k*I1+I2)/omega/I0
-            I02d        = np.tile(I0, (nl_in, 1))
-            I02d        = I02d.T
-            U2d         = np.tile(self.Vgr, (nl_in, 1))
-            U2d         = U2d.T
-            C2d         = np.tile(self.Vph, (nl_in, 1))
-            C2d         = C2d.T
+            # # # I02d        = np.tile(I0, (nl_in, 1))
+            # # # I02d        = I02d.T
+            # # # U2d         = np.tile(self.Vgr, (nl_in, 1))
+            # # # U2d         = U2d.T
+            # # # C2d         = np.tile(self.Vph, (nl_in, 1))
+            # # # C2d         = C2d.T
             # sensitivity kernels for Love parameters and density, derived from velocity kernels using chain rule
             # NOTE: benchmark of love kernels predict somewhat different perturbed values compared with those using velocity kernel
             # Possible reason:
@@ -351,22 +351,22 @@ class tcps_solver(object):
             ##############################################
             # For benchmark purposes
             ##############################################
-            # derivative of eigenfunctions
-            self.durdz1 = -(self.ur[:,:-1] - self.ur[:,1:])/self.dArr[0]
-            self.duzdz1 = -(self.uz[:,:-1] - self.uz[:,1:])/self.dArr[0]
-            self.Vgr1   = (k*I1+I2)/omega/I0
-            
-            # derived kernels from eigenfunctions, p 299 in Herrmann's notes
-            self.dcdah1 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d/I02d*d
-            # # self.dcdah2 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d3/I02d
-            self.dcdav1 = rho*np.sqrt(C/rho)*(1./k2d*self.duzdz)**2/U2d/I02d*d
-            self.dcdbv1 = rho*np.sqrt(L/rho)*( (self.uz)**2 + 2./k2d*self.uz*self.durdz + 4.*eta/k2d*self.ur*self.duzdz+\
-                        (1./k2d*self.durdz)**2 )/U2d/I02d*d
-            self.dcdr1  = -C2d**2/2./U2d/I02d*d*( (self.ur)**2 + (self.uz)**2)  \
-                            + 1./2./U2d/I02d*d*A/rho*(self.ur)**2 + 1./2./U2d/I02d*d*C/rho*(1./k2d*self.duzdz)**2\
-                            - 1./U2d/I02d*d/k2d*eta*(A/rho-2.*L/rho)*self.ur*self.duzdz \
-                            + 1./2./U2d/I02d*d*L/rho*( (self.uz)**2 + 2./k2d*self.uz*self.durdz+ (1./k2d*self.durdz)**2)
-            self.dcdn1  = -1./U2d/I02d*d/k2d*F/eta*self.duzdz*self.ur
+            # # derivative of eigenfunctions
+            # self.durdz1 = -(self.ur[:,:-1] - self.ur[:,1:])/self.dArr[0]
+            # self.duzdz1 = -(self.uz[:,:-1] - self.uz[:,1:])/self.dArr[0]
+            # self.Vgr1   = (k*I1+I2)/omega/I0
+            # 
+            # # derived kernels from eigenfunctions, p 299 in Herrmann's notes
+            # self.dcdah1 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d/I02d*d
+            # # # self.dcdah2 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d3/I02d
+            # self.dcdav1 = rho*np.sqrt(C/rho)*(1./k2d*self.duzdz)**2/U2d/I02d*d
+            # self.dcdbv1 = rho*np.sqrt(L/rho)*( (self.uz)**2 + 2./k2d*self.uz*self.durdz + 4.*eta/k2d*self.ur*self.duzdz+\
+            #             (1./k2d*self.durdz)**2 )/U2d/I02d*d
+            # self.dcdr1  = -C2d**2/2./U2d/I02d*d*( (self.ur)**2 + (self.uz)**2)  \
+            #                 + 1./2./U2d/I02d*d*A/rho*(self.ur)**2 + 1./2./U2d/I02d*d*C/rho*(1./k2d*self.duzdz)**2\
+            #                 - 1./U2d/I02d*d/k2d*eta*(A/rho-2.*L/rho)*self.ur*self.duzdz \
+            #                 + 1./2./U2d/I02d*d*L/rho*( (self.uz)**2 + 2./k2d*self.uz*self.durdz+ (1./k2d*self.durdz)**2)
+            # self.dcdn1  = -1./U2d/I02d*d/k2d*F/eta*self.duzdz*self.ur
     
     def psv_perturb_disp_vel(self, insolver):
         """
@@ -554,30 +554,29 @@ class tcps_solver(object):
             I0          = np.sum( rho*(self.ut**2)*d, axis=1)
             I1          = np.sum( N*(self.ut**2)*d, axis=1)
             I2          = np.sum( L*(self.dutdz**2)*d, axis=1)
-            # I3          = np.sum( (L*(self.durdz**2)+C*(self.duzdz**2))*d, axis=1)
-        #     # # U           = (k*I1+I2)/omega/I0
-        #     I02d        = np.tile(I0, (nl_in, 1))
-        #     I02d        = I02d.T
-        #     U2d         = np.tile(self.Vgr, (nl_in, 1))
-        #     U2d         = U2d.T
-        #     C2d         = np.tile(self.Vph, (nl_in, 1))
-        #     C2d         = C2d.T
-        #     # sensitivity kernels for Love parameters and density, derived from velocity kernels using chain rule
-        #     # NOTE: benchmark of love kernels predict somewhat different perturbed values compared with those using velocity kernel
-        #     # Possible reason:
-        #     #       By using the chain rule, infinitesimal perturbations for all the parameters is assumed.
-        #     #       However, for the benckmark cases, the perturbation can be large.
-        #     #       e.g. ah = sqrt(A/rho), dah = 0.5/sqrt(A*rho)*dA. But, if dA is large, dah = sqrt(A+dA/rho) - sqrt(A/rho) != 0.5/sqrt(A*rho)*dA
-        #     #      
-        #     self.dcdA   = 0.5/np.sqrt(A*rho)*self.dcdah - F/((A-2.*L)**2)*self.dcdn
-        #     self.dcdC   = 0.5/np.sqrt(C*rho)*self.dcdav
-        #     self.dcdF   = 1./(A-2.*L)*self.dcdn
-        #     self.dcdL   = 0.5/np.sqrt(L*rho)*self.dcdbv + 2.*F/((A-2.*L)**2)*self.dcdn
-        #     self.dcdN   = 0.5/np.sqrt(N*rho)*self.dcdbh
-        #     # density kernel
-        #     self.dcdrl  = -0.5*self.dcdah*np.sqrt(A/(rho**3)) - 0.5*self.dcdav*np.sqrt(C/(rho**3))\
-        #                     -0.5*self.dcdbh*np.sqrt(N/(rho**3)) -0.5*self.dcdbv*np.sqrt(L/(rho**3))\
-        #                         + self.dcdr
+            # # U           = (k*I1)/omega/I0
+            I02d        = np.tile(I0, (nl_in, 1))
+            I02d        = I02d.T
+            U2d         = np.tile(self.Vgr, (nl_in, 1))
+            U2d         = U2d.T
+            C2d         = np.tile(self.Vph, (nl_in, 1))
+            C2d         = C2d.T
+            # sensitivity kernels for Love parameters and density, derived from velocity kernels using chain rule
+            # NOTE: benchmark of love kernels predict somewhat different perturbed values compared with those using velocity kernel
+            # Possible reason:
+            #       By using the chain rule, infinitesimal perturbations for all the parameters is assumed.
+            #       However, for the benckmark cases, the perturbation can be large.
+            #       e.g. ah = sqrt(A/rho), dah = 0.5/sqrt(A*rho)*dA. But, if dA is large, dah = sqrt(A+dA/rho) - sqrt(A/rho) != 0.5/sqrt(A*rho)*dA
+            #      
+            # self.dcdA   = 0.5/np.sqrt(A*rho)*self.dcdah - F/((A-2.*L)**2)*self.dcdn
+            # self.dcdC   = 0.5/np.sqrt(C*rho)*self.dcdav
+            # self.dcdF   = 1./(A-2.*L)*self.dcdn
+            self.dcdL   = 0.5/np.sqrt(L*rho)*self.dcdbv + 2.*F/((A-2.*L)**2)*self.dcdn
+            self.dcdN   = 0.5/np.sqrt(N*rho)*self.dcdbh
+            # density kernel
+            self.dcdrl  = -0.5*self.dcdah*np.sqrt(A/(rho**3)) - 0.5*self.dcdav*np.sqrt(C/(rho**3))\
+                            -0.5*self.dcdbh*np.sqrt(N/(rho**3)) -0.5*self.dcdbv*np.sqrt(L/(rho**3))\
+                                + self.dcdr
         #     # U2d3         = np.tile(U, (nl_in, 1))
         #     # U2d3         = U2d3.T
         #     # # # I0          = np.sum( rho*(self.uz**2+self.ur**2), axis=1)
@@ -594,19 +593,66 @@ class tcps_solver(object):
             # derivative of eigenfunctions
             self.dutdz1 = -(self.ut[:,:-1] - self.ut[:,1:])/self.dArr[0]
             self.Vgr1   = (k*I1)/omega/I0
-        #     
-        #     # derived kernels from eigenfunctions, p 299 in Herrmann's notes
-        #     self.dcdah1 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d/I02d*d
-        #     # # self.dcdah2 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d3/I02d
-        #     self.dcdav1 = rho*np.sqrt(C/rho)*(1./k2d*self.duzdz)**2/U2d/I02d*d
-        #     self.dcdbv1 = rho*np.sqrt(L/rho)*( (self.uz)**2 + 2./k2d*self.uz*self.durdz + 4.*eta/k2d*self.ur*self.duzdz+\
-        #                 (1./k2d*self.durdz)**2 )/U2d/I02d*d
-        #     self.dcdr1  = -C2d**2/2./U2d/I02d*d*( (self.ur)**2 + (self.uz)**2)  \
-        #                     + 1./2./U2d/I02d*d*A/rho*(self.ur)**2 + 1./2./U2d/I02d*d*C/rho*(1./k2d*self.duzdz)**2\
-        #                     - 1./U2d/I02d*d/k2d*eta*(A/rho-2.*L/rho)*self.ur*self.duzdz \
-        #                     + 1./2./U2d/I02d*d*L/rho*( (self.uz)**2 + 2./k2d*self.uz*self.durdz+ (1./k2d*self.durdz)**2)
-        #     self.dcdn1  = -1./U2d/I02d*d/k2d*F/eta*self.duzdz*self.ur
+            # derived kernels from eigenfunctions, p 299 in Herrmann's notes
+            self.dcdbh1 = rho*np.sqrt(N/rho)*(self.ut**2)/U2d/I02d*d
+            self.dcdbv1 = rho*np.sqrt(L/rho)*(1./k2d*self.dutdz)**2/U2d/I02d*d
+            self.dcdr1  = -C2d**2/2./U2d/I02d*d*( (self.ut)**2 )  \
+                            + 1./2./U2d/I02d*d*N/rho*(self.ut**2) \
+                            + 1./2./U2d/I02d*d*L/rho*(1./k2d*self.dutdz)**2
+            
+    def sh_perturb_disp_vel(self, insolver):
+        """
+        Get dispersion curves for perturbed model, using velocity kernels
+        """
+        nfval   = self.freq.size
+        # dav     = np.tile( insolver.avArr- self.avArr, (nfval,1))
+        dbh     = np.tile( insolver.bhArr- self.bhArr, (nfval,1))
+        dbv     = np.tile( insolver.bvArr- self.bvArr, (nfval,1))
+        # dn      = np.tile( insolver.nArr- self.nArr  , (nfval,1)) 
+        dr      = np.tile( insolver.rhoArr- self.rhoArr, (nfval,1))
+        dc      = np.zeros(nfval, np.float32)
+        if (np.nonzero(dbv)[0]).size!=0:
+            print 'dbv'
+            dc  += np.sum( dbv*self.dcdbv, axis=1)
+        if (np.nonzero(dbh)[0]).size!=0:
+            print 'dbh'
+            dc  += np.sum( dbh*self.dcdbh, axis=1)
+        if (np.nonzero(dr)[0]).size!=0:
+            print 'dr'
+            dc  += np.sum( dr*self.dcdr, axis=1)
+        self.Vph_pre    = self.Vph + dc
         
+    def sh_perturb_disp_love(self, insolver):
+        """
+        Get dispersion curves for perturbed model, using Love kernels
+        """
+        nfval   = self.freq.size
+        dA      = np.tile( insolver.AArr- self.AArr, (nfval,1))
+        dC      = np.tile( insolver.CArr- self.CArr, (nfval,1))
+        dF      = np.tile( insolver.FArr- self.FArr, (nfval,1))
+        dL      = np.tile( insolver.LArr- self.LArr, (nfval,1))
+        dN      = np.tile( insolver.NArr- self.NArr  , (nfval,1)) 
+        dr      = np.tile( insolver.rhoArr- self.rhoArr, (nfval,1))
+        dc      = np.zeros(nfval, np.float32)
+        # if (np.nonzero(dA)[0]).size!=0:
+        #     print 'dA'
+        #     dc  += np.sum( dA*self.dcdA, axis=1)
+        # if (np.nonzero(dC)[0]).size!=0:
+        #     print 'dC'
+        #     dc  += np.sum( dC*self.dcdC, axis=1)
+        # if (np.nonzero(dF)[0]).size!=0:
+        #     print 'dF'
+        #     dc  += np.sum( dF*self.dcdF, axis=1)
+        if (np.nonzero(dL)[0]).size!=0:
+            print 'dL'
+            dc  += np.sum( dL*self.dcdL, axis=1)
+        if (np.nonzero(dN)[0]).size!=0:
+            print 'dN'
+            dc  += np.sum( dN*self.dcdN, axis=1)
+        if (np.nonzero(dr)[0]).size!=0:
+            print 'dr'
+            dc  += np.sum( dr*self.dcdrl, axis=1)
+        self.Vph_pre2    = self.Vph + dc
         
         
         
