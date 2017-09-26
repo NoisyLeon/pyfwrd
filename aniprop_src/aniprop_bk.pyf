@@ -26,7 +26,7 @@ python module aniprop ! in
             double precision dimension(ntime),depend(ntime) :: timesave
             integer, optional,check(len(rrecfun)>=ntime),depend(rrecfun) :: ntime=len(rrecfun)
         end subroutine forward_solver
-        subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,rphase,rgroup,lphase,lgroup,period,nperiod,pmin,pmax) ! in :aniprop:forward_solver.f90
+        subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,rphase,rgroup,lphase,lgroup,period,nperiod) ! in :aniprop:forward_solver.f90
             double precision dimension(nl + 1),depend(nl) :: z
             double precision dimension(nl + 1),depend(nl) :: vp
             double precision dimension(nl + 1),depend(nl) :: vp2
@@ -44,8 +44,6 @@ python module aniprop ! in
             double precision dimension(nperiod), intent(out), depend(nperiod) :: lgroup
             double precision dimension(nperiod), intent(out), depend(nperiod) :: period
             integer, intent(in) :: nperiod
-            double precision, intent(in) :: pmin
-            double precision, intent(in) :: pmax
         end subroutine aniprop_interface
         subroutine rf_aniso_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,rrecfun,trecfun,timesave,ntime) ! in :aniprop:forward_solver.f90
             double precision dimension(nl + 1),depend(nl) :: z

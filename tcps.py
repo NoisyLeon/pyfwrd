@@ -3,7 +3,7 @@
 Module for surface wave dispersion computation using normal mode method by Robert Herrmann
 
 The code is a python wrapper of the f77 code Computer Program in Seismology 
-Numba is used for speeding up of the code.
+Numba is NOT used the object tcps_solver
 
 :Copyright:
     Author: Lili Feng
@@ -114,11 +114,11 @@ class tcps_solver(object):
         """
         Love parameters to velocity parameters
         ::: Output :::
-        ahArr   - vph
-        avArr   - vpv
-        bhArr   - vsh
-        bvArr   - vsv
-        nArr    - eta
+        ahArr   - vph (unit -km/s)
+        avArr   - vpv (unit -km/s)
+        bhArr   - vsh (unit -km/s)
+        bvArr   - vsv (unit -km/s)
+        nArr    - eta (dimensionless)
         """
         # # # if self.model.flat == 1:
         # # #     self.ahArr  = np.sqrt(self.AArr/self.rhoArr)
@@ -148,39 +148,6 @@ class tcps_solver(object):
     #     self.r      = _get_array(rmin, 6371000., self.dr)
     #     self.nmodes = nmodes
     #     return
-    
-    # def init_output(self, wavetype):
-    #     Nt              = self.T.size
-    #     Nz              = self.r.size
-    #     Vph             = np.zeros(self.nmodes*Nt, np.float32)
-    #     self.Vph        = Vph.reshape(self.nmodes, Nt)
-    #     self.Vgr        = self.Vph.copy()
-    #     eArr            = np.zeros(self.nmodes*Nt, np.int32)
-    #     self.eArr       = eArr.reshape(self.nmodes, Nt)
-    #     tempdata        = np.zeros(self.nmodes*Nt*Nz, np.float32)
-    #     tempdata        = tempdata.reshape(self.nmodes, Nt, Nz)
-    #     if wavetype==1:
-    #         self.r1data     = tempdata.copy()
-    #         self.r2data     = tempdata.copy()
-    #         self.r3data     = tempdata.copy()
-    #         self.r4data     = tempdata.copy()
-    #     else:
-    #         self.l1data     = tempdata.copy()
-    #         self.l2data     = tempdata.copy()
-    #     self.Kadata     = tempdata.copy()
-    #     self.Kcdata     = tempdata.copy()
-    #     self.Kfdata     = tempdata.copy()
-    #     self.Kldata     = tempdata.copy()
-    #     self.Kndata     = tempdata.copy()
-    #     self.Krhodata   = tempdata.copy()
-    #     self.Krho0data  = tempdata.copy()
-    #     self.Kvphdata   = tempdata.copy()
-    #     self.Kvpvdata   = tempdata.copy()
-    #     self.Kvshdata   = tempdata.copy()
-    #     self.Kvsvdata   = tempdata.copy()
-    #     self.Ketadata   = tempdata.copy()
-    #     return
-    
     
     def solve_PSV(self):
         """
@@ -436,9 +403,8 @@ class tcps_solver(object):
         : dispersion :
         Vph, Vgr    - phase/group velocity
         : eigenfunctions :
-        uz, ur      - vertical/radial displacement functions
-        tuz, tur    - vertical/radial stress functions
-        duzdz, durdz- derivatives of vertical/radial displacement functions
+        ut, tut     - transverse displacement/stress functions
+        dutdz       - derivatives of transverse displacement functions
         : velocity/density sensitivity kernels :
         dcdah/dcdav - vph/vpv kernel
         dcdbh/dcdbv - vsh/vsv kernel
@@ -568,9 +534,9 @@ class tcps_solver(object):
             #       However, for the benckmark cases, the perturbation can be large.
             #       e.g. ah = sqrt(A/rho), dah = 0.5/sqrt(A*rho)*dA. But, if dA is large, dah = sqrt(A+dA/rho) - sqrt(A/rho) != 0.5/sqrt(A*rho)*dA
             #      
-            # self.dcdA   = 0.5/np.sqrt(A*rho)*self.dcdah - F/((A-2.*L)**2)*self.dcdn
-            # self.dcdC   = 0.5/np.sqrt(C*rho)*self.dcdav
-            # self.dcdF   = 1./(A-2.*L)*self.dcdn
+            self.dcdA   = np.zeros((nfval, nl_in), dtype=np.float32)
+            self.dcdC   = np.zeros((nfval, nl_in), dtype=np.float32)
+            self.dcdF   = np.zeros((nfval, nl_in), dtype=np.float32)
             self.dcdL   = 0.5/np.sqrt(L*rho)*self.dcdbv + 2.*F/((A-2.*L)**2)*self.dcdn
             self.dcdN   = 0.5/np.sqrt(N*rho)*self.dcdbh
             # density kernel

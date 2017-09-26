@@ -54,7 +54,7 @@ end subroutine forward_solver
 
 !/*< Interface for surface wave dispersion >*/
 subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
-                             Rphase,Rgroup,Lphase,Lgroup,Period,nperiod)
+                             Rphase,Rgroup,Lphase,Lgroup,Period,nperiod, pmin, pmax)
     implicit none 
 
     ! Input 
@@ -74,8 +74,8 @@ subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
     integer:: i,j,id 
     double precision:: pmin,pmax,dp,dist,distmin 
 
-    pmin=10.0
-    pmax=200.0 
+!    pmin=10.0
+!    pmax=200.0 
     dp=(pmax-pmin)/(nperiod-1)
     do i=1,nperiod
         Period(i)=pmin+(i-1)*dp

@@ -13,8 +13,9 @@ phig=np.zeros(10.)
 nl = 9
 baz = 0
 nperiod=10
+pmin=10.; pmax=100.
 
-Rphase,Rgroup,Lphase,Lgroup,Period = aniprop.aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,nperiod)
+Rphase,Rgroup,Lphase,Lgroup,Period = aniprop.aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,nperiod, pmin, pmax)
 
 ntimes = 160
 Rf,Tf,T = aniprop.rf_aniso_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,ntimes)
