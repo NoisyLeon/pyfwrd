@@ -1,6 +1,6 @@
 import aniprop
 import numpy as np
-z = np.arange(10., dtype=np.float64)*10*1000.
+z = np.arange(10., dtype=np.float64)*10*1000.+ 10*1000.
 vp = np.array([5, 5, 5, 6, 6, 6, 7, 7, 7, 8])*1000.
 vs = vp/1.8
 vp2= 0.1 * np.zeros(10.)

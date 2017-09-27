@@ -99,6 +99,17 @@ class tcps_solver(object):
         self.dArr   = np.ones(nl, dtype = np.float32)*np.float32(dh)
         return
     
+    def init_default_3(self, dh=1., nl=200):
+        Tmin        = 5.
+        Tmax        = 5.
+        dT          = 5.
+        self.cmin   = -1.
+        self.cmax   = -1.
+        self.T      = _get_array(Tmin, Tmax, dT)
+        self.freq   = _value_divide_array(1., self.T)
+        self.dArr   = np.ones(nl, dtype = np.float32)*np.float32(dh)
+        return
+    
     def init_default_2(self):
         Tmin        = 5.
         Tmax        = 100.

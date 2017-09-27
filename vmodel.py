@@ -1123,7 +1123,7 @@ class model1d(object):
         # if verbose: print 'Stability checked! Eigenvalues:', eigenvalues
         return True
     #####################################################################
-    # functions for layerized model
+    # functions for layerized model as input for aniprop
     # The unit for the input/output uses is the same as CPS,
     # i.e. km/s, GPa, km etc.
     #####################################################################
@@ -1814,6 +1814,52 @@ class model1d(object):
         NArr    = np.array(NLst, dtype=np.float32)
         return dArr, rhoArr, AArr, CArr, FArr, LArr, NArr
     
+    #####################################################################
+    # functions for layerized model as input for aniprop
+    #####################################################################
+    def layer_aniprop_model(self, dArr, nl, dh):
+        dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.get_layer_model(dArr, nl, dh)
+        zArr    = dArr.cumsum()
+        
+        a       = (3.*AArr + 3.*CArr + 2.*FArr + 4.*LArr)/8.
+        b       = 0.5*(CArr - AArr)
+        c       = (AArr + CArr - 2.*FArr - 4.*LArr)/8.
+        d       = 0.5*(NArr + LArr)
+        e       = 0.5*(LArr - NArr)
+        
+        nl      = a.size
+        
+        z       = np.zeros(nl+1, dtype=np.float32)
+        z[1:]   = zArr
+        z[0]    = 0.
+        
+        rho     = np.zeros(nl+1, dtype=np.float32)
+        rho[1:] = rhoArr
+        rho[0]  = rho[1]
+        
+        vp0     = np.zeros(nl+1, dtype=np.float32)
+        vp0[1:] = np.sqrt(a/rhoArr)
+        vp0[0]  = vp0[1]
+        
+        vp2     = np.zeros(nl+1, dtype=np.float32)
+        vp2[1:] = b/a
+        vp2[0]  = vp2[1]
+        
+        vp4     = np.zeros(nl+1, dtype=np.float32)
+        vp4[1:] = c/a
+        vp4[0]  = vp4[1]
+        
+        vs0     = np.zeros(nl+1, dtype=np.float32)
+        vs0[1:] = np.sqrt(d/rhoArr)
+        vs0[0]  = vs0[1]
+        
+        vs2     = np.zeros(nl+1, dtype=np.float32)
+        vs2[1:] = e/d
+        vs2[0]  = vs2[1]
+        return z, rho, vp0, vp2, vp4, vs0, vs2
+    
+    
+        
     
     
     
