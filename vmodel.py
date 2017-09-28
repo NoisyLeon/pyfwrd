@@ -13,6 +13,7 @@ Numba is used for speeding up of the code.
 import numpy as np
 import numba
 import matplotlib.pyplot as plt
+import tdisp96
 
 @numba.jit(numba.float32[:](numba.float32, numba.float32, numba.float32))
 def _get_array(xmin, xmax, dx):
@@ -166,6 +167,66 @@ def read_axisem_bm(model, infname):
     rArr    = rArr.astype(np.float32)
     model.get_data_vel(vsvArr, vshArr, vpvArr, vphArr, etaArr, rhoArr, rArr)        
     return model
+
+def layer_aniprop_model_sph(inmodel, dArr, nl, dh, ilvry):
+    # get layrized model
+    dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = inmodel.get_layer_model(dArr, nl, dh)
+    dt      = 1.
+    npts    = 7
+    iret    = 1
+    verby   = False
+    nfval   = 1
+    fval    = np.ones(1)*10.
+    fval    = np.append(fval, np.zeros(2049-nfval))
+    ccmin   = -1.
+    ccmax   = -1.
+    nl_in   = rhoArr.size
+    iflsph_in = 1 # 0 flat, 1: spherical
+    refdep_in = 0.
+    nmode = 1
+    # flattening transformation
+    d_out,TA_out,TC_out,TF_out,TL_out,TN_out,TRho_out=tdisp96.flat2sphere(ilvry, dt, npts,iret,verby, nfval,fval,ccmin,ccmax,\
+               dArr,AArr,CArr,FArr,LArr,NArr,rhoArr, nl_in, refdep_in, nmode, 0.5, 0.5)
+    # convert layrized model to input model for aniprop
+    zArr    = d_out.cumsum()   
+    a       = (3.*TA_out + 3.*TC_out + 2.*TF_out + 4.*TL_out)/8.
+    b       = 0.5*(TC_out - TA_out)
+    c       = (TA_out + TC_out - 2.*TF_out - 4.*TL_out)/8.
+    d       = 0.5*(TN_out + TL_out)
+    e       = 0.5*(TL_out - TN_out)
+    
+    nl      = a.size
+    
+    z       = np.zeros(nl+1, dtype=np.float32)
+    z[1:]   = zArr
+    z[0]    = 0.
+    
+    rho     = np.zeros(nl+1, dtype=np.float32)
+    rho[1:] = rhoArr
+    rho[0]  = rho[1]
+    
+    vp0     = np.zeros(nl+1, dtype=np.float32)
+    vp0[1:] = np.sqrt(a/rhoArr)
+    vp0[0]  = vp0[1]
+    
+    vp2     = np.zeros(nl+1, dtype=np.float32)
+    vp2[1:] = b/a
+    vp2[0]  = vp2[1]
+    
+    vp4     = np.zeros(nl+1, dtype=np.float32)
+    vp4[1:] = c/a
+    vp4[0]  = vp4[1]
+    
+    vs0     = np.zeros(nl+1, dtype=np.float32)
+    vs0[1:] = np.sqrt(d/rhoArr)
+    vs0[0]  = vs0[1]
+    
+    vs2     = np.zeros(nl+1, dtype=np.float32)
+    vs2[1:] = e/d
+    vs2[0]  = vs2[1]
+    return z, rho, vp0, vp2, vp4, vs0, vs2
+    
+    
 
 def plot(model, dtype='vsv', unit='km', showfig=True):
     dtype   = dtype.lower()

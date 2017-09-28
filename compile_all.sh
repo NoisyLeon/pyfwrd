@@ -9,3 +9,6 @@ cd $cdir/tregn96_src
 cd $cdir/tlegn96_src
 ./compile_tlegn96.sh
 
+cd $cdir/aniprop_src
+./compile_aniprop.sh
+

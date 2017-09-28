@@ -82,7 +82,7 @@ subroutine aniprop_interface(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,&
     end do 
     call aniprop_subroutines(z,vp,vp2,vp4,vs,vs2,rho,theta,phig,nl,baz,& 
                              Rphase_out,Rgroup_out,Lphase_out,Lgroup_out,&
-                             Period_out,nperiod_out) 
+                             Period_out,nperiod_out, pmin) 
     ! Interpolate result             
     do i=1,nperiod  
         distmin=10000000000000000.0 

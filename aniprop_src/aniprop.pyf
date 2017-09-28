@@ -64,7 +64,7 @@ python module aniprop ! in
             double precision dimension(ntime), intent(out), depend(ntime) :: timesave
             integer, intent(in) :: ntime
         end subroutine rf_aniso_interface
-        subroutine aniprop_subroutines(z_in,vp_in,vp2_in,vp4_in,vs_in,vs2_in,rho_in,theta_in,phig_in,nl,baz,rphase,rgroup,lphase,lgroup,period,nfrq) ! in :aniprop:aniprop_subroutines.f
+        subroutine aniprop_subroutines(z_in,vp_in,vp2_in,vp4_in,vs_in,vs2_in,rho_in,theta_in,phig_in,nl,baz,rphase,rgroup,lphase,lgroup,period,nfrq,tmin_in) ! in :aniprop:aniprop_subroutines.f
             real*8 dimension(nl + 1) :: z_in
             real*8 dimension(nl + 1),depend(nl) :: vp_in
             real*8 dimension(nl + 1),depend(nl) :: vp2_in
@@ -82,6 +82,7 @@ python module aniprop ! in
             real*8 dimension(nfrq),depend(nfrq) :: lgroup
             real*8 dimension(nfrq),depend(nfrq) :: period
             integer, optional,check(len(rphase)>=nfrq),depend(rphase) :: nfrq=len(rphase)
+            real*8 :: tmin_in
             complex*16 dimension(6,101) :: xnu
             complex*16 dimension(6,100) :: xl
             complex*16 dimension(6,3) :: pfac

@@ -38,12 +38,12 @@ c  see appendix of P. Shearer's thesis
       
       subroutine aniprop_subroutines(z_in,vp_in,vp2_in,vp4_in,
      x           vs_in,vs2_in,rho_in,theta_in,phig_in,nl,baz,
-     x           rphase,rgroup,lphase,lgroup,period,nfrq)
+     x           rphase,rgroup,lphase,lgroup,period,nfrq,tmin_in)
 
       implicit real*8 (a-h,o-z)
       implicit integer*4 (i-n)
      
-      real*8 baz
+      real*8 baz, tmin_in
       integer nl,nfrq 
       real*8 theta_in(nl+1),phig_in(nl+1),z_in(nl+1),vp_in(nl+1)
       real*8 vp2_in(nl+1),vp4_in(nl+1),vs_in(nl+1),vs2_in(nl+1)
@@ -94,7 +94,9 @@ c initialize cvel array to zero
       z0=dcmplx(0.d0,0.d0)
       tolint=100.d0/vbar
 c      nfrq=1000
-      frqmax=0.1d0
+c   change maximum frequency by LF
+      frqmax=1.0d0/tmin_in
+c      frqmax=1.0d0
 c      nfrq=2500
 c      frqmax=2.5d0
       maxbr=202

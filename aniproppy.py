@@ -50,7 +50,7 @@ class aniprop_solver(object):
     def init_default(self, dh=1., nl=200):
         self.Tmin   = 5.
         self.dT     = 5.
-        self.Nt     = 20
+        self.Nt     = 2
         self.Tmax   = self.Tmin + (self.Nt-1)*self.dT
         self.T      = np.arange(self.Nt)*self.dT + self.Tmin
         self.dArr   = np.ones(nl, dtype = np.float32)*np.float32(dh)
@@ -66,27 +66,48 @@ class aniprop_solver(object):
         return
     
     def init_default_3(self):
-        self.Tmin   = 5.
+        self.Tmin   = 10.
         self.dT     = 5.
-        self.Nt     = 1
+        self.Nt     = 20
         self.Tmax   = self.Tmin + (self.Nt-1)*self.dT
         self.T      = np.arange(self.Nt)*self.dT + self.Tmin
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
     
-    def solve(self):
-        z, rho, vp0, vp2, vp4, vs0, vs2 = self.model.layer_aniprop_model(self.dArr, 200, 1.)
-        z       *= 1000.
-        rho     *= 1000.
-        vp0     *= 1000.
-        vs0     *= 1000.
+    def solve_surf(self):
+        if self.model.flat == 1:
+            z, rho, vp0, vp2, vp4, vs0, vs2 = self.model.layer_aniprop_model(self.dArr, 200, 1.)
+        else:
+            zl, rhol, vp0l, vp2l, vp4l, vs0l, vs2l = vmodel.layer_aniprop_model_sph(inmodel = self.model, dArr = self.dArr, nl = 200, dh = 1., ilvry=1)
+            zr, rhor, vp0r, vp2r, vp4r, vs0r, vs2r = vmodel.layer_aniprop_model_sph(inmodel = self.model, dArr = self.dArr, nl = 200, dh = 1., ilvry=2)
         
-        self.z  = z; self.rho = rho; self.vp0 = vp0
-        nl      = z.size - 1
-        theta   = np.zeros(nl+1, dtype=np.float32)
-        phig    = np.zeros(nl+1, dtype=np.float32)
-        baz     = 0.
-        Rphase,Rgroup,Lphase,Lgroup,Period = aniprop.aniprop_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
+        if self.model.flat == 1:
+            z       *= 1000.
+            rho     *= 1000.
+            vp0     *= 1000.
+            vs0     *= 1000.
+            nl      = z.size - 1
+            theta   = np.zeros(nl+1, dtype=np.float32)
+            phig    = np.zeros(nl+1, dtype=np.float32)
+            baz     = 0.
+            Rphase,Rgroup,Lphase,Lgroup,Period = aniprop.aniprop_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
+        else:
+            zl      *= 1000.
+            rhol    *= 1000.
+            vp0l    *= 1000.
+            vs0l    *= 1000.
+            zr      *= 1000.
+            rhor    *= 1000.
+            vp0r    *= 1000.
+            vs0r    *= 1000.
+            nl      = zl.size - 1
+            theta   = np.zeros(nl+1, dtype=np.float32)
+            phig    = np.zeros(nl+1, dtype=np.float32)
+            baz     = 0.
+            Rphase0,Rgroup0,Lphase,Lgroup,Period = aniprop.aniprop_interface(zl,vp0l,vp2l,vp4l,vs0l,vs2l,rhol,\
+                                                theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
+            Rphase,Rgroup,Lphase0,Lgroup0,Period = aniprop.aniprop_interface(zr,vp0r,vp2r,vp4r,vs0r,vs2r,rhor,\
+                                                theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
         
         
         self.CR = Rphase/1000.
