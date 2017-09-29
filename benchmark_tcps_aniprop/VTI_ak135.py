@@ -10,8 +10,8 @@ Flat Earth:
     m.add_perturb_layer_love(0, 20., 0-2, +-0.1, True) (~ 0.05 %)
     m.add_perturb_layer_love(0, 20., 3, -0.3, True) (~ 0.1 %)
     m.add_perturb_layer_love(0, 20., 4, 0.1, True) (~ 0.05 %)
-    
     m.add_perturb_layer_love(0, 20., 4, -0.1, True); m.add_perturb_layer_love(0, 20., 3, -0.3, True) (group ~ 0.1 %, phase ~0.03 %)
+    m.add_perturb_layer_love(0, 20., 5, +-0.3, True) (~ 0.01 %, ~ 0.02 % for Love group)
     
     Cases failed !
     m.add_perturb_layer_love(0, 20., 3, 0.05, True), for val > 0.05, aniprop yields an error!
@@ -25,9 +25,16 @@ Spherical Earth:
     T = 5 - 100. sec, dT = 5 sec
     Cases has been benchmarked:
     m.add_perturb_layer_love(0, 20., 0-2, +-0.2, True) (~ 0.15 %, ~ 0.25 % for Love group)
-    
+    m.add_perturb_layer_love(0, 20., 3, -0.2, True) (~ 0.15 %, ~ 0.25 % for Love group)
+    m.add_perturb_layer_love(0, 20., 4, 0.2, True) (~ 0.15 %, ~ 0.25 % for Love group)
+    m.add_perturb_layer_love(0, 20., 4, -0.1, True); m.add_perturb_layer_love(0, 20., 3, -0.2, True) (~ 0.15 %, ~ 0.25 % for Love group)
+    m.add_perturb_layer_love(0, 20., 5, +-0.3, True) (~ 0.15 %, ~ 0.25 % for Love group)
     
 
+    Cases failed !
+    m.add_perturb_layer_love(0, 20., 3, -0.3, True) T = 5 sec, aniprop yields seemly wrong result. OTHERS are consistent ( ~ 0.05 %)
+    m.add_perturb_layer_love(0, 20., 4, 0.3, True), T = 5 sec, aniprop yields seemly wrong result. OTHERS are consistent ( ~ 0.05 %)
+    m.add_perturb_layer_love(0, 20., 4, -0.1, True); m.add_perturb_layer_love(0, 20., 3, -0.3, True) T = 5 sec, wrong results ( ~ 0.05 %)
 """
 import eigen, tcps, aniproppy
 import vmodel
@@ -50,7 +57,7 @@ tcpsL0.solve_SH()
 # m.add_perturb_layer_love(0, 20., 4, -0.1, True)
 # m.add_perturb_layer_love(0, 20., 3, -0.3, True)
 
-m.add_perturb_layer_love(0, 20., 0, 0.2, True)
+m.add_perturb_layer_love(0, 20., 3, -0.3, True)
 tcpsR = tcps.tcps_solver(m)
 tcpsR.init_default()
 tcpsR.solve_PSV()
