@@ -16,3 +16,5 @@ m1.model_ak135_cps()
 m.trim(200.)
 m1.trim(200.)
 # m=vmodel.read_axisem_bm(m, '/home/leon/code/axisem/SOLVER/MESHES/prem_aniso_10s/1dmodel_axisem.bm')
+
+m.init_dip_strike()

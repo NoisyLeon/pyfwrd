@@ -27,7 +27,7 @@ def read_model(model, infname, unit=1000., isotropic=True,
     """
     Read model in txt format
     ===========================================================================================================
-    Input Parameters:
+    ::: input parameters :::
     model                       - input model1d object
     infname                     - input txt file name
     unit                        - unit of input, default = 1000., means input has units of km
@@ -73,7 +73,7 @@ def read_axisem_bm(model, infname):
     """
     Read 1D block model from AxiSEM
     ===========================================================================================================
-    Input Parameters:
+    ::: input parameters :::
     model       - input model1d object
     infname     - input txt file name
     ===========================================================================================================
@@ -172,7 +172,7 @@ def layer_aniprop_model_sph(inmodel, dArr, nl, dh, ilvry):
     """
     Get the flattening transformed layerized model
     ===================================================================
-    Input Parameters:
+    ::: input parameters ::::
     inmodel - input model1d object
     dArr    - numpy array of layer thickness (unit - km)
     nl      - number of layers 
@@ -232,7 +232,7 @@ def layer_aniprop_model_sph_2(inmodel, dArr, nl, dh, ilvry):
     """
     Get the flattening transformed layerized model
     ===================================================================
-    Input Parameters:
+    ::: input parameters :::
     inmodel - input model1d object
     dArr    - numpy array of layer thickness (unit - km)
     nl      - number of layers 
@@ -288,10 +288,16 @@ def layer_aniprop_model_sph_2(inmodel, dArr, nl, dh, ilvry):
     vs2[0]  = vs2[1]
     return z, rho, vp0, vp2, vp4, vs0, vs2
 
-    
-    
-
 def plot(model, dtype='vsv', unit='km', showfig=True):
+    """
+    Plot the model
+    ===================================================================
+    ::: input parameters ::::
+    inmodel - input model1d object
+    dtype   - datatype for plotting
+    unit    - km or m
+    ===================================================================
+    """
     dtype   = dtype.lower()
     if unit == 'km': factor= 1000.
     elif unit == 'm': factor = 1.
@@ -325,10 +331,11 @@ def plot(model, dtype='vsv', unit='km', showfig=True):
     ax.tick_params(axis='x', labelsize=20)
     ax.tick_params(axis='y', labelsize=20)
     if showfig: plt.show()
+    return
     
-
-
-
+####################################################
+# Predefine the parameters for the model2d object
+####################################################
 spec = [('VsvArr', numba.float32[:]),
         ('VpvArr', numba.float32[:]),
         ('VshArr', numba.float32[:]),
@@ -366,7 +373,7 @@ class model1d(object):
     """
     An object for handling a 1D Earth model
     =====================================================================================================================
-    ::: Parameters :::
+    ::: parameters :::
     VsvArr, VshArr, - Vsv, Vsh, Vpv, Vph velocity (unit - m/s)
     VpvArr, VphArr  
     rhoArr          - density (kg/m^3)
@@ -380,7 +387,7 @@ class model1d(object):
     arrays with *R  - Love parameters and density arrays after Earth flattening transformation for PSV motion
     arrays with *L  - Love parameters and density arrays after Earth flattening transformation for SH motion
     rArrS           - radius array after Earth flattening transformation
-    dipArr,strikeArr- dip/strike angles, will be used for tilted hexagonal symmetric media
+    dipArr,strikeArr- dip/strike angles, used for tilted hexagonal symmetric media
     =====================================================================================================================
     """
     def __init__(self):
@@ -446,7 +453,7 @@ class model1d(object):
     def earth_flattening_kennett(self):
         """
         Earth flattening transformation using Kennett's formulas.
-        Ref.
+        reference
         Kennett 2009, Seismic Wave Propagation in a Stratified Medium, p16
         """
         z           = np.float32(6371000.)*np.log(np.float32(6371000.)/self.rArr)
@@ -507,7 +514,7 @@ class model1d(object):
         """
         Get the radius array
         ===============================================================================
-        Input Parameters:
+        ::: input parameters ::::
         zmax        - maximum depth (unit - km)
         dz          - depth interval (unit - km)
         Output:
@@ -910,10 +917,9 @@ class model1d(object):
     
     def trim_simple(self, zmax):
         """
-        Trim the model given a maximum depth(unit - km)
+        Trim the model given a maximum depth(unit - km), keep data points with depth smaller than zmax.
         """
-        if zmax >= 6371.:
-            raise ValueError('Input maximum depth should have a unit of km !')
+        if zmax >= 6371.: raise ValueError('Input maximum depth should have a unit of km !')
         rmin        = (np.float32(6371.)-zmax)*np.float32(1000.)
         ind         = self.rArr > rmin
         Nt          = (self.rArr[ind]).size
@@ -1297,7 +1303,7 @@ class model1d(object):
         """
         Add/perturb a layer given zmin/zmax
         ===============================================================================
-        Input Parameters:
+        ::: input parameters ::::
         zmin/zmax   - min/max depth (unit -km)
         dtype       - datatype for the perturbation
                         0: vsv
@@ -1607,7 +1613,7 @@ class model1d(object):
         """
         Add/perturb a layer given zmin/zmax
         ===============================================================================
-        Input Parameters:
+        ::: input parameters ::::
         zmin/zmax   - min/max depth (unit -km)
         dtype       - datatype for the perturbation
                         0: A
@@ -1886,7 +1892,7 @@ class model1d(object):
         Get the layerized model for CPS
         Note: the unit is different from the default unit of the object
         ===================================================================
-        ::: Input Parameters :::
+        ::: ::: input parameters ::: :::
         dArr            - numpy array of layer thickness (unit - km)
         nl              - number of layers 
         dh              - thickness of each layer (unit - km)
@@ -1945,7 +1951,7 @@ class model1d(object):
         """
         Get layrized model for aniprop
         ===================================================================================
-        ::: Input Parameters :::
+        ::: ::: input parameters ::: :::
         dArr            - numpy array of layer thickness (unit - km)
         nl              - number of layers 
         dh              - thickness of each layer (unit - km)
@@ -2000,7 +2006,53 @@ class model1d(object):
         if np.any(self.LArr > self.NArr):
             raise ValueError('aniprop does not accept L > N !')
         return
+    
+    ##################################################
+    # functions for tilted hexaganal symmetric model
+    ##################################################
+    def init_dip_strike(self):
         
+        self.dipArr     = np.zeros(self.rArr.size, np.float32)
+        self.strikeArr  = np.zeros(self.rArr.size, np.float32)
+        return
+    
+    def is_tilt_model(self, check):
+        if (self.dipArr.size != self.rArr.size) or (self.strikeArr.size != self.rArr.size):
+            if check:
+                raise ValueError('Dip/Strike angles not specified!')
+            else:
+                self.init_dip_strike()
+                return False
+        return True
+    
+    def get_hex_parameter(self, z, left):
+        self.is_tilt_model(True)
+        if not self.is_layer_model():
+            print 'WARNING: the model is not layrized!'
+        r   = np.float32( (6371.- z)*1000.)
+        ind = np.where(self.rArr == r)[0]
+        if ind.size == 0:
+            if left:
+                rho, A, C, F, L, N  = self.get_r_love_parameters_left(r)
+                indds   = (np.where(self.rArr<r)[0])[-1]
+                dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
+            else:
+                rho, A, C, F, L, N  = self.get_r_love_parameters(r)
+                indds   = (np.where(self.rArr>r)[0])[0]
+                dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
+        else:
+            if left:
+                indds   = ind[0]
+            else:
+                indds   = ind[-1]
+            rho     = self.rhoArr[indds]
+            A       = self.AArr[indds]
+            C       = self.CArr[indds]
+            F       = self.FArr[indds]
+            L       = self.LArr[indds]
+            N       = self.NArr[indds]
+            dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
+        return rho, A, C, F, L, N, dip, strike
     
         
     
