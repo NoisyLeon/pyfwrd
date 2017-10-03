@@ -86,6 +86,7 @@ class tcps_solver(object):
         self.nmodes = 1
         self.verbose= 0
         self.egn96  = True
+        self.tilt   = False
         return
     
     def init_default(self, dh=1., nl=200):
@@ -185,7 +186,19 @@ class tcps_solver(object):
         ===================================================================================================
         """
         #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
-        dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 200, 1.)
+        if self.model.tilt == 1:
+            dArr, rhoArr, AArr, CArr, FArr, LArr, NArr, BcArr, BsArr, GcArr, GsArr, HcArr, HsArr =\
+                        self.model.get_layer_tilt_model(self.dArr, 200, 1.)
+            self.tilt   = True
+            self.egn96  = True
+            self.BcArr  = BcArr
+            self.BsArr  = BsArr
+            self.GcArr  = HcArr
+            self.GsArr  = GsArr
+            self.HcArr  = HcArr
+            self.HsArr  = HsArr
+        else:
+            dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 200, 1.)
         nfval   = self.freq.size
         if self.model.flat == 0:
             iflsph_in = 1
@@ -345,6 +358,21 @@ class tcps_solver(object):
             #                 - 1./U2d/I02d*d/k2d*eta*(A/rho-2.*L/rho)*self.ur*self.duzdz \
             #                 + 1./2./U2d/I02d*d*L/rho*( (self.uz)**2 + 2./k2d*self.uz*self.durdz+ (1./k2d*self.durdz)**2)
             # self.dcdn1  = -1./U2d/I02d*d/k2d*F/eta*self.duzdz*self.ur
+    
+    def azi_perturb(self, baz):
+        ################################################
+        # get azimuthal perturbation for tilted model
+        ################################################
+        nfval   = self.freq.size
+        Bc2d    = np.tile(self.BcArr, (nfval,1)); Bs2d    = np.tile(self.BsArr, (nfval,1))
+        Gc2d    = np.tile(self.GcArr, (nfval,1)); Gs2d    = np.tile(self.GsArr, (nfval,1))
+        Hc2d    = np.tile(self.HcArr, (nfval,1)); Hs2d    = np.tile(self.HsArr, (nfval,1))
+        dCrAA   = np.zeros(nfval, np.float32)
+        dCrAA   += np.sum( (Bc2d * np.cos(2.*baz/180.*np.pi) + Bs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdA, axis= 1)
+        dCrAA   += np.sum( (Gc2d * np.cos(2.*baz/180.*np.pi) + Gs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdL, axis= 1)
+        dCrAA   += np.sum( (Hc2d * np.cos(2.*baz/180.*np.pi) + Hs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdF, axis= 1)
+        self.VphA=self.Vph + dCrAA
+        
     
     def psv_perturb_disp_vel(self, insolver):
         """

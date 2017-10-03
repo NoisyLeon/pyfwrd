@@ -16,6 +16,12 @@ m.model_ak135_cps()
 # m.trim(200.)
 # m1.trim(200.)
 # m=vmodel.read_axisem_bm(m, '/home/leon/code/axisem/SOLVER/MESHES/prem_aniso_10s/1dmodel_axisem.bm')
+m.add_perturb_layer_love(0., 20., 0, -0.1, True)
 
-# m.init_dip_strike()
-# m.init_etensor()
+m.init_dip_strike()
+m.init_etensor()
+m.dipArr[-1] = 30.; m.dipArr[-2] = 30.
+cij = m.CijArr[:,:,-1].copy()
+
+m.rot_dip_strike()
+m.decompose()

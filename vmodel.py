@@ -461,6 +461,13 @@ spec = [
         ('LArrE', numba.float32[:]),
         ('FArrE', numba.float32[:]),
         ('NArrE', numba.float32[:]),
+        # 2 theta azimuthal term
+        ('BcArr', numba.float32[:]),
+        ('BsArr', numba.float32[:]),
+        ('GcArr', numba.float32[:]),
+        ('GsArr', numba.float32[:]),
+        ('HcArr', numba.float32[:]),
+        ('HsArr', numba.float32[:]),
         # Dip/strike angles
         ('dipArr', numba.float32[:]),
         ('strikeArr', numba.float32[:]),
@@ -474,7 +481,8 @@ spec = [
         ('CijETI', numba.float32[:, :, :]),
         # flat Earth or not
         ('flat', numba.int32),
-        ('rmin', numba.float32)
+        ('rmin', numba.float32),
+        ('tilt', numba.int32)
         ]
 
 @numba.jitclass(spec)
@@ -1354,7 +1362,7 @@ class model1d(object):
         N_inv   = self.NArr[::-1]
         dip_inv = self.dipArr[::-1]
         s_inv   = self.strikeArr[::-1]
-        if strike_inv.size == r_inv.size:
+        if s_inv.size == r_inv.size:
             tilt    = True
         else:
             titl    = False
@@ -1985,7 +1993,7 @@ class model1d(object):
         Get the layerized model for CPS
         Note: the unit is different from the default unit of the object
         ===================================================================
-        ::: ::: input parameters ::: :::
+        ::: input parameters ::: 
         dArr            - numpy array of layer thickness (unit - km)
         nl              - number of layers 
         dh              - thickness of each layer (unit - km)
@@ -2009,7 +2017,7 @@ class model1d(object):
         for i in xrange(nl):
             r0  = 6371000.-z0
             r1  = 6371000.-z1
-            rho0, A0, C0, F0, L0, N0  = self.get_r_love_parameters_left(r0) # top point value needs to use left value in radius array
+            rho0, A0, C0, F0, L0, N0  = self.get_r_love_parameters_left(r0) # bottom point value needs to use left value in radius array
             rho1, A1, C1, F1, L1, N1  = self.get_r_love_parameters(r1)
             # density is converted from kg/m^3 to g/cm^3
             rho = (rho0+rho1)/np.float32(1e3)/2.
@@ -2036,6 +2044,89 @@ class model1d(object):
         LArr    = np.array(LLst, dtype=np.float32)
         NArr    = np.array(NLst, dtype=np.float32)
         return dArr, rhoArr, AArr, CArr, FArr, LArr, NArr
+    
+    def get_layer_tilt_model(self, dArr, nl, dh):
+        """
+        Get the layerized tilted model for CPS
+        Note: the unit is different from the default unit of the object
+        ===================================================================
+        ::: input parameters :::
+        dArr                - numpy array of layer thickness (unit - km)
+        nl                  - number of layers 
+        dh                  - thickness of each layer (unit - km)
+        nl and dh will be used if and only if dArr.size = 0
+        ::: Output :::
+        dArr                - layer thickness array (unit - km)
+        rhoArr              - density array (unit - g/cm^3)
+        AArr, CArr, FArr    - effective Love parameters (unit - GPa)
+        LArr, NArr
+        BcArr, BsArr, GcArr - 2-theta azimuthal terms (unit - GPa)
+        GsArr, HcArr, HsArr
+        ===================================================================
+        """
+        if not self.is_layer_model():
+            print 'WARNING: Model is not layerized, unexpected error may occur!'
+        if dArr.size==0:
+            dh      *= 1000. 
+            dArr    = np.ones(nl, dtype = np.float32)*np.float32(dh)
+        else:
+            dArr    *= 1000.
+            nl      = dArr.size
+        ALst=[]; CLst=[]; LLst=[]; FLst=[]; NLst=[]; rhoLst=[]
+        BcLst=[]; BsLst=[]; GcLst=[]; GsLst=[]; HcLst=[]; HsLst=[]
+        z0   = 0.
+        z1   = dArr[0]
+        for i in xrange(nl):
+            r0  = 6371000.-z0
+            r1  = 6371000.-z1
+            rho0, A0, C0, F0, L0, N0, Bc0, Bs0, Gc0, Gs0, Hc0, Hs0\
+                        =self.get_r_tilt_parameters(r0, True) # bottom point value needs to use left value in radius array
+            rho1, A1, C1, F1, L1, N1, Bc1, Bs1, Gc1, Gs1, Hc1, Hs1\
+                        =self.get_r_tilt_parameters(r1, False)
+            # density is converted from kg/m^3 to g/cm^3
+            rho = (rho0+rho1)/np.float32(1e3)/2.
+            rhoLst.append(rho)
+            # Love parameters are converted from Pa to GPa
+            A   = (A0+A1)/1.e9/2.
+            ALst.append(A)
+            C   = (C0+C1)/1.e9/2.
+            CLst.append(C)
+            F   = (F0+F1)/1.e9/2.
+            FLst.append(F)
+            L   = (L0+L1)/1.e9/2.
+            LLst.append(L)
+            N   = (N0+N1)/1.e9/2.
+            NLst.append(N)
+            # 2-theta azimuthal terms
+            Bc  = (Bc0+Bc1)/1.e9/2.
+            BcLst.append(Bc)
+            Bs  = (Bs0+Bs1)/1.e9/2.
+            BsLst.append(Bs)
+            Gc  = (Gc0+Gc1)/1.e9/2.
+            GcLst.append(Gc)
+            Gs  = (Gs0+Gs1)/1.e9/2.
+            GsLst.append(Gs)
+            Hc  = (Hc0+Hc1)/1.e9/2.
+            HcLst.append(Hc)
+            Hs  = (Hs0+Hs1)/1.e9/2.
+            HsLst.append(Hs)
+            z0  += dArr[i]
+            z1  += dArr[i+1]
+        # layer thickness is converted from m to km
+        dArr    /=1000.
+        rhoArr  = np.array(rhoLst, dtype=np.float32)
+        AArr    = np.array(ALst, dtype=np.float32)
+        CArr    = np.array(CLst, dtype=np.float32)
+        FArr    = np.array(FLst, dtype=np.float32)
+        LArr    = np.array(LLst, dtype=np.float32)
+        NArr    = np.array(NLst, dtype=np.float32)
+        BcArr   = np.array(BcLst, dtype=np.float32)
+        BsArr   = np.array(BsLst, dtype=np.float32)
+        GcArr   = np.array(GcLst, dtype=np.float32)
+        GsArr   = np.array(GsLst, dtype=np.float32)
+        HcArr   = np.array(HcLst, dtype=np.float32)
+        HsArr   = np.array(HsLst, dtype=np.float32)
+        return dArr, rhoArr, AArr, CArr, FArr, LArr, NArr, BcArr, BsArr, GcArr, GsArr, HcArr, HsArr
     
     #####################################################################
     # functions for layerized model as input for aniprop
@@ -2095,6 +2186,25 @@ class model1d(object):
         vs2[0]  = vs2[1]
         return z, rho, vp0, vp2, vp4, vs0, vs2
     
+    def angles_aniprop_model(self, zArr):
+        if not self.is_layer_model():
+            print ('WARNING: Model is not layerized, unexpected error may occur!')
+        dipLst=[]; strikeLst=[]
+        nl      = zArr.size
+        for i in xrange(nl):
+            r   = 6371000.-zArr[i]*1000.
+            # # # dip0, strike0  = self.get_dip_strike(r0, True) # bottom point value needs to use left value in radius array
+            dip, strike  = self.get_dip_strike(r, False)
+            # Love parameters are converted from Pa to GPa
+            dipLst.append(dip)
+            strikeLst.append(strike)
+        # layer thickness is converted from m to km
+        dipArr      = np.array(dipLst, dtype=np.float32)
+        strikeArr   = np.array(strikeLst, dtype=np.float32)
+        return dipArr, strikeArr
+        
+    
+    
     def aniprop_check_model(self):
         if np.any(self.LArr > self.NArr):
             raise ValueError('aniprop does not accept L > N !')
@@ -2106,6 +2216,7 @@ class model1d(object):
     def init_dip_strike(self):
         """Initialize dip/strike angle array
         """
+        self.tilt       = 1
         self.dipArr     = np.zeros(self.rArr.size, np.float32)
         self.strikeArr  = np.zeros(self.rArr.size, np.float32)
         return
@@ -2153,8 +2264,12 @@ class model1d(object):
             Cvoigt[0,2] = F; Cvoigt[2,0] = F
             Cvoigt[1,2] = F; Cvoigt[2,1] = F
             self.CijArr[:, :, i] = Cvoigt
-        self.CijETI     = self.CijArr
+        # self.CijETI     = self.CijArr
         # self.voigt2Cijkl()
+        return
+    
+    def init_tilt(self):
+        self.init_dip_strike(); self.init_etensor()
         return
     
     # def voigt2Cijkl(self):
@@ -2209,6 +2324,7 @@ class model1d(object):
         """
         for i in xrange(self.rArr.size):
             if self.dipArr[i] == 0.: continue
+            if self.dipArr[i] >90. or self.dipArr[i] < 0.: raise ValueError('Dip should be within [0., 90.]!')
             # rotation for dip, rotation axis is x (North)
             Mdip        = _bondmat(np.array([1.,0.,0.], dtype=np.float32), self.dipArr[i])
             Cvoigt      = np.dot(Mdip, self.CijArr[:,:, i])
@@ -2218,11 +2334,55 @@ class model1d(object):
             Cvoigt      = np.dot(Mstrike, Cvoigt)
             Cvoigt      = np.dot(Cvoigt, Mstrike.T)
             self.CijArr[:,:, i] = Cvoigt
+            # print(i)
         return
     
-    # def decomp(self):
-    #     for i in xrange(self.rArr.size):
-            
+    def decompose(self):
+        """
+        Decompose the tilted elastic tensor into ETI and AA components
+        """
+        # initialize effective Love parameters
+        self.AArrE  = self.AArr.copy()
+        self.CArrE  = self.CArr.copy()
+        self.FArrE  = self.FArr.copy()
+        self.LArrE  = self.LArr.copy()
+        self.NArrE  = self.NArr.copy()
+        # initialize 2-theta azimuthal terms
+        self.BcArr  = np.zeros(self.rArr.size, np.float32)
+        self.BsArr  = np.zeros(self.rArr.size, np.float32)
+        self.GcArr  = np.zeros(self.rArr.size, np.float32)
+        self.GsArr  = np.zeros(self.rArr.size, np.float32)
+        self.HcArr  = np.zeros(self.rArr.size, np.float32)
+        self.HsArr  = np.zeros(self.rArr.size, np.float32)
+        for i in xrange(self.rArr.size):
+            if self.dipArr[i] == 0.: continue
+            Cij             = self.CijArr[:,:, i]
+            A               = 3./8.*(Cij[0,0] + Cij[1,1]) + Cij[0,1]/4. + Cij[5,5]/2.
+            C               = Cij[2,2]
+            F               = (Cij[0,2] + Cij[1,2])/2.
+            L               = (Cij[3,3] + Cij[4,4])/2.
+            N               = (Cij[0,0] + Cij[1,1])/8. - Cij[0,1]/4. + Cij[5,5]/2.
+            CijETI          = np.zeros((6,6), np.float32)
+            CijETI[0,:]     = np.array([A, A-2.*N, F, 0., 0., 0.])
+            CijETI[1,:]     = np.array([A-2.*N, A, F, 0., 0., 0.])
+            CijETI[2,:]     = np.array([F, F, C, 0., 0., 0.])
+            CijETI[3,:]     = np.array([0., 0., 0., L, 0., 0.])
+            CijETI[4,:]     = np.array([0., 0., 0., 0., L, 0.])
+            CijETI[5,:]     = np.array([0., 0., 0., 0., 0., N])
+            self.CijAA[:,:,i]   = self.CijArr[:,:, i] - CijETI
+            CijAA               = self.CijAA[:,:,i]
+            self.AArrE[i]       = A
+            self.CArrE[i]       = C
+            self.FArrE[i]       = F
+            self.LArrE[i]       = L
+            self.NArrE[i]       = N
+            self.BcArr[i]       = (CijAA[0,0] - CijAA[1,1])/2.
+            self.BsArr[i]       = CijAA[0,5] + CijAA[1,5]
+            self.GcArr[i]       = (CijAA[4,4] - CijAA[3,3])/2.
+            self.GsArr[i]       = CijAA[4,3]
+            self.HcArr[i]       = (CijAA[0,2] - CijAA[1,2])/2.
+            self.HsArr[i]       = CijAA[2,5]
+        return
 
     
     def get_hex_parameter(self, z, left):
@@ -2253,6 +2413,93 @@ class model1d(object):
             N       = self.NArr[indds]
             dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
         return rho, A, C, F, L, N, dip, strike
+    
+    def get_dip_strike(self, r, left):
+        self.is_tilt_model(True)
+        if not self.is_layer_model():
+            print 'WARNING: the model is not layrized!'
+        # r   = np.float32( (6371.- z)*1000.)
+        ind = np.where(self.rArr == r)[0]
+        if ind.size == 0:
+            if left:
+                indds   = (np.where(self.rArr<r)[0])[-1]
+                dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
+            else:
+                indds   = (np.where(self.rArr>r)[0])[0]
+                dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
+        else:
+            if left:
+                indds   = ind[0]
+            else:
+                indds   = ind[-1]
+            dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
+        return dip, strike
+    
+    def get_r_tilt_parameters(self, r, left):
+        """
+        Return density, effective Love paramaters and 2-theta azimuthal terms given a radius
+        left    - yield the LEFT value if repeated radius grid points appear or not
+        """
+        if r < self.rmin: raise ValueError('Required radius is out of the model range!')
+        ind_l = -1; ind_r = -1
+        for _r in self.rArr:
+            if r < _r:
+                ind_r += 1
+                break
+            if r == _r:
+                ind_l += 1
+                ind_r += 1
+                break
+            ind_l += 1
+            ind_r += 1
+        if ind_l == ind_r:
+            if self.rArr[ind_l] == self.rArr[ind_l+1]:
+                if not left:
+                    ind_l+=1 # the difference compared with get_r_tilt_parameters_left
+            return self.rhoArr[ind_l],\
+                self.AArrE[ind_l], self.CArrE[ind_l], self.FArrE[ind_l], self.LArrE[ind_l], self.NArrE[ind_l],\
+                self.BcArr[ind_l], self.BsArr[ind_l], self.GcArr[ind_l], self.GsArr[ind_l], self.HcArr[ind_l], self.HsArr[ind_l]
+        r_left  = self.rArr[ind_l]
+        r_right = self.rArr[ind_r]
+        
+        rhol    = self.rhoArr[ind_l]; rhor  =   self.rhoArr[ind_r]
+        rho     = rhol + (r - r_left)*(rhor-rhol)/(r_right - r_left)
+        # effective Love parameters
+        Al      = self.AArrE[ind_l]; Ar  =   self.AArrE[ind_r]
+        A       = Al + (r - r_left)*(Ar-Al)/(r_right - r_left)
+        
+        Cl      = self.CArrE[ind_l]; Cr  =   self.CArrE[ind_r]
+        C       = Cl + (r - r_left)*(Cr-Cl)/(r_right - r_left)    
+        
+        Fl      = self.FArrE[ind_l]; Fr  =   self.FArrE[ind_r]
+        F       = Fl + (r - r_left)*(Fr-Fl)/(r_right - r_left)
+        
+        Ll      = self.LArrE[ind_l]; Lr  =   self.LArrE[ind_r]
+        L       = Ll + (r - r_left)*(Lr-Ll)/(r_right - r_left)
+        
+        Nl      = self.NArrE[ind_l]; Nr  =   self.NArrE[ind_r]
+        N       = Nl + (r - r_left)*(Nr-Nl)/(r_right - r_left)
+        # 2-theta azimuthal terms
+        Bcl     = self.BcArr[ind_l]; Bcr  =   self.BcArr[ind_r]
+        Bc      = Bcl + (r - r_left)*(Bcr-Bcl)/(r_right - r_left)
+        
+        Bsl     = self.BsArr[ind_l]; Bsr  =   self.BsArr[ind_r]
+        Bs      = Bsl + (r - r_left)*(Bsr-Bsl)/(r_right - r_left)
+        
+        Gcl     = self.GcArr[ind_l]; Gcr  =   self.GcArr[ind_r]
+        Gc      = Gcl + (r - r_left)*(Gcr-Gcl)/(r_right - r_left)
+        
+        Gsl     = self.GsArr[ind_l]; Gsr  =   self.GsArr[ind_r]
+        Gs      = Gsl + (r - r_left)*(Gsr-Gsl)/(r_right - r_left)
+        
+        Hcl     = self.HcArr[ind_l]; Hcr  =   self.HcArr[ind_r]
+        Hc      = Hcl + (r - r_left)*(Hcr-Hcl)/(r_right - r_left)
+        
+        Hsl     = self.HsArr[ind_l]; Hsr  =   self.HsArr[ind_r]
+        Hs      = Hsl + (r - r_left)*(Hsr-Hsl)/(r_right - r_left)
+        
+        return rho, A, C, F, L, N, Bc, Bs, Gc, Gs, Hc, Hs
+    
     
     
         
