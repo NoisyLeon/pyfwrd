@@ -45,46 +45,65 @@ m=vmodel.model1d()
 m.model_ak135_cps()
 m.flat=1
 # 
-# tcpsR0 = tcps.tcps_solver(m)
-# tcpsR0.init_default()
-# tcpsR0.solve_PSV()
-# 
-# tcpsL0 = tcps.tcps_solver(m)
-# tcpsL0.init_default()
-# tcpsL0.solve_SH()
+
 # # model perturbation: isotropic -> VTI
 # 
 # # m.add_perturb_layer_love(0, 20., 4, -0.1, True)
 # # m.add_perturb_layer_love(0, 20., 3, -0.3, True)
 # 
-m.add_perturb_layer_love(0, 20., 0, -0.05, True)
+m.add_perturb_layer_love(0, 20., 3, -0.05, True)
+tcpsR0 = tcps.tcps_solver(m)
+tcpsR0.init_default()
+tcpsR0.solve_PSV()
+
+tcpsL0 = tcps.tcps_solver(m)
+tcpsL0.init_default()
+tcpsL0.solve_SH()
+
+
 m.init_tilt()
-m.dipArr[-1] = 90.; m.dipArr[-2] = 90.
+m.dipArr[-1] = 70.; m.dipArr[-2] = 70.
+m.strikeArr[-1] = -270.; m.strikeArr[-2] = -270.
+
 m.rot_dip_strike()
 m.decompose()
 # 
-# tcpsR = tcps.tcps_solver(m)
-# tcpsR.init_default()
-# tcpsR.solve_PSV()
+tcpsR = tcps.tcps_solver(m)
+tcpsR.init_default()
+tcpsR.solve_PSV()
 # 
-# CR  = []
-# for baz in np.arange(36)*10.:
-#     tcpsR.azi_perturb(baz)
-#     CR.append(tcpsR.VphA[1])
-# 
-# plt.plot(np.arange(36)*10., CR, '^', ms=5)
-# plt.plot(np.arange(36)*10., tcpsR.Vph[1]*np.ones(36), 'o', ms=5)
-# plt.show()
-# 
-# tcpsL = tcps.tcps_solver(m)
-# tcpsL.init_default()
-# tcpsL.solve_SH()
+CR1  = []
+for baz in np.arange(36)*10.+5.:
+    tcpsR.azi_perturb(baz)
+    CR1.append(tcpsR.VphA[1])
 # # 
+# plt.plot(np.arange(36)*10., CR1, '^', ms=5)
+# plt.plot(np.arange(36)*10., tcpsR0.Vph[1]*np.ones(36), 'o', ms=5)
+# plt.show()
+# # 
+# # tcpsL = tcps.tcps_solver(m)
+# # tcpsL.init_default()
+# # tcpsL.solve_SH()
+# # #
+# 
+# # m.add_perturb_layer_love(0, 20., 0, -0.3, True)
 ani  = aniproppy.aniprop_solver(m)
 ani.init_default_2()
 # # ani.init_default(nl=100, dh=2.)
-ani.solve_surf()
-# 
+# ani.solve_surf(baz=0.)
+
+CR2  = []
+for baz in np.arange(35)*10.:
+    print baz
+    ani.solve_surf(baz=baz)
+    CR2.append(ani.CR[1])
+    
+plt.plot(np.arange(36)*10., CR1, 'o', ms=5)
+plt.plot(np.arange(35)*10., CR2, '^', ms=5)
+plt.plot(np.arange(36)*10., tcpsR0.Vph[1]*np.ones(36), 'x', ms=5)
+
+plt.show()
+# # 
 # dcr = (tcpsR.Vph - ani.CR)/tcpsR.Vph*100.
 # dur = (tcpsR.Vgr - ani.UR)/tcpsR.Vgr*100.
 # dcl = (tcpsL.Vph - ani.CL)/tcpsL.Vph*100.

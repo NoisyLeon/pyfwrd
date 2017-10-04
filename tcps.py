@@ -187,16 +187,18 @@ class tcps_solver(object):
         """
         #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
         if self.model.tilt == 1:
-            dArr, rhoArr, AArr, CArr, FArr, LArr, NArr, BcArr, BsArr, GcArr, GsArr, HcArr, HsArr =\
+            dArr, rhoArr, AArr, CArr, FArr, LArr, NArr, BcArr, BsArr, GcArr, GsArr, HcArr, HsArr, CcArr, CsArr =\
                         self.model.get_layer_tilt_model(self.dArr, 200, 1.)
             self.tilt   = True
             self.egn96  = True
             self.BcArr  = BcArr
             self.BsArr  = BsArr
-            self.GcArr  = HcArr
+            self.GcArr  = GcArr
             self.GsArr  = GsArr
             self.HcArr  = HcArr
             self.HsArr  = HsArr
+            self.CcArr  = CcArr
+            self.CsArr  = CsArr
         else:
             dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 200, 1.)
         nfval   = self.freq.size
@@ -367,10 +369,12 @@ class tcps_solver(object):
         Bc2d    = np.tile(self.BcArr, (nfval,1)); Bs2d    = np.tile(self.BsArr, (nfval,1))
         Gc2d    = np.tile(self.GcArr, (nfval,1)); Gs2d    = np.tile(self.GsArr, (nfval,1))
         Hc2d    = np.tile(self.HcArr, (nfval,1)); Hs2d    = np.tile(self.HsArr, (nfval,1))
+        Cc2d    = np.tile(self.CcArr, (nfval,1)); Cs2d    = np.tile(self.CsArr, (nfval,1))
         dCrAA   = np.zeros(nfval, np.float32)
         dCrAA   += np.sum( (Bc2d * np.cos(2.*baz/180.*np.pi) + Bs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdA, axis= 1)
         dCrAA   += np.sum( (Gc2d * np.cos(2.*baz/180.*np.pi) + Gs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdL, axis= 1)
         dCrAA   += np.sum( (Hc2d * np.cos(2.*baz/180.*np.pi) + Hs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdF, axis= 1)
+        dCrAA   += np.sum( (Cc2d * np.cos(4.*baz/180.*np.pi) + Cs2d * np.sin(4.*baz/180.*np.pi)) * self.dcdA, axis= 1)
         self.VphA=self.Vph + dCrAA
         
     

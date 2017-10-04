@@ -70,7 +70,7 @@ class aniprop_solver(object):
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
     
-    def solve_surf(self):
+    def solve_surf(self, baz):
         """
         Solve for Rayleigh and Love dispersion curves using reflectivity method
         """
@@ -114,10 +114,15 @@ class aniprop_solver(object):
             vs0     *= 1000.
             ##########################################
             nl      = z.size - 1
-            theta   = np.zeros(nl+1, dtype=np.float32)
+            theta   = self.dip
             phig    = np.zeros(nl+1, dtype=np.float32)
-            baz     = 0.
+            phig[self.dip>0.]  = self.strike[self.dip>0.] + 270.
+            # phig[phig>=360.] = phig[phig>=360.] - 360.
+            # theta   = np.zeros(nl+1, dtype=np.float32)
+            # phig    = np.zeros(nl+1, dtype=np.float32)
+            # baz     = 0.
             ###########################################
+            print phig
             Rphase,Rgroup,Lphase,Lgroup,Period = aniprop.aniprop_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
         else:
             zl      *= 1000.

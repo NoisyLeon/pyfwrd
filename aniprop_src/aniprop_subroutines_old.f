@@ -19,7 +19,7 @@ c  revised to make rootfinder more focussed: 7/11/95
 c  revised to make computations dimensionless: started 8/3/95, finished 8/14
 c  bugfix for tilted axis of symmetry: 8/16/95
 c  bugfix for group velocity: 8/22/95
-c  bugfix for defective_aniprop matrices: 8/22/95
+c  bugfix for defective_aniprop_aniprop matrices: 8/22/95
 c  bugfix for transition to evanescence in top layer: 9/10/95
 c  
 c
@@ -944,7 +944,7 @@ c  are nearly parallel - we check the dotproducts of displacement components
               idfct(2,n)=j
 c              print 1008,'vert wavenumbers',xnu(i,n),' and',xnu(j,n)
 c  we average eigenvalues (vert wavenumbers)
-c  and solve for eigenvector in subroutine defective
+c  and solve for eigenvector in subroutine defective_aniprop
               xnu(i,n)=(xnu(i,n)+xnu(j,n))/2.d0
               xnu(j,n)=xnu(i,n)
 c              zz=zz/(zabs(zz))
@@ -952,7 +952,7 @@ c              sq2=dsqrt(2.d0)
 c              do jj=1,6
 c                ee(jj,i,n)=(zz*ee(jj,i,n)+ee(jj,j,n))/sq2
 c              end do
-c  calculate the extravector for defective repeated eigenvalue
+c  calculate the extravector for defective_aniprop repeated eigenvalue
               call defective_aniprop(i,j,n,adf(1,n),a,b,c,d,e,om,akx)
 c              print *,i,j,n,ccc,qqq,adf(1,n)
             endif
@@ -985,7 +985,7 @@ c              sq2=dsqrt(2.d0)
 c              do jj=1,6
 c                ee(jj,i,n)=(zz*ee(jj,i,n)+ee(jj,j,n))/sq2
 c              end do
-c  calculate the extravector for defective repeated eigenvalue
+c  calculate the extravector for defective_aniprop repeated eigenvalue
 c  as well as coefficient (adf) of linear (z-z0) term
               call defective_aniprop(i,j,n,adf(2,n),a,b,c,d,e,om,akx)
 c              print *,i,j,n,ccc,qqq,adf(2,n)
@@ -1038,7 +1038,7 @@ c mult the columns of e2
             e2(i,k)=e2(i,k)*zla(k)
           end do
         end do
-c  the possibility of defective matrices must be contemplated here
+c  the possibility of defective_aniprop matrices must be contemplated here
 c  k=1,2,3 columns are downgoing in nth layer
 c  k=4,5,6 columns are upgoing in (n+1)th layer
 c  the vector e2(.,k1) has already been multiplied by exponential factor zla
@@ -1148,7 +1148,7 @@ c  in subroutine csolve whenever R and T are do not couple (e.g. isotropic media
           t(jp(i),jp(k))=dimag(ee(i+3,k,1))
         end do
       end do
-c  the possibility of defective matrices must be contemplated here
+c  the possibility of defective_aniprop matrices must be contemplated here
 c  these waves are upgoing in 1st layer
 c  the sign change on dz is for upgoing waves, and xl(k1,1)=xl(k2,1)
       if(idfct(3,1).ne.0) then
@@ -1191,9 +1191,8 @@ c the determinant of the traction
      x  +trc(1,3)*(trc(2,1)*trc(3,2)-trc(3,1)*trc(2,2))
       return
       end
-      
       subroutine defective_aniprop(i,j,n,adf,a,b,c,d,e,om,akx)
-c  patch for dealing with nearly defective propagator matrices
+c  patch for dealing with nearly defective_aniprop propagator matrices
 c  in which the eigenvectors, 
 c  which represent the particle motion of upgoing and downgoing waves
 c  become nearly parallel.
@@ -1235,7 +1234,7 @@ c  form the matrices on either side
         zq1(ii,ii)=zq1(ii,ii)+znu*znu
         zq2(ii,ii)=zq2(ii,ii)+2.d0*znu
       end do
-c  we wish to find the eigenvector of the near-defective matrix 
+c  we wish to find the eigenvector of the near-defective_aniprop matrix 
 c  in the region where its eigenvectors are numerically unstable
 c   we explicitly calculate the eigenvector with smallest right-eigenvalue of
 c  (\bTtil + nu*\bStil + nu^2*\bI)=zq1
@@ -1345,7 +1344,7 @@ c  in this case, zq1 is nonsingular, and we just solve for u1
           q1i(jj,ii)=dimag(zq1(jj,ii))
         end do
       end do
-c      print *,'in defective'
+c      print *,'in defective_aniprop'
       call csolve(3,q1r,q1i,xr,xi,yr,yi)
       do ii=1,3
         u1(ii)=dcmplx(xr(ii),xi(ii))

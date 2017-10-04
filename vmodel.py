@@ -468,6 +468,9 @@ spec = [
         ('GsArr', numba.float32[:]),
         ('HcArr', numba.float32[:]),
         ('HsArr', numba.float32[:]),
+        # 4-theta azimuthal terms
+        ('CcArr', numba.float32[:]),
+        ('CsArr', numba.float32[:]),
         # Dip/strike angles
         ('dipArr', numba.float32[:]),
         ('strikeArr', numba.float32[:]),
@@ -2062,6 +2065,7 @@ class model1d(object):
         LArr, NArr
         BcArr, BsArr, GcArr - 2-theta azimuthal terms (unit - GPa)
         GsArr, HcArr, HsArr
+        CcArr, CsArr        - 4-theta azimuthal terms (unit - GPa)
         ===================================================================
         """
         if not self.is_layer_model():
@@ -2073,15 +2077,15 @@ class model1d(object):
             dArr    *= 1000.
             nl      = dArr.size
         ALst=[]; CLst=[]; LLst=[]; FLst=[]; NLst=[]; rhoLst=[]
-        BcLst=[]; BsLst=[]; GcLst=[]; GsLst=[]; HcLst=[]; HsLst=[]
+        BcLst=[]; BsLst=[]; GcLst=[]; GsLst=[]; HcLst=[]; HsLst=[]; CcLst=[]; CsLst=[]
         z0   = 0.
         z1   = dArr[0]
         for i in xrange(nl):
             r0  = 6371000.-z0
             r1  = 6371000.-z1
-            rho0, A0, C0, F0, L0, N0, Bc0, Bs0, Gc0, Gs0, Hc0, Hs0\
+            rho0, A0, C0, F0, L0, N0, Bc0, Bs0, Gc0, Gs0, Hc0, Hs0, Cc0, Cs0\
                         =self.get_r_tilt_parameters(r0, True) # bottom point value needs to use left value in radius array
-            rho1, A1, C1, F1, L1, N1, Bc1, Bs1, Gc1, Gs1, Hc1, Hs1\
+            rho1, A1, C1, F1, L1, N1, Bc1, Bs1, Gc1, Gs1, Hc1, Hs1, Cc1, Cs1\
                         =self.get_r_tilt_parameters(r1, False)
             # density is converted from kg/m^3 to g/cm^3
             rho = (rho0+rho1)/np.float32(1e3)/2.
@@ -2110,6 +2114,11 @@ class model1d(object):
             HcLst.append(Hc)
             Hs  = (Hs0+Hs1)/1.e9/2.
             HsLst.append(Hs)
+            
+            Cc  = (Cc0+Cc1)/1.e9/2.
+            CcLst.append(Cc)
+            Cs  = (Cs0+Cs1)/1.e9/2.
+            CsLst.append(Cs)
             z0  += dArr[i]
             z1  += dArr[i+1]
         # layer thickness is converted from m to km
@@ -2126,7 +2135,10 @@ class model1d(object):
         GsArr   = np.array(GsLst, dtype=np.float32)
         HcArr   = np.array(HcLst, dtype=np.float32)
         HsArr   = np.array(HsLst, dtype=np.float32)
-        return dArr, rhoArr, AArr, CArr, FArr, LArr, NArr, BcArr, BsArr, GcArr, GsArr, HcArr, HsArr
+        
+        CcArr   = np.array(CcLst, dtype=np.float32)
+        CsArr   = np.array(CsLst, dtype=np.float32)
+        return dArr, rhoArr, AArr, CArr, FArr, LArr, NArr, BcArr, BsArr, GcArr, GsArr, HcArr, HsArr, CcArr, CsArr
     
     #####################################################################
     # functions for layerized model as input for aniprop
@@ -2354,6 +2366,8 @@ class model1d(object):
         self.GsArr  = np.zeros(self.rArr.size, np.float32)
         self.HcArr  = np.zeros(self.rArr.size, np.float32)
         self.HsArr  = np.zeros(self.rArr.size, np.float32)
+        self.CcArr  = np.zeros(self.rArr.size, np.float32)
+        self.CsArr  = np.zeros(self.rArr.size, np.float32)
         for i in xrange(self.rArr.size):
             if self.dipArr[i] == 0.: continue
             Cij             = self.CijArr[:,:, i]
@@ -2382,6 +2396,8 @@ class model1d(object):
             self.GsArr[i]       = CijAA[4,3]
             self.HcArr[i]       = (CijAA[0,2] - CijAA[1,2])/2.
             self.HsArr[i]       = CijAA[2,5]
+            self.CcArr[i]       = (CijAA[0,0] + CijAA[1,1])/8. - CijAA[0,1]/4. - CijAA[5,5]/2.
+            self.CsArr[i]       = (CijAA[0,5] - CijAA[1,5])/2.
         return
 
     
@@ -2458,7 +2474,8 @@ class model1d(object):
                     ind_l+=1 # the difference compared with get_r_tilt_parameters_left
             return self.rhoArr[ind_l],\
                 self.AArrE[ind_l], self.CArrE[ind_l], self.FArrE[ind_l], self.LArrE[ind_l], self.NArrE[ind_l],\
-                self.BcArr[ind_l], self.BsArr[ind_l], self.GcArr[ind_l], self.GsArr[ind_l], self.HcArr[ind_l], self.HsArr[ind_l]
+                self.BcArr[ind_l], self.BsArr[ind_l], self.GcArr[ind_l], self.GsArr[ind_l], self.HcArr[ind_l],\
+                self.HsArr[ind_l], self.CcArr[ind_l], self.CsArr[ind_l]
         r_left  = self.rArr[ind_l]
         r_right = self.rArr[ind_r]
         
@@ -2497,8 +2514,14 @@ class model1d(object):
         
         Hsl     = self.HsArr[ind_l]; Hsr  =   self.HsArr[ind_r]
         Hs      = Hsl + (r - r_left)*(Hsr-Hsl)/(r_right - r_left)
+        ## check
+        Ccl     = self.CcArr[ind_l]; Ccr  =   self.CcArr[ind_r]
+        Cc      = Ccl + (r - r_left)*(Ccr-Ccl)/(r_right - r_left)
         
-        return rho, A, C, F, L, N, Bc, Bs, Gc, Gs, Hc, Hs
+        Csl     = self.CsArr[ind_l]; Csr  =   self.CsArr[ind_r]
+        Cs      = Csl + (r - r_left)*(Csr-Csl)/(r_right - r_left)
+        
+        return rho, A, C, F, L, N, Bc, Bs, Gc, Gs, Hc, Hs, Cc, Cs
     
     
     
