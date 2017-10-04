@@ -122,7 +122,7 @@ c        if(phi.eq.180.d0) phi=181.d0
         w(2,i)=dsind(theta)*dsind(phi)
         w(3,i)=dcosd(theta)
 c        write(*,*)'cos= ',dcosd(phi),', sin= ',dsind(phi)
-c        print *,(w(j,i),j=1,3)
+        print *,(w(j,i),j=1,3)
 c  read depth to ith interface, vp (m/sec), pk-to-pk cos(2th) relative P pert
 c  pk-to-pk cos(4th) relative P pert, v_s,  pk-to-pk cos(2th) relative S pert
 c  density (kg/m**3)
@@ -565,7 +565,6 @@ c  ick = 2 straddle a zero in real(zz)
       data pi/3.14159265358979d0/,eps/1.d-8/,tol1/2.d-2/,tol2/1.d-5/
       do while(dmin1(dabs(a1),dabs(a2)).gt.eps.and.iter.lt.100)
         iter=iter+1
-c        print *,iter,' = iter'
         if(dabs(a1)+dabs(a2).gt.tol1) then
 c bisection - slow and steady
           frac=0.5d0

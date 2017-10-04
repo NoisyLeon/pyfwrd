@@ -1,0 +1,296 @@
+aniprop_subroutines_dev.f:c        print *,(w(j,i),j=1,3)
+aniprop_subroutines_dev.f:c  print the organ-pipe mode count for 1Hz
+aniprop_subroutines_dev.f:c      print *, 'organ-pipe mode count at 1 Hz in stack of layers: S & P'
+aniprop_subroutines_dev.f:c      print 104,sn,pn
+aniprop_subroutines_dev.f:c      print *,'ntry',ntry
+aniprop_subroutines_dev.f:c      print *,cmin,cmax,' =cmin,cmax'
+aniprop_subroutines_dev.f:c      print *,(vss(j),j=1,nlp+1)
+aniprop_subroutines_dev.f:c        print *,ifrq,f,om 
+aniprop_subroutines_dev.f:c          if(jj.gt.0.95*ntry) print *,jj
+aniprop_subroutines_dev.f:c          if(jj.gt.0.95*ntry) print *,cmin,cc,cmax,zz
+aniprop_subroutines_dev.f:c          print *,ij
+aniprop_subroutines_dev.f:c            print *,iter,cccc,zz
+aniprop_subroutines_dev.f:c      print *,nroot,' = nroot'
+aniprop_subroutines_dev.f:c        print *,ntrval
+aniprop_subroutines_dev.f:c          print *,cmin,roota(ntrval),rootb(ntrval),cmax
+aniprop_subroutines_dev.f:c          print *,roota(i),rootb(i)
+aniprop_subroutines_dev.f:c        print *,ntrval
+aniprop_subroutines_dev.f:c          print *,roota(i),rootb(i)
+aniprop_subroutines_dev.f:c                print *,(vertr(kji),kji=1,6)
+aniprop_subroutines_dev.f:c                print *,(verti(kji),kji=1,6)
+aniprop_subroutines_dev.f:c            print *,'at f=',f,'Hz'
+aniprop_subroutines_dev.f:c            print *,' in cvel interval',ra,rb
+aniprop_subroutines_dev.f:c            print *,nxroot,' expected, but',nmm,' roots found'
+aniprop_subroutines_dev.f:              print *,'failed!'
+aniprop_subroutines_dev.f:c        print *,kroots(ifrq),' = nroot,', ntrval,' = ntrval  at f=',f
+aniprop_subroutines_dev.f:c        if(ifrq.eq.(ifrq/50)*50) print *,nm,' modes at',f,' Hz'
+aniprop_subroutines_dev.f:        if(iter.ge.99) print *,cc,iter,zz
+aniprop_subroutines_dev.f:c        print *,'failed?',cc,iter,zz
+aniprop_subroutines_dev.f:c        print *,'recalculated',cc,zz
+aniprop_subroutines_dev.f:c          print *,'failed again',cc,zz
+aniprop_subroutines_dev.f:c        print *,'a,b,c,d,e',a,b,c,d,e
+aniprop_subroutines_dev.f:c        print 101,(w(i,n),i=1,3)
+aniprop_subroutines_dev.f:c        print 101,fact,facs,facr
+aniprop_subroutines_dev.f:c        print *,'t,s,r'
+aniprop_subroutines_dev.f:c        print 101,((t(i,j),j=1,3),i=1,3)
+aniprop_subroutines_dev.f:c        print 101,((s(i,j),j=1,3),i=1,3)
+aniprop_subroutines_dev.f:c        print 101,((r(i,j),j=1,3),i=1,3)
+aniprop_subroutines_dev.f:          print *, ierr,'   error!'
+aniprop_subroutines_dev.f:c        print *,'for layer',n
+aniprop_subroutines_dev.f:c        print *, 'for phase velocity',cc,'  the vertical wavenumbers are'
+aniprop_subroutines_dev.f:c        print 101,(wr(i),wi(i),i=1,6)
+aniprop_subroutines_dev.f:c        print *,'for layer',n,'  the vert wavenums are (0=up,1=dn)'
+aniprop_subroutines_dev.f:c          print *,'for i*k_z:',xnu(i,n),', the disp-stress vector is'
+aniprop_subroutines_dev.f:c          print 101,(xr(j),j=1,6),(xi(j),j=1,6)
+aniprop_subroutines_dev.f:c              print 1008,'vert wavenumbers',xnu(i,n),' and',xnu(j,n)
+aniprop_subroutines_dev.f:c              print *,i,j,n,ccc,qqq,adf(1,n)
+aniprop_subroutines_dev.f:c              print 1008,'vert wavenumbers',xnu(i,n),' and',xnu(j,n)
+aniprop_subroutines_dev.f:c              print *,i,j,n,ccc,qqq,adf(2,n)
+aniprop_subroutines_dev.f:c        print 1002,xnu(i,3),xl(i,3)
+aniprop_subroutines_dev.f:c	print *,'zzget one'
+aniprop_subroutines_dev.f:c      print *,'zzget two ',idfct(3,1)
+aniprop_subroutines_dev.f:c        print 1111,(s(i,k),t(i,k),i=1,3)
+aniprop_subroutines_dev.f:c      print *,'in defective'
+aniprop_subroutines_dev.f: 400  print *,'eispack error'
+aniprop_subroutines_dev.f:c      print *,nl,cc,om
+aniprop_subroutines_dev.f:c              print *,'for slowness:',xnu(k,1),', disp-stress vector'
+aniprop_subroutines_dev.f:c              print 103,(ee(j,k,1),j=1,6)
+aniprop_subroutines_dev.f:        print *,'tql2 error',ierr
+aniprop_subroutines_dev.f:c              print *,k,kk
+aniprop_subroutines_dev.f:c              print *,'xxnu,xnu(kk),xnu(k)',xxnu,xnu(kk,il),xnu(k,il)
+aniprop_subroutines_dev.f:c              print *,'(pfac(k,i),i=1,3)',(pfac(k,i),i=1,3)
+aniprop_subroutines_dev.f:c              print *,'h1,h2',h1,h2
+aniprop_subroutines_dev.f:c              print *,'(pfac(kk,i),i=1,3)',(pfac(kk,i),i=1,3)
+aniprop_subroutines_dev.f:c      print *,k,kk,uu,xxnu,a,d
+aniprop_subroutines_dev.f:c      print *,'dci31',dci31
+aniprop_subroutines_dev.f:c      print *,'dci32',dci32
+aniprop_subroutines_dev.f:c      print *,'dci3',dci3
+aniprop_subroutines_dev.f:c      print *,'dci4',dci4
+aniprop_subroutines_dev.f:c        print *,k,kk
+aniprop_subroutines_dev.f:c        print *,ci1,ci2,ci3
+aniprop_subroutines_dev.f:c        print *,dci1,dci2,dci3
+aniprop_subroutines_dev.f:c        print *,xxnu,uu,wuk,wukk
+aniprop_subroutines_dev.f:c      print *,'ci1',ci1
+aniprop_subroutines_dev.f:c      print *,'ci2',ci2
+aniprop_subroutines_dev.f:c      print *,'ci3',ci3
+aniprop_subroutines_dev.f:c      print *,'ci4',ci4
+aniprop_subroutines_dev.f:c        print *,'final',ci1,ci2,ci3
+aniprop_subroutines_dev.f:c        print *,cc,gv,om,vbar
+aniprop_subroutines_dev.f:c        print *,cvel,gvel
+aniprop_subroutines_dev.f:c      print 106,cvel,gvel
+aniprop_subroutines_dev.f:c      print *,nl,cc,om
+aniprop_subroutines_dev.f:c              print *,'for slowness:',xnu(k,1),', disp-stress vector'
+aniprop_subroutines_dev.f:c              print 103,(ee(j,k,1),j=1,6)
+aniprop_subroutines_dev.f:        print *,'tql2 error',ierr
+aniprop_subroutines_dev.f:c      print 101, i,j
+aniprop_subroutines_dev.f:c      print 102,i
+aniprop_subroutines_dev.f:c      print 103, (i,x(i),i=1,n)
+aniprop_subroutines_dev.f:c      print 103,(i,y(i),i=1,n)
+aniprop_subroutines_dev.f:c      print 101,((i,j,a(i,j),j=1,n),i=1,n)
+aniprop_subroutines_dev.f:c      print 102,(ip(i),i=1,n)
+aniprop_subroutines_dev.f:  400 print 101,aam,i,n                                                           
+aniprop_subroutines_dev.f:  400 print 101,aam,i,n
+aniprop_subroutines_dev.f:        print *,'comqr2 error',ierr
+aniprop_subroutines_dev.f:c      print *,wr(1),wi(1)
+aniprop_subroutines_dev.f:c        print *,wr(ii),wi(ii)
+aniprop_subroutines_dev.f:c      print 101,(co(i,1),i=1,3)
+aniprop_subroutines_dev.f:c        print 101,(co(i+3,n),i=1,3)
+aniprop_subroutines_dev.f:c        print 101,(co(i,n+1),i=1,3)
+aniprop_subroutines_dev.f:c      print *,zzz
+aniprop_subroutines_dev.f:c      print *,(ur(i),i=1,3)
+aniprop_subroutines_dev.f:c      print *,(usz(i),i=1,3)
+aniprop_subroutines_dev.f:c      print *,(usx(i),i=1,3)
+aniprop_subroutines.f:c        print *,(w(j,i),j=1,3)
+aniprop_subroutines.f:c  print the organ-pipe mode count for 1Hz
+aniprop_subroutines.f:c      print *, 'organ-pipe mode count at 1 Hz in stack of layers: S & P'
+aniprop_subroutines.f:c      print 104,sn,pn
+aniprop_subroutines.f:c      print *,'ntry',ntry
+aniprop_subroutines.f:c      print *,cmin,cmax,' =cmin,cmax'
+aniprop_subroutines.f:c      print *,(vss(j),j=1,nlp+1)
+aniprop_subroutines.f:c            print *,iter,cccc,zz
+aniprop_subroutines.f:c      print *,nroot,' = nroot'
+aniprop_subroutines.f:c          print *,roota(i),rootb(i)
+aniprop_subroutines.f:c          print *,roota(i),rootb(i)
+aniprop_subroutines.f:c            print *,'at f=',f,'Hz'
+aniprop_subroutines.f:c            print *,' in cvel interval',ra,rb
+aniprop_subroutines.f:c            print *,nxroot,' expected, but',nmm,' roots found'
+aniprop_subroutines.f:c              print *,'***!'
+aniprop_subroutines.f:c        print *,kroots(ifrq),' = nroot,', ntrval,' = ntrval  at f=',f
+aniprop_subroutines.f:c      print *,'output: nfrq,frqmax,cmn,cmx',nfrq,frqmax,cmn,cmx
+aniprop_subroutines.f:c      print *,'maxbr:',maxbr
+aniprop_subroutines.f:c      print *,(nc(i),i=1,10)
+aniprop_subroutines.f:        if(iter.ge.99) print *,cc,iter,zz
+aniprop_subroutines.f:c        print *,'failed?',cc,iter,zz
+aniprop_subroutines.f:c        print *,'recalculated',cc,zz
+aniprop_subroutines.f:c          print *,'failed again',cc,zz
+aniprop_subroutines.f:c        print *,'a,b,c,d,e',a,b,c,d,e
+aniprop_subroutines.f:c        print 101,(w(i,n),i=1,3)
+aniprop_subroutines.f:c        print 101,fact,facs,facr
+aniprop_subroutines.f:c        print *,'t,s,r'
+aniprop_subroutines.f:c        print 101,((t(i,j),j=1,3),i=1,3)
+aniprop_subroutines.f:c        print 101,((s(i,j),j=1,3),i=1,3)
+aniprop_subroutines.f:c        print 101,((r(i,j),j=1,3),i=1,3)
+aniprop_subroutines.f:          print *, ierr,'   error!'
+aniprop_subroutines.f:c        print *,'for layer',n
+aniprop_subroutines.f:c        print *, 'for phase velocity',cc,'  the vertical wavenumbers are'
+aniprop_subroutines.f:c        print 101,(wr(i),wi(i),i=1,6)
+aniprop_subroutines.f:c        print *,'for layer',n,'  the vert wavenums are (0=up,1=dn)'
+aniprop_subroutines.f:c          print *,'for i*k_z:',xnu(i,n),', the disp-stress vector is'
+aniprop_subroutines.f:c          print 101,(xr(j),j=1,6),(xi(j),j=1,6)
+aniprop_subroutines.f:c              print 1008,'vert wavenumbers',xnu(i,n),' and',xnu(j,n)
+aniprop_subroutines.f:c              print *,i,j,n,ccc,qqq,adf(1,n)
+aniprop_subroutines.f:c              print 1008,'vert wavenumbers',xnu(i,n),' and',xnu(j,n)
+aniprop_subroutines.f:c              print *,i,j,n,ccc,qqq,adf(2,n)
+aniprop_subroutines.f:c        print 1002,xnu(i,3),xl(i,3)
+aniprop_subroutines.f:c	print *,'zzget one'
+aniprop_subroutines.f:c      print *,'zzget two ',idfct(3,1)
+aniprop_subroutines.f:c        print 1111,(s(i,k),t(i,k),i=1,3)
+aniprop_subroutines.f:c      print *,'in defective'
+aniprop_subroutines.f: 400  print *,'eispack error'
+aniprop_subroutines.f:c      print *,nl,cc,om
+aniprop_subroutines.f:c              print *,'for slowness:',xnu(k,1),', disp-stress vector'
+aniprop_subroutines.f:c              print 103,(ee(j,k,1),j=1,6)
+aniprop_subroutines.f:        print *,'tql2 error',ierr
+aniprop_subroutines.f:c              print *,k,kk
+aniprop_subroutines.f:c              print *,'xxnu,xnu(kk),xnu(k)',xxnu,xnu(kk,il),xnu(k,il)
+aniprop_subroutines.f:c              print *,'(pfac(k,i),i=1,3)',(pfac(k,i),i=1,3)
+aniprop_subroutines.f:c              print *,'h1,h2',h1,h2
+aniprop_subroutines.f:c              print *,'(pfac(kk,i),i=1,3)',(pfac(kk,i),i=1,3)
+aniprop_subroutines.f:c      print *,k,kk,uu,xxnu,a,d
+aniprop_subroutines.f:c      print *,'dci31',dci31
+aniprop_subroutines.f:c      print *,'dci32',dci32
+aniprop_subroutines.f:c      print *,'dci3',dci3
+aniprop_subroutines.f:c      print *,'dci4',dci4
+aniprop_subroutines.f:c        print *,k,kk
+aniprop_subroutines.f:c        print *,ci1,ci2,ci3
+aniprop_subroutines.f:c        print *,dci1,dci2,dci3
+aniprop_subroutines.f:c        print *,xxnu,uu,wuk,wukk
+aniprop_subroutines.f:c      print *,'ci1',ci1
+aniprop_subroutines.f:c      print *,'ci2',ci2
+aniprop_subroutines.f:c      print *,'ci3',ci3
+aniprop_subroutines.f:c      print *,'ci4',ci4
+aniprop_subroutines.f:c        print *,'final',ci1,ci2,ci3
+aniprop_subroutines.f:c        print *,cc,gv,om,vbar
+aniprop_subroutines.f:c        print *,cvel,gvel
+aniprop_subroutines.f:c      print 106,cvel,gvel
+aniprop_subroutines_old.f:        print *,(w(j,i),j=1,3)
+aniprop_subroutines_old.f:c  print the organ-pipe mode count for 1Hz
+aniprop_subroutines_old.f:c      print *, 'organ-pipe mode count at 1 Hz in stack of layers: S & P'
+aniprop_subroutines_old.f:c      print 104,sn,pn
+aniprop_subroutines_old.f:c      print *,'ntry',ntry
+aniprop_subroutines_old.f:c      print *,cmin,cmax,' =cmin,cmax'
+aniprop_subroutines_old.f:c      print *,(vss(j),j=1,nlp+1)
+aniprop_subroutines_old.f:c            print *,iter,cccc,zz
+aniprop_subroutines_old.f:c      print *,nroot,' = nroot'
+aniprop_subroutines_old.f:c          print *,roota(i),rootb(i)
+aniprop_subroutines_old.f:c          print *,roota(i),rootb(i)
+aniprop_subroutines_old.f:c            print *,'at f=',f,'Hz'
+aniprop_subroutines_old.f:c            print *,' in cvel interval',ra,rb
+aniprop_subroutines_old.f:c            print *,nxroot,' expected, but',nmm,' roots found'
+aniprop_subroutines_old.f:c              print *,'***!'
+aniprop_subroutines_old.f:c        print *,kroots(ifrq),' = nroot,', ntrval,' = ntrval  at f=',f
+aniprop_subroutines_old.f:c      print *,'output: nfrq,frqmax,cmn,cmx',nfrq,frqmax,cmn,cmx
+aniprop_subroutines_old.f:c      print *,'maxbr:',maxbr
+aniprop_subroutines_old.f:c      print *,(nc(i),i=1,10)
+aniprop_subroutines_old.f:c        if(iter.ge.99) print *,cc,iter,zz
+aniprop_subroutines_old.f:c        print *,'failed?',cc,iter,zz
+aniprop_subroutines_old.f:c        print *,'a,b,c,d,e',a,b,c,d,e
+aniprop_subroutines_old.f:c        print 101,(w(i,n),i=1,3)
+aniprop_subroutines_old.f:c        print 101,fact,facs,facr
+aniprop_subroutines_old.f:c        print *,'t,s,r'
+aniprop_subroutines_old.f:c        print 101,((t(i,j),j=1,3),i=1,3)
+aniprop_subroutines_old.f:c        print 101,((s(i,j),j=1,3),i=1,3)
+aniprop_subroutines_old.f:c        print 101,((r(i,j),j=1,3),i=1,3)
+aniprop_subroutines_old.f:          print *, ierr,'   error!'
+aniprop_subroutines_old.f:c        print *,'for layer',n
+aniprop_subroutines_old.f:c        print *, 'for phase velocity',cc,'  the vertical wavenumbers are'
+aniprop_subroutines_old.f:c        print 101,(wr(i),wi(i),i=1,6)
+aniprop_subroutines_old.f:c        print *,'for layer',n,'  the vert wavenums are (0=up,1=dn)'
+aniprop_subroutines_old.f:c          print *,'for i*k_z:',xnu(i,n),', the disp-stress vector is'
+aniprop_subroutines_old.f:c          print 101,(xr(j),j=1,6),(xi(j),j=1,6)
+aniprop_subroutines_old.f:c              print 1008,'vert wavenumbers',xnu(i,n),' and',xnu(j,n)
+aniprop_subroutines_old.f:c              print *,i,j,n,ccc,qqq,adf(1,n)
+aniprop_subroutines_old.f:c              print 1008,'vert wavenumbers',xnu(i,n),' and',xnu(j,n)
+aniprop_subroutines_old.f:c              print *,i,j,n,ccc,qqq,adf(2,n)
+aniprop_subroutines_old.f:c        print 1002,xnu(i,3),xl(i,3)
+aniprop_subroutines_old.f:c	print *,'zzget one'
+aniprop_subroutines_old.f:c      print *,'zzget two ',idfct(3,1)
+aniprop_subroutines_old.f:c        print 1111,(s(i,k),t(i,k),i=1,3)
+aniprop_subroutines_old.f:c      print *,'in defective_aniprop'
+aniprop_subroutines_old.f: 400  print *,'eispack error'
+aniprop_subroutines_old.f:c      print *,nl,cc,om
+aniprop_subroutines_old.f:c              print *,'for slowness:',xnu(k,1),', disp-stress vector'
+aniprop_subroutines_old.f:c              print 103,(ee(j,k,1),j=1,6)
+aniprop_subroutines_old.f:        print *,'tql2 error',ierr
+aniprop_subroutines_old.f:c              print *,k,kk
+aniprop_subroutines_old.f:c              print *,'xxnu,xnu(kk),xnu(k)',xxnu,xnu(kk,il),xnu(k,il)
+aniprop_subroutines_old.f:c              print *,'(pfac(k,i),i=1,3)',(pfac(k,i),i=1,3)
+aniprop_subroutines_old.f:c              print *,'h1,h2',h1,h2
+aniprop_subroutines_old.f:c              print *,'(pfac(kk,i),i=1,3)',(pfac(kk,i),i=1,3)
+aniprop_subroutines_old.f:c      print *,k,kk,uu,xxnu,a,d
+aniprop_subroutines_old.f:c      print *,'dci31',dci31
+aniprop_subroutines_old.f:c      print *,'dci32',dci32
+aniprop_subroutines_old.f:c      print *,'dci3',dci3
+aniprop_subroutines_old.f:c      print *,'dci4',dci4
+aniprop_subroutines_old.f:c        print *,k,kk
+aniprop_subroutines_old.f:c        print *,ci1,ci2,ci3
+aniprop_subroutines_old.f:c        print *,dci1,dci2,dci3
+aniprop_subroutines_old.f:c        print *,xxnu,uu,wuk,wukk
+aniprop_subroutines_old.f:c      print *,'ci1',ci1
+aniprop_subroutines_old.f:c      print *,'ci2',ci2
+aniprop_subroutines_old.f:c      print *,'ci3',ci3
+aniprop_subroutines_old.f:c      print *,'ci4',ci4
+aniprop_subroutines_old.f:c        print *,'final',ci1,ci2,ci3
+aniprop_subroutines_old.f:c        print *,cc,gv,om,vbar
+aniprop_subroutines_old.f:c        print *,cvel,gvel
+aniprop_subroutines_old.f:c      print 106,cvel,gvel
+rf_aniso_subroutines.f:c      print *, 'enter maximum frequency'
+rf_aniso_subroutines.f:c      print *, 'frqmax', frqmax, 'nfrq', nfrq
+rf_aniso_subroutines.f:c  print the organ-pipe mode count for 1Hz
+rf_aniso_subroutines.f:c      print *, 'organ-pipe mode count at 1 Hz in stack of layers: S & P'
+rf_aniso_subroutines.f:c      print 104,sn,pn
+rf_aniso_subroutines.f:c      print *,'minimum phase velocity for S wave (km/sec)',csmin
+rf_aniso_subroutines.f:c      print *,'minimum phase velocity for P wave (km/sec)',cpmin
+rf_aniso_subroutines.f:c      print *,'enter phase velocity of incident wave (km/sec)'
+rf_aniso_subroutines.f:c       iprint = 1
+rf_aniso_subroutines.f:c        print *,'a,b,c,d,e',a,b,c,d,e
+rf_aniso_subroutines.f:c        print 101,(w(i,n),i=1,3)
+rf_aniso_subroutines.f:c        print 101,fact,facs,facr
+rf_aniso_subroutines.f:c        print *,'t,s,r'
+rf_aniso_subroutines.f:c        print 101,((t(i,j),j=1,3),i=1,3)
+rf_aniso_subroutines.f:c        print 101,((s(i,j),j=1,3),i=1,3)
+rf_aniso_subroutines.f:c        print 101,((r(i,j),j=1,3),i=1,3)
+rf_aniso_subroutines.f:          print *, ierr,'   error!'
+rf_aniso_subroutines.f:c        print *,'for layer',n
+rf_aniso_subroutines.f:c        print *, 'for phase velocity',cc,'  the vertical slownesses are'
+rf_aniso_subroutines.f:c        print 101,(wr(i),wi(i),i=1,6)
+rf_aniso_subroutines.f:c        print *,'for layer',n,'  the vert wavenums are (0=up,1=dn)'
+rf_aniso_subroutines.f:c              print 1008,'vert slownesses',xnu(i,n),' and',xnu(j,n)
+rf_aniso_subroutines.f:c              print *,i,j,n,ccc,qqq,adf(1,n)
+rf_aniso_subroutines.f:c              print 1008,'vert slownesses',xnu(i,n),' and',xnu(j,n)
+rf_aniso_subroutines.f:c              print *,i,j,n,ccc,qqq,adf(2,n)
+rf_aniso_subroutines.f:c      print *,'in the halfspace:'
+rf_aniso_subroutines.f:c        print *,'for i*k_z=',xnu(i,nlp),', the disp-stress vector is'
+rf_aniso_subroutines.f:c        print 101,(xr(j),j=1,6),(xi(j),j=1,6)
+rf_aniso_subroutines.f:c      print *,'wave types:',(ips(i),i=1,3)        
+rf_aniso_subroutines.f:c        print 1002,xnu(i,3),xl(i,3)
+rf_aniso_subroutines.f:c      print *,'free-surface reflection'
+rf_aniso_subroutines.f:c      print 1001,((rt0(i,j),j=1,3),i=1,3)
+rf_aniso_subroutines.f:c        print *,'interface',n
+rf_aniso_subroutines.f:c        print 1001,((rt(i,j,n),j=1,3),i=1,3)
+rf_aniso_subroutines.f:c        print 1001,((tt(i,j,n),j=1,3),i=1,3)
+rf_aniso_subroutines.f:c        print *,'upgoing coefs'
+rf_aniso_subroutines.f:c        print 1001,((co(j+3,n),j=1,3),n=1,nlp)
+rf_aniso_subroutines.f:c        print *,'downgoing coefs'
+rf_aniso_subroutines.f:c        print 1001,((co(j,n),j=1,3),n=1,nlp)
+rf_aniso_subroutines.f: 400  print *,'eispack error'
+rf_aniso_subroutines.f:c      print 101, i,j
+rf_aniso_subroutines.f:c      print 102,i
+rf_aniso_subroutines.f:c      print 103, (i,x(i),i=1,n)
+rf_aniso_subroutines.f:c      print 103,(i,y(i),i=1,n)
+util_subroutines.f:c  400 print 101,aam,i 
+util_subroutines.f:c  400 print 101,aam,i    
+util_subroutines.f:c      print 101,((i,j,a(i,j),j=1,n),i=1,n)
+util_subroutines_old.f:c  400 print 101,aam,i 
+util_subroutines_old.f:c  400 print 101,aam,i    
+util_subroutines_old.f:c      print 101,((i,j,a(i,j),j=1,n),i=1,n)

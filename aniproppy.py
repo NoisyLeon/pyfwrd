@@ -77,7 +77,8 @@ class aniprop_solver(object):
         self.model.aniprop_check_model()
         if self.model.flat == 1:
             z, rho, vp0, vp2, vp4, vs0, vs2 = self.model.layer_aniprop_model(self.dArr, 200, 1.)
-            self.dip, self.strike = self.model.angles_aniprop_model(z)
+            if self.model.tilt == 1:
+                self.dip, self.strike = self.model.angles_aniprop_model(z)
             self.z = z
             self.rho=rho
             self.vp0=vp0
@@ -114,15 +115,17 @@ class aniprop_solver(object):
             vs0     *= 1000.
             ##########################################
             nl      = z.size - 1
-            theta   = self.dip
-            phig    = np.zeros(nl+1, dtype=np.float32)
-            phig[self.dip>0.]  = self.strike[self.dip>0.] + 270.
-            # phig[phig>=360.] = phig[phig>=360.] - 360.
-            # theta   = np.zeros(nl+1, dtype=np.float32)
-            # phig    = np.zeros(nl+1, dtype=np.float32)
+            if self.model.tilt == 1:
+                theta               = self.dip
+                phig                = np.zeros(nl+1, dtype=np.float32)
+                phig[self.dip>0.]   = self.strike[self.dip>0.] + 270.
+                phig[phig>=360.]    = phig[phig>=360.] - 360.
+            else:
+                theta   = np.zeros(nl+1, dtype=np.float32)
+                phig    = np.zeros(nl+1, dtype=np.float32)
             # baz     = 0.
             ###########################################
-            print phig
+            # print phig
             Rphase,Rgroup,Lphase,Lgroup,Period = aniprop.aniprop_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
         else:
             zl      *= 1000.

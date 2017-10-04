@@ -199,6 +199,48 @@ def layer_aniprop_model_sph(inmodel, dArr, nl, dh, ilvry):
     # total number of layers
     nl      = a.size
     # depth to each interface
+    z       = zArr
+    # model parameters
+    rho     = TRho_out
+    vp0     = np.sqrt(a/TRho_out)
+    vp2     = b/a
+    vp4     = c/a
+    vs0     = np.sqrt(d/TRho_out)
+    vs2     = e/d
+    return z, rho, vp0, vp2, vp4, vs0, vs2
+
+
+def layer_aniprop_model_sph_0(inmodel, dArr, nl, dh, ilvry):
+    """
+    Get the flattening transformed layerized model
+    ===================================================================
+    ::: input parameters ::::
+    inmodel - input model1d object
+    dArr    - numpy array of layer thickness (unit - km)
+    nl      - number of layers 
+    dh      - thickness of each layer (unit - km)
+    ilvry   - 1 - Love wave; 2 - Rayleigh wave
+    ===================================================================
+    """
+    # get the layerized model
+    dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = inmodel.get_layer_model(dArr, nl, dh)
+    verby       = False
+    nl_in       = rhoArr.size
+    # Earth flattening transformation
+    d_out,TA_out,TC_out,TF_out,TL_out,TN_out,TRho_out=tdisp96.flat2sphere(ilvry, 1., 1, 1, verby, \
+                1, np.append(10., np.zeros(2048)), -1.,-1., dArr,AArr,CArr,FArr,LArr,NArr,rhoArr,nl_in, 0., 1, 0.5, 0.5)
+    # convert layrized model to input model for aniprop
+    zArr    = d_out.cumsum()   
+    a       = (3.*TA_out + 3.*TC_out + 2.*TF_out + 4.*TL_out)/8.
+    b       = 0.5*(TC_out - TA_out)
+    c       = (TA_out + TC_out - 2.*TF_out - 4.*TL_out)/8.
+    d       = 0.5*(TN_out + TL_out)
+    e       = 0.5*(TL_out - TN_out)
+    if np.any(e>0.0001):
+        raise ValueError('aniprop does not accept L > N !')
+    # total number of layers
+    nl      = a.size
+    # depth to each interface
     z       = np.zeros(nl+1, dtype=np.float32)
     z[1:]   = zArr
     z[0]    = 0.
@@ -2144,6 +2186,41 @@ class model1d(object):
     # functions for layerized model as input for aniprop
     #####################################################################
     def layer_aniprop_model(self, dArr, nl, dh):
+        """
+        Get layrized model for aniprop
+        ===================================================================================
+        ::: ::: input parameters ::: :::
+        dArr            - numpy array of layer thickness (unit - km)
+        nl              - number of layers 
+        dh              - thickness of each layer (unit - km)
+        nl and dh will be used if and only if dArr.size = 0
+        ::: Output :::
+        z               - depth array to interfaces (unit - km)
+        rho             - density array (unit - g/cm^3)
+        vp0, vp2, vp4   - P wave velocity and corresponding 2psi/4psi relative perturnation
+        vs0, vs2        - S wave velocity and corresponding 2psi relative perturnation
+        ===================================================================================
+        """
+        dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.get_layer_model(dArr, nl, dh)
+        zArr    = dArr.cumsum()
+        # Get the a,b,c,d,e arrays
+        a       = (3.*AArr + 3.*CArr + 2.*FArr + 4.*LArr)/8.
+        b       = 0.5*(CArr - AArr)
+        c       = (AArr + CArr - 2.*FArr - 4.*LArr)/8.
+        d       = 0.5*(NArr + LArr)
+        e       = 0.5*(LArr - NArr)
+        # total number of laryers
+        nl      = a.size
+        z       = zArr
+        rho     = rhoArr
+        vp0     = np.sqrt(a/rhoArr)
+        vp2     = b/a
+        vp4     = c/a
+        vs0     = np.sqrt(d/rhoArr)
+        vs2     = e/d
+        return z, rho, vp0, vp2, vp4, vs0, vs2
+    
+    def layer_aniprop_model_0(self, dArr, nl, dh):
         """
         Get layrized model for aniprop
         ===================================================================================

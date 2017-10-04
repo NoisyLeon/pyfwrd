@@ -34,7 +34,6 @@ c  back transform with upper triangular matrix
   320 di(i)=(dii*zkk1-dri*zkk2)/uii
       return
       end
-      
  
       subroutine bcktr(n1,z,dr,er,ip)
 c  performs backtransform on input vector er - 'y'
@@ -62,7 +61,6 @@ c  back transform with upper triangular matrix
       return
       end
 
-
       subroutine lup(n,a,ip)
 c  finds lu decomp of a using partial pivoting         
 c  output in c (upper triangle/unit lower triangle) and                      
@@ -70,7 +68,7 @@ c  pivoting sequence returned in ip(n)
       implicit real*8 (a-h,o-z)                                                 
       implicit integer*4 (i-n)                                                  
       dimension a(n,1),ip(1)                             
-      tol=1.d-17                                                                
+      tol=1.d-14                                                                
       do 50 i=1,n
    50 ip(i)=i                                                                   
       nm1=n-1                                                                   
@@ -101,11 +99,11 @@ c  if victim index is already zero, dont bother to rub it out
   100 continue                                                                  
   700 continue              
       return                                                                    
-  400 print 101,aam,i,n                                                           
-  101 format('near-zero pivot in lup ',e12.5,'  on column',i3,' of',i3)                         
+c  400 print 101,aam,i 
+  400 nooutput=1
+  101 format('near-zero pivot ',e12.5,'  on column',i3)                         
       stop
-      end                                       
-
+      end               
 
         subroutine clup(n,a,ai,ip)                                    
 c  finds lu decomp of a+i*ai using partial pivoting 
@@ -113,7 +111,7 @@ c  pivoting sequence returned in ip(n)
       implicit real*8 (a-h,o-z)                                                 
       implicit integer*4 (i-n)                                                  
       dimension a(n,1),ai(n,1),ip(1)                             
-      tol=1.d-17                                                                
+      tol=1.d-14                                                                
 c  initialize permutation vector                                                
       do 50 i=1,n
    50 ip(i)=i                                                                   
@@ -147,13 +145,13 @@ c  if victim index is already zero, dont bother to rub it out
   100 continue                                                                  
   700 continue                                                                  
       return                                                                    
-  400 print 101,aam,i,n
-  101 format('near-zero pivot in clup ',e12.5,'  on column',i3,' of',i3)                         
+c  400 print 101,aam,i    
+  400 nooutput=1
+  101 format('near-zero pivot ',e12.5,'  on column',i3)                         
       stop                                                                 
-      end                         
-   
+      end      
 
-            subroutine solve(nn,a,x,y)
+      subroutine solve(nn,a,x,y)
 c  solves the nxn system of equations a*x=y using gaussian elimination 
 c  and partial pivoting
 c  if n<0 the lu decomposition is already done
@@ -170,12 +168,11 @@ c  note that the matrix a is modified
       endif
 c      print 101,((i,j,a(i,j),j=1,n),i=1,n)
 c  101 format(' a(',2i2,')=',e15.5)
-c      print 102,(ip(i),i=1,n)
+c      type 102,(ip(i),i=1,n)
 c  102 format(10i5)
       call bcktr(n,a,x,y,ip)
       return
       end
-
                                                         
       subroutine csolve(nn,a,ai,x,xi,y,yi)
 c  solves the complex nxn system of equations a*x=y using gaussian elimination 
@@ -192,7 +189,6 @@ c  and partial pivoting
       call cbcktr(n,a,ai,x,xi,y,yi,ip)
       return
       end
-
  
       function dsind(dgr_argument)
       real*8 dsind,dgr_argument

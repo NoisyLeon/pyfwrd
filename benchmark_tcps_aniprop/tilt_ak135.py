@@ -50,8 +50,10 @@ m.flat=1
 # 
 # # m.add_perturb_layer_love(0, 20., 4, -0.1, True)
 # # m.add_perturb_layer_love(0, 20., 3, -0.3, True)
-# 
-m.add_perturb_layer_love(0, 20., 3, -0.05, True)
+#
+m.add_perturb_layer_love(0, 20., 0, -0.1, True)
+m.add_perturb_layer_love(0, 20., 3, -0.1, True)
+m.add_perturb_layer_love(0, 20., 4, 0.1, True)
 tcpsR0 = tcps.tcps_solver(m)
 tcpsR0.init_default()
 tcpsR0.solve_PSV()
@@ -62,8 +64,8 @@ tcpsL0.solve_SH()
 
 
 m.init_tilt()
-m.dipArr[-1] = 70.; m.dipArr[-2] = 70.
-m.strikeArr[-1] = -270.; m.strikeArr[-2] = -270.
+m.dipArr[-1] = 45.; m.dipArr[-2] = 45.
+m.strikeArr[-1] = 5.; m.strikeArr[-2] = 5.
 
 m.rot_dip_strike()
 m.decompose()
@@ -73,8 +75,8 @@ tcpsR.init_default()
 tcpsR.solve_PSV()
 # 
 CR1  = []
-for baz in np.arange(36)*10.+5.:
-    tcpsR.azi_perturb(baz)
+for baz in np.arange(36)*10.:
+    tcpsR.psv_azi_perturb(baz)
     CR1.append(tcpsR.VphA[1])
 # # 
 # plt.plot(np.arange(36)*10., CR1, '^', ms=5)
@@ -91,15 +93,22 @@ ani  = aniproppy.aniprop_solver(m)
 ani.init_default_2()
 # # ani.init_default(nl=100, dh=2.)
 # ani.solve_surf(baz=0.)
-
+# print 'Start'
+# ani.solve_surf(baz=80.)
+# print 'End'
+# 
 CR2  = []
-for baz in np.arange(35)*10.:
+for baz in np.arange(36)*10.:
     print baz
+    # if baz != 80.:
     ani.solve_surf(baz=baz)
     CR2.append(ani.CR[1])
-    
+
+CR1 = np.array(CR1)
+CR2 = np.array(CR2)
+
 plt.plot(np.arange(36)*10., CR1, 'o', ms=5)
-plt.plot(np.arange(35)*10., CR2, '^', ms=5)
+plt.plot(np.arange(36)*10., CR2, '^', ms=5)
 plt.plot(np.arange(36)*10., tcpsR0.Vph[1]*np.ones(36), 'x', ms=5)
 
 plt.show()

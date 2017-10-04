@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 m=vmodel.model1d()
 m.model_ak135_cps()
-m.flat=0
+m.flat=1
 
 tcpsR = tcps.tcps_solver(m)
 tcpsR.init_default()
@@ -33,7 +33,7 @@ tcpsL.solve_SH()
 ani  = aniproppy.aniprop_solver(m)
 # ani.init_default(nl=50, dh=4.)
 ani.init_default_2()
-ani.solve_surf()
+ani.solve_surf(0.)
 
 
 # 
