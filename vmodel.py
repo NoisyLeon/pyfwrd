@@ -2462,6 +2462,7 @@ class model1d(object):
             CijETI[5,:]     = np.array([0., 0., 0., 0., 0., N])
             self.CijAA[:,:,i]   = self.CijArr[:,:, i] - CijETI
             CijAA               = self.CijAA[:,:,i]
+            # # # CijAA               = self.CijArr[:,:, i]
             self.AArrE[i]       = A
             self.CArrE[i]       = C
             self.FArrE[i]       = F

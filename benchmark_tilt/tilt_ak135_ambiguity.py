@@ -41,64 +41,95 @@ import vmodel
 import numpy as np
 import matplotlib.pyplot as plt
 
-m=vmodel.model1d()
-m.model_ak135_cps()
-m.flat=1
-# 
-
-# # model perturbation: isotropic -> VTI
-# 
-# # m.add_perturb_layer_love(0, 20., 4, -0.1, True)
-# # m.add_perturb_layer_love(0, 20., 3, -0.3, True)
+m1=vmodel.model1d()
+m1.model_ak135_cps()
+m1.flat=1
 #
-m.add_perturb_layer_love(0, 20., 0, -0.1, True)
-m.add_perturb_layer_love(0, 20., 3, -0.1, True)
-m.add_perturb_layer_love(0, 20., 4, 0.1, True)
-tcpsR0 = tcps.tcps_solver(m)
-tcpsR0.init_default()
-tcpsR0.solve_PSV()
+# m1.add_perturb_layer(0, 20., 0, 3.57, False)
+# m1.add_perturb_layer(0, 20., 1, 3.74, False)
+# m1.add_perturb_layer(0, 20., 2, 6.14, False)
+# m1.add_perturb_layer(0, 20., 3, 6.52, False)
+# m1.add_perturb_layer(0, 20., 4, 0.87, False)
+# m1.add_perturb_layer(0, 20., 5, 2.79, False)
 
-m.init_tilt()
+m1.add_perturb_layer(0, 20., 0, 3.494, False)
+m1.add_perturb_layer(0, 20., 1, 3.702, False)
+m1.add_perturb_layer(0, 20., 2, 5.94, False)
+m1.add_perturb_layer(0, 20., 3, 6.28, False)
+m1.add_perturb_layer(0, 20., 4, 0.82, False)
+m1.add_perturb_layer(0, 20., 5, 2.73, False)
 
-m.dipArr[-1] = 45; m.dipArr[-2] = 45
-m.strikeArr[-1] = 0.; m.strikeArr[-2] = 0.
+# m1.add_perturb_layer(0, 20., 0, 0.003, True)
+# m1.add_perturb_layer(0, 20., 1, 0.02, True)
 
-m.rot_dip_strike()
-m.decompose()
+
+
+m1.init_tilt()
+
+m1.dipArr[-1] = 34; m1.dipArr[-2] = 34
+m1.strikeArr[-1] = 20; m1.strikeArr[-2] = 20
+
+m1.rot_dip_strike()
+m1.decompose()
+###########################################
+m2=vmodel.model1d()
+m2.model_ak135_cps()
+m2.flat=1
+#
+# m2.add_perturb_layer(0, 20., 0, 3.54, False)
+# m2.add_perturb_layer(0, 20., 1, 3.72, False)
+# m2.add_perturb_layer(0, 20., 2, 6.15, False)
+# m2.add_perturb_layer(0, 20., 3, 6.47, False)
+# m2.add_perturb_layer(0, 20., 4, 0.74, False)
+# m2.add_perturb_layer(0, 20., 5, 2.79, False)
+
+m2.add_perturb_layer(0, 20., 0, 3.45, False)
+m2.add_perturb_layer(0, 20., 1, 3.61, False)
+m2.add_perturb_layer(0, 20., 2, 6.06, False)
+m2.add_perturb_layer(0, 20., 3, 6.24, False)
+m2.add_perturb_layer(0, 20., 4, 0.72, False)
+m2.add_perturb_layer(0, 20., 5, 2.73, False)
+
+
+m2.init_tilt()
+m2.dipArr[-1] = 27; m2.dipArr[-2] = 27
+m2.strikeArr[-1] = 110; m2.strikeArr[-2] = 110
+
+m2.rot_dip_strike()
+m2.decompose()
+
 # 
-tcpsR1 = tcps.tcps_solver(m)
+tcpsR1 = tcps.tcps_solver(m1)
 tcpsR1.init_default()
 tcpsR1.solve_PSV()
+
+# 
+tcpsR2 = tcps.tcps_solver(m2)
+tcpsR2.init_default()
+tcpsR2.solve_PSV()
+
 # 
 CR1  = []
 for baz in np.arange(360)*1.:
-    tcpsR1.psv_azi_perturb(baz)
+    tcpsR1.psv_azi_perturb(baz, True)
     CR1.append(tcpsR1.VphA[1])
 
 CR2  = []
 for baz in np.arange(360)*1.:
-    tcpsR1.psv_azi_perturb_2theta(baz)
+    tcpsR1.psv_azi_perturb(baz)
     CR2.append(tcpsR1.VphA[1])
     
-m.init_tilt()
-m.dipArr[-1] = 45.; m.dipArr[-2] = 45.
-m.strikeArr[-1] = 90.; m.strikeArr[-2] = 90.
 
-m.rot_dip_strike()
-m.decompose()
-# 
-tcpsR2 = tcps.tcps_solver(m)
-tcpsR2.init_default()
-tcpsR2.solve_PSV()
+
 # 
 CR3  = []
 for baz in np.arange(360)*1.:
-    tcpsR2.psv_azi_perturb(baz)
+    tcpsR2.psv_azi_perturb(baz, True)
     CR3.append(tcpsR2.VphA[1])
 
 CR4  = []
 for baz in np.arange(360)*1.:
-    tcpsR2.psv_azi_perturb_2theta(baz)
+    tcpsR2.psv_azi_perturb(baz)
     CR4.append(tcpsR2.VphA[1])
 
 
@@ -108,10 +139,10 @@ CR2 = np.array(CR2)
 CR3 = np.array(CR3)
 CR4 = np.array(CR4)
 
-plt.plot(np.arange(360)*1., CR1, 'o', ms=5)
-plt.plot(np.arange(360)*1., CR2, '^', ms=5)
-plt.plot(np.arange(360)*1., CR3, 'o', ms=5)
-plt.plot(np.arange(360)*1., CR4, '^', ms=5)
-plt.plot(np.arange(360)*1., tcpsR2.Vph[1]*np.ones(360), 'x', ms=5)
+# plt.plot(np.arange(360)*1., CR1, 'o', ms=5)
+plt.plot(np.arange(360)*1., CR2, 'ro', ms=10)
+# plt.plot(np.arange(360)*1., CR3, 'o', ms=5)
+plt.plot(np.arange(360)*1., CR4, 'b^', ms=8)
+# plt.plot(np.arange(360)*1., tcpsR2.Vph[1]*np.ones(360), 'x', ms=5)
 
 plt.show()

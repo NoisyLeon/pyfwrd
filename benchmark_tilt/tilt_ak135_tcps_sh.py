@@ -72,12 +72,12 @@ tcpsL1.solve_SH()
 # 
 CL1  = []
 for baz in np.arange(360)*1.:
-    tcpsL1.sh_azi_perturb(baz)
+    tcpsL1.sh_azi_perturb(baz, True)
     CL1.append(tcpsL1.VphA[1])
 
 CL2  = []
 for baz in np.arange(360)*1.:
-    tcpsL1.sh_azi_perturb_2theta(baz)
+    tcpsL1.sh_azi_perturb(baz)
     CL2.append(tcpsL1.VphA[1])
     
 m.init_tilt()
@@ -93,12 +93,12 @@ tcpsL2.solve_SH()
 # 
 CL3  = []
 for baz in np.arange(360)*1.:
-    tcpsL2.sh_azi_perturb(baz)
+    tcpsL2.sh_azi_perturb(baz, True)
     CL3.append(tcpsL2.VphA[1])
 
 CL4  = []
 for baz in np.arange(360)*1.:
-    tcpsL2.sh_azi_perturb_2theta(baz)
+    tcpsL2.sh_azi_perturb(baz)
     CL4.append(tcpsL2.VphA[1])
 
 

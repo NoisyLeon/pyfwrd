@@ -79,6 +79,7 @@ class aniprop_solver(object):
             z, rho, vp0, vp2, vp4, vs0, vs2 = self.model.layer_aniprop_model(self.dArr, 200, 1.)
             if self.model.tilt == 1:
                 self.dip, self.strike = self.model.angles_aniprop_model(z)
+            # vp4 = np.zeros(z.size)
             self.z = z
             self.rho=rho
             self.vp0=vp0
