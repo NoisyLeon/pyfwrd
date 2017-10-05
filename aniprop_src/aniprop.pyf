@@ -238,7 +238,7 @@ python module aniprop ! in
             common /model/ z,dz,rho,vp,vs,vp2,vp4,vs2,vss
             common /rrt/ rtm
         end subroutine zzget
-        subroutine defective_aniprop(i,j,n,adf,a,b,c,d,e,om,akx) ! in :aniprop:aniprop_subroutines.f
+        subroutine defective(i,j,n,adf,a,b,c,d,e,om,akx) ! in :aniprop:aniprop_subroutines.f
             integer*4 :: i
             integer*4 :: j
             integer*4 :: n
@@ -306,7 +306,7 @@ python module aniprop ! in
             common /defect3/ q1r,q1i,q2r,q2i,fv2,fv3
             common /defect1/ zq1,zq2,u1,u2,zq3,xee
             common /mstff/ qq,wr,wi,zr,zi,iv,fv
-        end subroutine defective_aniprop
+        end subroutine defective
         subroutine grvel(nl,cc,om,gv) ! in :aniprop:aniprop_subroutines.f
             integer*4 :: nl
             real*8 :: cc

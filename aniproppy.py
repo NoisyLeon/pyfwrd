@@ -70,7 +70,7 @@ class aniprop_solver(object):
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
     
-    def solve_surf(self, baz):
+    def solve_surf(self, baz=0.):
         """
         Solve for Rayleigh and Love dispersion curves using reflectivity method
         """

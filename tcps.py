@@ -646,10 +646,22 @@ class tcps_solver(object):
         nfval   = self.freq.size
         Gc2d    = np.tile(self.GcArr, (nfval,1)); Gs2d    = np.tile(self.GsArr, (nfval,1))
         Cc2d    = np.tile(self.CcArr, (nfval,1)); Cs2d    = np.tile(self.CsArr, (nfval,1))
-        dCrAA   = np.zeros(nfval, np.float32)
-        dCrAA   += np.sum( (- Gc2d * np.cos(2.*baz/180.*np.pi) - Gs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdL, axis= 1)
-        dCrAA   += np.sum( (- Cc2d * np.cos(4.*baz/180.*np.pi) - Cs2d * np.sin(4.*baz/180.*np.pi)) * self.dcdN, axis= 1)
-        self.VphA=self.Vph + dCrAA
+        dClAA   = np.zeros(nfval, np.float32)
+        dClAA   += np.sum( (- Gc2d * np.cos(2.*baz/180.*np.pi) - Gs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdL, axis= 1)
+        dClAA   += np.sum( (- Cc2d * np.cos(4.*baz/180.*np.pi) - Cs2d * np.sin(4.*baz/180.*np.pi)) * self.dcdN, axis= 1)
+        self.VphA=self.Vph + dClAA
+        
+    def sh_azi_perturb_2theta(self, baz):
+        ################################################
+        # get azimuthal perturbation for tilted model
+        ################################################
+        nfval   = self.freq.size
+        Gc2d    = np.tile(self.GcArr, (nfval,1)); Gs2d    = np.tile(self.GsArr, (nfval,1))
+        Cc2d    = np.tile(self.CcArr, (nfval,1)); Cs2d    = np.tile(self.CsArr, (nfval,1))
+        dClAA   = np.zeros(nfval, np.float32)
+        dClAA   += np.sum( (- Gc2d * np.cos(2.*baz/180.*np.pi) - Gs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdL, axis= 1)
+        # dCrAA   += np.sum( (- Cc2d * np.cos(4.*baz/180.*np.pi) - Cs2d * np.sin(4.*baz/180.*np.pi)) * self.dcdN, axis= 1)
+        self.VphA=self.Vph + dClAA
         
     def sh_perturb_disp_vel(self, insolver):
         """
