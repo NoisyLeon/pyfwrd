@@ -87,6 +87,7 @@ class tcps_solver(object):
         self.verbose= 0
         self.egn96  = True
         self.tilt   = False
+        self.ilvry  = 0
         return
     
     def init_default(self, dh=1., nl=200):
@@ -163,12 +164,15 @@ class tcps_solver(object):
     
     def solve_PSV(self):
         """
-        Solve P-SV motion dispersion curves, eigenfunctions and sensitivity kernels
+        Solve for P-SV motion dispersion curves, eigenfunctions and sensitivity kernels
         ===================================================================================================
         ::: output :::
-        : Model :
+        : model :
         dArr, AArr, CArr, FArr, LArr, NArr, rhoArr  - layerized model
         dsph, Asph, Csph, Fsph, Lsph, Nsph, rhosph  - flattening transformed Earth model
+        If the model is a tilted hexagonal symmetric model:
+        BcArr, BsArr, GcArr, GsArr, HcArr, HsArr    - 2-theta azimuthal terms 
+        CcArr, CsArr                                - 4-theta azimuthal terms
         : dispersion :
         Vph, Vgr    - phase/group velocity
         : eigenfunctions :
@@ -180,13 +184,13 @@ class tcps_solver(object):
         dcdbh/dcdbv - vsh/vsv kernel
         dcdn        - eta kernel
         dcdr        - density kernel
-        : Love parameter/density sensitivity kernels, derived from the kernels above using chain rule :
+        : Love parameters/density sensitivity kernels, derived from the kernels above using chain rule :
         dcdA, dcdC, dcdF, dcdL, dcdN    - Love parameter kernels
         dcdrl                           - density kernel
         ===================================================================================================
         """
-        #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
-        if self.model.tilt == 1:
+        #- root-finding algorithm using tdisp96, compute phase velocities 
+        if self.model.tilt:
             dArr, rhoArr, AArr, CArr, FArr, LArr, NArr, BcArr, BsArr, GcArr, GsArr, HcArr, HsArr, CcArr, CsArr =\
                         self.model.get_layer_tilt_model(self.dArr, 200, 1.)
             self.tilt   = True
@@ -202,18 +206,19 @@ class tcps_solver(object):
         else:
             dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 200, 1.)
         nfval   = self.freq.size
-        if self.model.flat == 0:
+        if not self.model.flat:
             iflsph_in = 1
         else:
             iflsph_in = 0
         ilvry   = 2
+        # solve for phase velocity
         c_out,d_out,TA_out,TC_out,TF_out,TL_out,TN_out,TRho_out = tdisp96.disprs(ilvry, 1., nfval, 1, self.verbose, nfval, \
                 np.append(self.freq, np.zeros(2049-nfval)), self.cmin,self.cmax, dArr, AArr,CArr,FArr,LArr,NArr,rhoArr, dArr.size,\
                 iflsph_in, 0., self.nmodes, 0.5, 0.5)
         self.ilvry  = ilvry
         self.Vph    = c_out[:nfval]
-        # Save flat transformed model is spherical flag is on
-        if self.model.flat == 0:
+        # Save flat transformed model if spherical flag is on
+        if not self.model.flat:
             self.dsph   = d_out
             self.Asph   = TA_out
             self.Csph   = TC_out
@@ -243,7 +248,7 @@ class tcps_solver(object):
             omega       = 2.*np.pi/self.T
             omega2d     = np.tile(omega, (nl_in, 1))
             omega2d     = omega2d.T
-            if self.model.flat == 0:
+            if not self.model.flat:
                 d_in    = d_out
                 TA_in   = TA_out
                 TC_in   = TC_out
@@ -265,6 +270,7 @@ class tcps_solver(object):
             etasi_in    = np.zeros(nl_in)
             frefpi_in   = np.ones(nl_in)
             frefsi_in   = np.ones(nl_in)
+            # solve for group velocity, kernels and eigenfunctions
             u_out, ur, tur, uz, tuz, dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr = tregn96.tregn96(hs_in, hr_in, ohr_in, ohs_in,\
                 refdep_in, dogam, nl_in, iflsph_in, d_in, TA_in, TC_in, TF_in, TL_in, TN_in, TRho_in, \
                 qai_in,qbi_in,etapi_in,etasi_in, frefpi_in, frefsi_in, self.T.size, self.T, self.Vph)
@@ -285,13 +291,13 @@ class tcps_solver(object):
             self.dcdr   = dcdr[:nfval,:nl_in]
             self.dcdn   = dcdn[:nfval,:nl_in]
             # Love parameters and density in the shape of nfval, nl_in
-            # # A           = np.tile(TA_in, (nfval,1))
-            # # C           = np.tile(TC_in, (nfval,1))
-            # # F           = np.tile(TF_in, (nfval,1))
-            # # L           = np.tile(TL_in, (nfval,1))
-            # # N           = np.tile(TN_in, (nfval,1))
-            # # rho         = np.tile(TRho_in, (nfval,1))
-            # # d           = np.tile(d_in, (nfval,1))
+            # # # A           = np.tile(TA_in, (nfval,1))
+            # # # C           = np.tile(TC_in, (nfval,1))
+            # # # F           = np.tile(TF_in, (nfval,1))
+            # # # L           = np.tile(TL_in, (nfval,1))
+            # # # N           = np.tile(TN_in, (nfval,1))
+            # # # rho         = np.tile(TRho_in, (nfval,1))
+            # # # d           = np.tile(d_in, (nfval,1))
             A           = np.tile(AArr, (nfval,1))
             C           = np.tile(CArr, (nfval,1))
             F           = np.tile(FArr, (nfval,1))
@@ -315,13 +321,14 @@ class tcps_solver(object):
             # # # U2d         = U2d.T
             # # # C2d         = np.tile(self.Vph, (nl_in, 1))
             # # # C2d         = C2d.T
+            ########################################################################################################################################
             # sensitivity kernels for Love parameters and density, derived from velocity kernels using chain rule
             # NOTE: benchmark of love kernels predict somewhat different perturbed values compared with those using velocity kernel
             # Possible reason:
             #       By using the chain rule, infinitesimal perturbations for all the parameters is assumed.
             #       However, for the benckmark cases, the perturbation can be large.
             #       e.g. ah = sqrt(A/rho), dah = 0.5/sqrt(A*rho)*dA. But, if dA is large, dah = sqrt(A+dA/rho) - sqrt(A/rho) != 0.5/sqrt(A*rho)*dA
-            #      
+            ########################################################################################################################################
             self.dcdA   = 0.5/np.sqrt(A*rho)*self.dcdah - F/((A-2.*L)**2)*self.dcdn
             self.dcdC   = 0.5/np.sqrt(C*rho)*self.dcdav
             self.dcdF   = 1./(A-2.*L)*self.dcdn
@@ -360,31 +367,45 @@ class tcps_solver(object):
             #                 - 1./U2d/I02d*d/k2d*eta*(A/rho-2.*L/rho)*self.ur*self.duzdz \
             #                 + 1./2./U2d/I02d*d*L/rho*( (self.uz)**2 + 2./k2d*self.uz*self.durdz+ (1./k2d*self.durdz)**2)
             # self.dcdn1  = -1./U2d/I02d*d/k2d*F/eta*self.duzdz*self.ur
+        return
     
-    def psv_azi_perturb(self, baz, theta4=False):
+    def psv_azi_perturb(self, az, theta4=False):
         """
         get azimuthal perturbation for tilted model
+        ======================================================================
+        ::: input parameters :::
+        az          - azimuth
+        theta4      - compute 4-theta perturbation or not (default - False)  
+        ::: output :::
+        self.VphA   - azimuthally perturbed phase velocity curves
+        ======================================================================
         """
+        if self.ilvry != 2:
+            raise ValueError('Incorrect ilvry value!')
+        if not self.model.tilt:
+            raise ValueError('Not tilted model!')
         nfval   = self.freq.size
         Bc2d    = np.tile(self.BcArr, (nfval,1)); Bs2d    = np.tile(self.BsArr, (nfval,1))
         Gc2d    = np.tile(self.GcArr, (nfval,1)); Gs2d    = np.tile(self.GsArr, (nfval,1))
         Hc2d    = np.tile(self.HcArr, (nfval,1)); Hs2d    = np.tile(self.HsArr, (nfval,1))
         Cc2d    = np.tile(self.CcArr, (nfval,1)); Cs2d    = np.tile(self.CsArr, (nfval,1))
         dCrAA   = np.zeros(nfval, np.float32)
-        dCrAA   += np.sum( (Bc2d * np.cos(2.*baz/180.*np.pi) + Bs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdA, axis= 1)
-        dCrAA   += np.sum( (Gc2d * np.cos(2.*baz/180.*np.pi) + Gs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdL, axis= 1)
-        dCrAA   += np.sum( (Hc2d * np.cos(2.*baz/180.*np.pi) + Hs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdF, axis= 1)
+        # 2-theta perturbation
+        dCrAA   += np.sum( (Bc2d * np.cos(2.*az/180.*np.pi) + Bs2d * np.sin(2.*az/180.*np.pi)) * self.dcdA, axis= 1)
+        dCrAA   += np.sum( (Gc2d * np.cos(2.*az/180.*np.pi) + Gs2d * np.sin(2.*az/180.*np.pi)) * self.dcdL, axis= 1)
+        dCrAA   += np.sum( (Hc2d * np.cos(2.*az/180.*np.pi) + Hs2d * np.sin(2.*az/180.*np.pi)) * self.dcdF, axis= 1)
         if theta4:
-            # dCrAA   += np.sum( (Cc2d * np.cos(4.*baz/180.*np.pi) + Cs2d * np.sin(4.*baz/180.*np.pi)) * self.dcdA, axis= 1)
-            dCrAA   += np.sum( (Cc2d * np.cos(4.*baz/180.*np.pi) + Cs2d * np.sin(4.*baz/180.*np.pi)) * self.dcdA, axis= 1)
-            
+            # 4-theta perturbation
+            dCrAA   += np.sum( (Cc2d * np.cos(4.*az/180.*np.pi) + Cs2d * np.sin(4.*az/180.*np.pi)) * self.dcdA, axis= 1)
         self.VphA=self.Vph + dCrAA
         return
     
     def psv_perturb_disp_vel(self, insolver):
         """
-        Get dispersion curves for perturbed model, using velocity kernels
+        Get dispersion curves for perturbed model, using velocity kernels. Designed to test the accuracy of kernels.
         """
+        if self.ilvry != 2:
+            raise ValueError('Incorrect ilvry value!')
         nfval   = self.freq.size
         dav     = np.tile( insolver.avArr- self.avArr, (nfval,1))
         dah     = np.tile( insolver.ahArr- self.ahArr, (nfval,1))
@@ -408,11 +429,14 @@ class tcps_solver(object):
             print 'dn'
             dc  += np.sum( dn*self.dcdn, axis=1)
         self.Vph_pre    = self.Vph + dc
+        return
         
     def psv_perturb_disp_love(self, insolver):
         """
-        Get dispersion curves for perturbed model, using Love kernels
+        Get dispersion curves for perturbed model, using Love kernels. Designed to test the accuracy of kernels.
         """
+        if self.ilvry != 2:
+            raise ValueError('Incorrect ilvry value!')
         nfval   = self.freq.size
         dA      = np.tile( insolver.AArr- self.AArr, (nfval,1))
         dC      = np.tile( insolver.CArr- self.CArr, (nfval,1))
@@ -437,15 +461,19 @@ class tcps_solver(object):
             print 'dr'
             dc  += np.sum( dr*self.dcdrl, axis=1)
         self.Vph_pre2    = self.Vph + dc
+        return
         
     def solve_SH(self):
         """
         Solve SH motion dispersion curves, eigenfunctions and sensitivity kernels
         ===================================================================================================
-        ::: Output :::
-        : Model :
+        ::: output :::
+        : model :
         dArr, AArr, CArr, FArr, LArr, NArr, rhoArr  - layerized model
         dsph, Asph, Csph, Fsph, Lsph, Nsph, rhosph  - flattening transformed Earth model
+        If the model is a tilted hexagonal symmetric model:
+        BcArr, BsArr, GcArr, GsArr, HcArr, HsArr    - 2-theta azimuthal terms 
+        CcArr, CsArr                                - 4-theta azimuthal terms
         : dispersion :
         Vph, Vgr    - phase/group velocity
         : eigenfunctions :
@@ -461,8 +489,8 @@ class tcps_solver(object):
         dcdrl                           - density kernel
         ===================================================================================================
         """
-        #- root-finding algorithm using tdisp96, compute phase velocities ------------------------
-        if self.model.tilt == 1:
+        #- root-finding algorithm using tdisp96, compute phase velocities 
+        if self.model.tilt:
             dArr, rhoArr, AArr, CArr, FArr, LArr, NArr, BcArr, BsArr, GcArr, GsArr, HcArr, HsArr, CcArr, CsArr =\
                         self.model.get_layer_tilt_model(self.dArr, 200, 1.)
             self.tilt   = True
@@ -478,18 +506,19 @@ class tcps_solver(object):
         else:
             dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 200, 1.)
         nfval   = self.freq.size
-        if self.model.flat == 0:
+        if not self.model.flat:
             iflsph_in = 1
         else:
             iflsph_in = 0
         ilvry   = 1
+        # solve for phase velocity
         c_out,d_out,TA_out,TC_out,TF_out,TL_out,TN_out,TRho_out = tdisp96.disprs(ilvry, 1., nfval, 1, self.verbose, nfval, \
                 np.append(self.freq, np.zeros(2049-nfval)), self.cmin,self.cmax, dArr, AArr,CArr,FArr,LArr,NArr,rhoArr, dArr.size,\
                 iflsph_in, 0., self.nmodes, 0.5, 0.5)
         self.ilvry  = ilvry
         self.Vph    = c_out[:nfval]
         # Save flat transformed model is spherical flag is on
-        if self.model.flat == 0:
+        if not self.model.flat:
             self.dsph   = d_out
             self.Asph   = TA_out
             self.Csph   = TC_out
@@ -519,7 +548,7 @@ class tcps_solver(object):
             omega       = 2.*np.pi/self.T
             omega2d     = np.tile(omega, (nl_in, 1))
             omega2d     = omega2d.T
-            if self.model.flat == 0:
+            if not self.model.flat:
                 d_in    = d_out
                 TA_in   = TA_out
                 TC_in   = TC_out
@@ -541,6 +570,7 @@ class tcps_solver(object):
             etasi_in    = np.zeros(nl_in)
             frefpi_in   = np.ones(nl_in)
             frefsi_in   = np.ones(nl_in)
+            # solve for group velocity, kernels and eigenfunctions
             u_out, ut, tut, dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr = tlegn96.tlegn96(hs_in, hr_in, ohr_in, ohs_in,\
                 refdep_in, dogam, nl_in, iflsph_in, d_in, TA_in, TC_in, TF_in, TL_in, TN_in, TRho_in, \
                 qai_in,qbi_in,etapi_in,etasi_in, frefpi_in, frefsi_in, self.T.size, self.T, self.Vph)
@@ -577,23 +607,24 @@ class tcps_solver(object):
             # derivative of eigenfunctions, $5.8 of R.Herrmann
             self.dutdz  = self.tut/L
             # integrals for the Lagranian
-            I0          = np.sum( rho*(self.ut**2)*d, axis=1)
-            I1          = np.sum( N*(self.ut**2)*d, axis=1)
-            I2          = np.sum( L*(self.dutdz**2)*d, axis=1)
-            # # U           = (k*I1)/omega/I0
-            I02d        = np.tile(I0, (nl_in, 1))
-            I02d        = I02d.T
-            U2d         = np.tile(self.Vgr, (nl_in, 1))
-            U2d         = U2d.T
-            C2d         = np.tile(self.Vph, (nl_in, 1))
-            C2d         = C2d.T
+            # # I0          = np.sum( rho*(self.ut**2)*d, axis=1)
+            # # I1          = np.sum( N*(self.ut**2)*d, axis=1)
+            # # I2          = np.sum( L*(self.dutdz**2)*d, axis=1)
+            # # # # U           = (k*I1)/omega/I0
+            # # I02d        = np.tile(I0, (nl_in, 1))
+            # # I02d        = I02d.T
+            # # U2d         = np.tile(self.Vgr, (nl_in, 1))
+            # # U2d         = U2d.T
+            # # C2d         = np.tile(self.Vph, (nl_in, 1))
+            # # C2d         = C2d.T
+            ######################################################################################################################################
             # sensitivity kernels for Love parameters and density, derived from velocity kernels using chain rule
             # NOTE: benchmark of love kernels predict somewhat different perturbed values compared with those using velocity kernel
             # Possible reason:
             #       By using the chain rule, infinitesimal perturbations for all the parameters is assumed.
             #       However, for the benckmark cases, the perturbation can be large.
             #       e.g. ah = sqrt(A/rho), dah = 0.5/sqrt(A*rho)*dA. But, if dA is large, dah = sqrt(A+dA/rho) - sqrt(A/rho) != 0.5/sqrt(A*rho)*dA
-            #      
+            ######################################################################################################################################     
             self.dcdA   = np.zeros((nfval, nl_in), dtype=np.float32)
             self.dcdC   = np.zeros((nfval, nl_in), dtype=np.float32)
             self.dcdF   = np.zeros((nfval, nl_in), dtype=np.float32)
@@ -616,27 +647,38 @@ class tcps_solver(object):
             ##############################################
             # For benchmark purposes
             ##############################################
-            # derivative of eigenfunctions
-            self.dutdz1 = -(self.ut[:,:-1] - self.ut[:,1:])/self.dArr[0]
-            self.Vgr1   = (k*I1)/omega/I0
-            # derived kernels from eigenfunctions, p 299 in Herrmann's notes
-            self.dcdbh1 = rho*np.sqrt(N/rho)*(self.ut**2)/U2d/I02d*d
-            self.dcdbv1 = rho*np.sqrt(L/rho)*(1./k2d*self.dutdz)**2/U2d/I02d*d
-            self.dcdr1  = -C2d**2/2./U2d/I02d*d*( (self.ut)**2 )  \
-                            + 1./2./U2d/I02d*d*N/rho*(self.ut**2) \
-                            + 1./2./U2d/I02d*d*L/rho*(1./k2d*self.dutdz)**2
+            # # derivative of eigenfunctions
+            # self.dutdz1 = -(self.ut[:,:-1] - self.ut[:,1:])/self.dArr[0]
+            # self.Vgr1   = (k*I1)/omega/I0
+            # # derived kernels from eigenfunctions, p 299 in Herrmann's notes
+            # self.dcdbh1 = rho*np.sqrt(N/rho)*(self.ut**2)/U2d/I02d*d
+            # self.dcdbv1 = rho*np.sqrt(L/rho)*(1./k2d*self.dutdz)**2/U2d/I02d*d
+            # self.dcdr1  = -C2d**2/2./U2d/I02d*d*( (self.ut)**2 )  \
+            #                 + 1./2./U2d/I02d*d*N/rho*(self.ut**2) \
+            #                 + 1./2./U2d/I02d*d*L/rho*(1./k2d*self.dutdz)**2
             
-    def sh_azi_perturb(self, baz, theta4=False):
+    def sh_azi_perturb(self, az, theta4=False):
         """
         get azimuthal perturbation for tilted model
+        ======================================================================
+        ::: input parameters :::
+        az          - azimuth
+        theta4      - compute 4-theta perturbation or not (default - False)  
+        ::: output :::
+        self.VphA   - azimuthally perturbed phase velocity curves
+        ======================================================================
         """
+        if self.ilvry != 1:
+            raise ValueError('Incorrect ilvry value!')
+        if not self.model.tilt:
+            raise ValueError('Not tilted model!')
         nfval   = self.freq.size
         Gc2d    = np.tile(self.GcArr, (nfval,1)); Gs2d    = np.tile(self.GsArr, (nfval,1))
         Cc2d    = np.tile(self.CcArr, (nfval,1)); Cs2d    = np.tile(self.CsArr, (nfval,1))
         dClAA   = np.zeros(nfval, np.float32)
-        dClAA   += np.sum( (- Gc2d * np.cos(2.*baz/180.*np.pi) - Gs2d * np.sin(2.*baz/180.*np.pi)) * self.dcdL, axis= 1)
+        dClAA   += np.sum( (- Gc2d * np.cos(2.*az/180.*np.pi) - Gs2d * np.sin(2.*az/180.*np.pi)) * self.dcdL, axis= 1)
         if theta4:
-            dClAA   += np.sum( (- Cc2d * np.cos(4.*baz/180.*np.pi) - Cs2d * np.sin(4.*baz/180.*np.pi)) * self.dcdN, axis= 1)
+            dClAA   += np.sum( (- Cc2d * np.cos(4.*az/180.*np.pi) - Cs2d * np.sin(4.*az/180.*np.pi)) * self.dcdN, axis= 1)
         self.VphA=self.Vph + dClAA
         return
         
@@ -644,6 +686,8 @@ class tcps_solver(object):
         """
         Get dispersion curves for perturbed model, using velocity kernels
         """
+        if self.ilvry != 1:
+            raise ValueError('Incorrect ilvry value!')
         nfval   = self.freq.size
         # dav     = np.tile( insolver.avArr- self.avArr, (nfval,1))
         dbh     = np.tile( insolver.bhArr- self.bhArr, (nfval,1))
@@ -666,6 +710,8 @@ class tcps_solver(object):
         """
         Get dispersion curves for perturbed model, using Love kernels
         """
+        if self.ilvry != 1:
+            raise ValueError('Incorrect ilvry value!')
         nfval   = self.freq.size
         dA      = np.tile( insolver.AArr- self.AArr, (nfval,1))
         dC      = np.tile( insolver.CArr- self.CArr, (nfval,1))
@@ -695,20 +741,4 @@ class tcps_solver(object):
         self.Vph_pre2    = self.Vph + dc
         
         
-        
-            
-            
-            
-            
-            
-    
-    
-    
-    
-        
-            
-        
-        
-        
-    
     

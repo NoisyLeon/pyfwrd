@@ -56,10 +56,10 @@ m.flat=1
 # m.add_perturb_layer_love(0, 20., 3, -0.05, True)
 # m.add_perturb_layer_love(0, 20., 4, 0.05, True)
 
-m.add_perturb_layer_love(0, 20., 0, -0.05, True)
-m.add_perturb_layer_love(0, 20., 1, 0.05, True)
+m.add_perturb_layer_love(0, 20., 0, -0.02, True)
+m.add_perturb_layer_love(0, 20., 1, 0.02, True)
 # m.add_perturb_layer_love(0, 20., 3, -0.05, True)
-m.add_perturb_layer_love(0, 20., 4, 0.05, True)
+m.add_perturb_layer_love(0, 20., 4, 0.02, True)
 tcpsR0 = tcps.tcps_solver(m)
 tcpsR0.init_default()
 tcpsR0.solve_PSV()
@@ -109,7 +109,7 @@ except:
     CR2  = []
     for baz in np.arange(36)*10.:
         print baz
-        ani.solve_surf(baz=baz)
+        ani.solve_surf(az=baz)
         CR2.append(ani.CR[1])
     CR2 = np.array(CR2)
     np.savetxt('azi_data/CR_dip_'+str(m.dipArr[-1])+'_strike_'+str(m.strikeArr[-1])+'.txt', CR2)
@@ -126,7 +126,7 @@ plt.plot(np.arange(36)*10., CR2, 'b^', ms=5)
 plt.plot(np.arange(36)*10., CR3, 'kx', ms=5)
 
 
-plt.plot(np.arange(36)*10., tcpsR.Vph[3]*np.ones(36), 'gx', ms=5)
+plt.plot(np.arange(36)*10., tcpsR.Vph[1]*np.ones(36), 'gx', ms=5)
 
 cc = CR2[CR2<3.4]
 # A = cc.max()-cc.min()

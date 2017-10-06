@@ -70,14 +70,14 @@ class aniprop_solver(object):
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
     
-    def solve_surf(self, baz=0.):
+    def solve_surf(self, az=0.):
         """
         Solve for Rayleigh and Love dispersion curves using reflectivity method
         """
         self.model.aniprop_check_model()
-        if self.model.flat == 1:
+        if self.model.flat:
             z, rho, vp0, vp2, vp4, vs0, vs2 = self.model.layer_aniprop_model(self.dArr, 200, 1.)
-            if self.model.tilt == 1:
+            if self.model.tilt:
                 self.dip, self.strike = self.model.angles_aniprop_model(z)
             # vp4 = np.zeros(z.size)
             self.z = z
@@ -86,11 +86,9 @@ class aniprop_solver(object):
             self.vp2=vp2
             self.vp4=vp4
             self.vs0=vs0
-            
             # n = z.size
             # vs2= np.ones(n)*-0.2
             self.vs2=vs2
-            
         else:
             zl, rhol, vp0l, vp2l, vp4l, vs0l, vs2l = vmodel.layer_aniprop_model_sph(inmodel = self.model, dArr = self.dArr, nl = 200, dh = 1., ilvry=1)
             zr, rhor, vp0r, vp2r, vp4r, vs0r, vs2r = vmodel.layer_aniprop_model_sph(inmodel = self.model, dArr = self.dArr, nl = 200, dh = 1., ilvry=2)
@@ -109,14 +107,14 @@ class aniprop_solver(object):
             self.vp4r=vp4r
             self.vs0r=vs0r
             self.vs2r=vs2r
-        if self.model.flat == 1:
+        if self.model.flat:
             z       *= 1000.
             rho     *= 1000.
             vp0     *= 1000.
             vs0     *= 1000.
             ##########################################
             nl      = z.size - 1
-            if self.model.tilt == 1:
+            if self.model.tilt:
                 theta               = self.dip
                 phig                = np.zeros(nl+1, dtype=np.float32)
                 phig[self.dip>0.]   = self.strike[self.dip>0.] + 270.
@@ -124,10 +122,10 @@ class aniprop_solver(object):
             else:
                 theta   = np.zeros(nl+1, dtype=np.float32)
                 phig    = np.zeros(nl+1, dtype=np.float32)
-            # baz     = 0.
+            # az     = 0.
             ###########################################
             # print phig
-            Rphase,Rgroup,Lphase,Lgroup,Period = aniprop.aniprop_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
+            Rphase,Rgroup,Lphase,Lgroup,Period = aniprop.aniprop_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,az, self.Nt, self.Tmin, self.Tmax)
         else:
             zl      *= 1000.
             rhol    *= 1000.
@@ -141,12 +139,12 @@ class aniprop_solver(object):
             nl      = zl.size - 1
             theta   = np.zeros(nl+1, dtype=np.float32)
             phig    = np.zeros(nl+1, dtype=np.float32)
-            baz     = 0.
+            az     = 0.
             ###########################################
             Rphase0,Rgroup0,Lphase,Lgroup,Period = aniprop.aniprop_interface(zl,vp0l,vp2l,vp4l,vs0l,vs2l,rhol,\
-                                                theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
+                                                theta,phig,nl,az, self.Nt, self.Tmin, self.Tmax)
             Rphase,Rgroup,Lphase0,Lgroup0,Period = aniprop.aniprop_interface(zr,vp0r,vp2r,vp4r,vs0r,vs2r,rhor,\
-                                                theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
+                                                theta,phig,nl,az, self.Nt, self.Tmin, self.Tmax)
         self.CR = Rphase/1000.
         self.UR = Rgroup/1000.
         self.CL = Lphase/1000.

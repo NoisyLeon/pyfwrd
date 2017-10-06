@@ -523,9 +523,9 @@ spec = [
         # Voigt matrix for ETI(effective transversely isotropic) part
         ('CijETI', numba.float32[:, :, :]),
         # flat Earth or not
-        ('flat', numba.int32),
+        ('flat', numba.boolean),
         ('rmin', numba.float32),
-        ('tilt', numba.int32)
+        ('tilt', numba.boolean)
         ]
 
 @numba.jitclass(spec)
@@ -554,7 +554,7 @@ class model1d(object):
     =====================================================================================================================
     """
     def __init__(self):
-        self.flat   = 1
+        self.flat   = True
         return
     
     def get_depth(self):
@@ -645,7 +645,7 @@ class model1d(object):
         Recoded from Robert Herrmann's Computer Program in Seismology,
         subrountine sphere in tdisp96.f
         """
-        self.flat   = 0
+        self.flat   = False
         z           = np.float32(6371000.)*np.log(np.float32(6371000.)/self.rArr)
         tmp         = np.float32(6371000.)/self.rArr
         ###
@@ -1102,7 +1102,7 @@ class model1d(object):
         self.VpvArr = self.VpvArr[ind]
         self.VphArr = self.VphArr[ind]
         self.etaArr = self.etaArr[ind]
-        if self.flat == 0:
+        if not self.flat:
             self.earth_flattening()
         return
     
@@ -1180,7 +1180,7 @@ class model1d(object):
         """
         Return Love paramaters and density given an index, for P-SV waves
         """
-        if self.flat == 0:
+        if not self.flat:
             return self.rhoArrR[i], self.AArrR[i], self.CArrR[i], self.FArrR[i], self.LArrR[i], self.NArrR[i]
         else:
             return self.get_ind_Love_parameters(i)
@@ -1189,7 +1189,7 @@ class model1d(object):
         """
         Return Love paramaters and density given an index, for SH waves
         """
-        if self.flat == 0:
+        if not self.flat:
             return self.rhoArrL[i], self.AArrL[i], self.CArrL[i], self.FArrL[i], self.LArrL[i], self.NArrL[i]
         else:
             return self.get_ind_Love_parameters(i)
@@ -1273,7 +1273,7 @@ class model1d(object):
         NOTE : always yield the RIGHT value if repeated radius grid points appear
         """
         if r < self.rmin: raise ValueError('Required radius is out of the model range!')
-        if self.flat == 0:
+        if not self.flat:
             ind_l = -1; ind_r = -1
             for _r in self.rArrS:
                 if r < _r:
@@ -1313,7 +1313,7 @@ class model1d(object):
         NOTE : always yield the RIGHT value if repeated radius grid points appear
         """
         if r < self.rmin: raise ValueError('Required radius is out of the model range!')
-        if self.flat == 0:
+        if not self.flat:
             ind_l = -1; ind_r = -1
             for _r in self.rArrS:
                 if r < _r:
@@ -1352,7 +1352,7 @@ class model1d(object):
         NOTE : always yield the RIGHT value if repeated radius grid points appear
         """
         if r < self.rmin: raise ValueError('Required radius is out of the model range!')
-        if self.flat == 0:
+        if not self.flat:
             ind_l = -1; ind_r = -1
             for _r in self.rArrS:
                 if r < _r:
@@ -2312,7 +2312,7 @@ class model1d(object):
     def init_dip_strike(self):
         """initialize dip/strike angle array
         """
-        self.tilt       = 1
+        self.tilt       = True
         self.dipArr     = np.zeros(self.rArr.size, np.float32)
         self.strikeArr  = np.zeros(self.rArr.size, np.float32)
         return
@@ -2490,34 +2490,34 @@ class model1d(object):
         return
 
     
-    def get_hex_parameter(self, z, left):
-        self.is_tilt_model(True)
-        if not self.is_layer_model():
-            print 'WARNING: the model is not layrized!'
-        r   = np.float32( (6371.- z)*1000.)
-        ind = np.where(self.rArr == r)[0]
-        if ind.size == 0:
-            if left:
-                rho, A, C, F, L, N  = self.get_r_love_parameters_left(r)
-                indds   = (np.where(self.rArr<r)[0])[-1]
-                dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
-            else:
-                rho, A, C, F, L, N  = self.get_r_love_parameters(r)
-                indds   = (np.where(self.rArr>r)[0])[0]
-                dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
-        else:
-            if left:
-                indds   = ind[0]
-            else:
-                indds   = ind[-1]
-            rho     = self.rhoArr[indds]
-            A       = self.AArr[indds]
-            C       = self.CArr[indds]
-            F       = self.FArr[indds]
-            L       = self.LArr[indds]
-            N       = self.NArr[indds]
-            dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
-        return rho, A, C, F, L, N, dip, strike
+    # # # def get_hex_parameter(self, z, left):
+    # # #     self.is_tilt_model(True)
+    # # #     if not self.is_layer_model():
+    # # #         print 'WARNING: the model is not layrized!'
+    # # #     r   = np.float32( (6371.- z)*1000.)
+    # # #     ind = np.where(self.rArr == r)[0]
+    # # #     if ind.size == 0:
+    # # #         if left:
+    # # #             rho, A, C, F, L, N  = self.get_r_love_parameters_left(r)
+    # # #             indds   = (np.where(self.rArr<r)[0])[-1]
+    # # #             dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
+    # # #         else:
+    # # #             rho, A, C, F, L, N  = self.get_r_love_parameters(r)
+    # # #             indds   = (np.where(self.rArr>r)[0])[0]
+    # # #             dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
+    # # #     else:
+    # # #         if left:
+    # # #             indds   = ind[0]
+    # # #         else:
+    # # #             indds   = ind[-1]
+    # # #         rho     = self.rhoArr[indds]
+    # # #         A       = self.AArr[indds]
+    # # #         C       = self.CArr[indds]
+    # # #         F       = self.FArr[indds]
+    # # #         L       = self.LArr[indds]
+    # # #         N       = self.NArr[indds]
+    # # #         dip     = self.dipArr[indds]; strike     = self.strikeArr[indds]
+    # # #     return rho, A, C, F, L, N, dip, strike
     
     def get_dip_strike(self, r, left):
         """
@@ -2613,7 +2613,7 @@ class model1d(object):
         
         Hsl     = self.HsArr[ind_l]; Hsr  =   self.HsArr[ind_r]
         Hs      = Hsl + (r - r_left)*(Hsr-Hsl)/(r_right - r_left)
-        ## check
+        ## 4-theta azimuthal terms
         Ccl     = self.CcArr[ind_l]; Ccr  =   self.CcArr[ind_r]
         Cc      = Ccl + (r - r_left)*(Ccr-Ccl)/(r_right - r_left)
         
