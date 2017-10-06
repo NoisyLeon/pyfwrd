@@ -172,7 +172,7 @@ def layer_aniprop_model_sph(inmodel, dArr, nl, dh, ilvry):
     """
     Get the flattening transformed layerized model
     ===================================================================
-    ::: input parameters ::::
+    ::: input parameters :::
     inmodel - input model1d object
     dArr    - numpy array of layer thickness (unit - km)
     nl      - number of layers 
@@ -194,7 +194,7 @@ def layer_aniprop_model_sph(inmodel, dArr, nl, dh, ilvry):
     c       = (TA_out + TC_out - 2.*TF_out - 4.*TL_out)/8.
     d       = 0.5*(TN_out + TL_out)
     e       = 0.5*(TL_out - TN_out)
-    if np.any(e>0.0001):
+    if np.any(e>0.000001):
         raise ValueError('aniprop does not accept L > N !')
     # total number of layers
     nl      = a.size
@@ -212,7 +212,7 @@ def layer_aniprop_model_sph(inmodel, dArr, nl, dh, ilvry):
 
 def layer_aniprop_model_sph_0(inmodel, dArr, nl, dh, ilvry):
     """
-    Get the flattening transformed layerized model
+    Get the flattening transformed layerized model, add 0 to top, deprecated
     ===================================================================
     ::: input parameters ::::
     inmodel - input model1d object
@@ -272,7 +272,7 @@ def layer_aniprop_model_sph_0(inmodel, dArr, nl, dh, ilvry):
 
 def layer_aniprop_model_sph_2(inmodel, dArr, nl, dh, ilvry):
     """
-    Get the flattening transformed layerized model
+    Get the flattening transformed layerized model, deprecated
     ===================================================================
     ::: input parameters :::
     inmodel - input model1d object
@@ -334,7 +334,7 @@ def plot(model, dtype='vsv', unit='km', showfig=True):
     """
     Plot the model
     ===================================================================
-    ::: input parameters ::::
+    ::: input parameters :::
     inmodel - input model1d object
     dtype   - datatype for plotting
     unit    - km or m
@@ -447,7 +447,6 @@ def _bondmat(axis, angle):
         [g[2,0]*g[0,0], g[2,1]*g[0,1], g[2,2]*g[0,2], g[0,1]*g[2,2]+g[0,2]*g[2,1], g[0,2]*g[2,0]+g[0,0]*g[2,2], g[0,0]*g[2,1]+g[0,1]*g[2,0]])
     M[5,:]  = np.array(\
         [g[0,0]*g[1,0], g[0,1]*g[1,1], g[0,2]*g[1,2], g[0,1]*g[1,2]+g[0,2]*g[1,1], g[0,2]*g[1,0]+g[0,0]*g[1,2], g[0,0]*g[1,1]+g[0,1]*g[1,0]])
-    
     # M[:,:]  = np.array([[g[0,0]**2, g[0,1]**2, g[0,2]**2, 2.*g[0,1]*g[0,2], 2.*g[0,2]*g[0,0], 2.*g[0,0]*g[0,1]],
     #                     [g[1,0]**2, g[1,1]**2, g[1,2]**2, 2.*g[1,1]*g[1,2], 2.*g[1,2]*g[1,0], 2.*g[1,0]*g[1,1]],
     #                     [g[2,0]**2, g[2,1]**2, g[2,2]**2, 2.*g[2,1]*g[2,2], 2.*g[2,2]*g[2,0], 2.*g[2,0]*g[2,1]],
@@ -455,7 +454,6 @@ def _bondmat(axis, angle):
     #     [g[2,0]*g[0,0], g[2,1]*g[0,1], g[2,2]*g[0,2], g[0,1]*g[2,2]+g[0,2]*g[2,1], g[0,2]*g[2,0]+g[0,0]*g[2,2], g[0,0]*g[2,1]+g[0,1]*g[2,0]],
     #     [g[0,0]*g[1,0], g[0,1]*g[1,1], g[0,2]*g[1,2], g[0,1]*g[1,2]+g[0,2]*g[1,1], g[0,2]*g[1,0]+g[0,0]*g[1,2], g[0,0]*g[1,1]+g[0,1]*g[1,0]]
     #     ], dtype=np.float32)
-
     return M
 
 ####################################################
@@ -551,6 +549,8 @@ class model1d(object):
     arrays with *L  - Love parameters and density arrays after Earth flattening transformation for SH motion
     rArrS           - radius array after Earth flattening transformation
     dipArr,strikeArr- dip/strike angles, used for tilted hexagonal symmetric media
+    CijArr          - elastic tensor given rotational angles(dip, strike) (unit - Pa)
+    CijAA           - azimuthally anisotropic elastic tensor (unit - Pa)
     =====================================================================================================================
     """
     def __init__(self):
@@ -677,7 +677,7 @@ class model1d(object):
         """
         Get the radius array
         ===============================================================================
-        ::: input parameters ::::
+        ::: input parameters :::
         zmax        - maximum depth (unit - km)
         dz          - depth interval (unit - km)
         Output:
@@ -2043,7 +2043,7 @@ class model1d(object):
         nl              - number of layers 
         dh              - thickness of each layer (unit - km)
         nl and dh will be used if and only if dArr.size = 0
-        ::: Output :::
+        ::: output :::
         dArr            - layer thickness array (unit - km)
         rhoArr          - density array (unit - g/cm^3)
         AArr, CArr, FArr- Love parameters (unit - GPa)
@@ -2056,7 +2056,7 @@ class model1d(object):
         else:
             dArr    *= 1000.
             nl      = dArr.size
-        ALst=[]; CLst=[]; LLst=[]; FLst=[]; NLst=[]; rhoLst=[]
+        ALst    = []; CLst  = []; LLst  = []; FLst  = []; NLst  = []; rhoLst= []
         z0   = 0.
         z1   = dArr[0]
         for i in xrange(nl):
@@ -2100,7 +2100,7 @@ class model1d(object):
         nl                  - number of layers 
         dh                  - thickness of each layer (unit - km)
         nl and dh will be used if and only if dArr.size = 0
-        ::: Output :::
+        ::: output :::
         dArr                - layer thickness array (unit - km)
         rhoArr              - density array (unit - g/cm^3)
         AArr, CArr, FArr    - effective Love parameters (unit - GPa)
@@ -2118,8 +2118,8 @@ class model1d(object):
         else:
             dArr    *= 1000.
             nl      = dArr.size
-        ALst=[]; CLst=[]; LLst=[]; FLst=[]; NLst=[]; rhoLst=[]
-        BcLst=[]; BsLst=[]; GcLst=[]; GsLst=[]; HcLst=[]; HsLst=[]; CcLst=[]; CsLst=[]
+        ALst    = []; CLst  = []; LLst  = []; FLst  = []; NLst  = []; rhoLst= []
+        BcLst   = []; BsLst = []; GcLst = []; GsLst = []; HcLst = []; HsLst = []; CcLst = []; CsLst = []
         z0   = 0.
         z1   = dArr[0]
         for i in xrange(nl):
@@ -2156,7 +2156,7 @@ class model1d(object):
             HcLst.append(Hc)
             Hs  = (Hs0+Hs1)/1.e9/2.
             HsLst.append(Hs)
-            
+            # 4-theta azimuthal terms
             Cc  = (Cc0+Cc1)/1.e9/2.
             CcLst.append(Cc)
             Cs  = (Cs0+Cs1)/1.e9/2.
@@ -2177,7 +2177,6 @@ class model1d(object):
         GsArr   = np.array(GsLst, dtype=np.float32)
         HcArr   = np.array(HcLst, dtype=np.float32)
         HsArr   = np.array(HsLst, dtype=np.float32)
-        
         CcArr   = np.array(CcLst, dtype=np.float32)
         CsArr   = np.array(CsLst, dtype=np.float32)
         return dArr, rhoArr, AArr, CArr, FArr, LArr, NArr, BcArr, BsArr, GcArr, GsArr, HcArr, HsArr, CcArr, CsArr
@@ -2189,12 +2188,12 @@ class model1d(object):
         """
         Get layrized model for aniprop
         ===================================================================================
-        ::: ::: input parameters ::: :::
+        ::: input parameters :::
         dArr            - numpy array of layer thickness (unit - km)
         nl              - number of layers 
         dh              - thickness of each layer (unit - km)
         nl and dh will be used if and only if dArr.size = 0
-        ::: Output :::
+        ::: output :::
         z               - depth array to interfaces (unit - km)
         rho             - density array (unit - g/cm^3)
         vp0, vp2, vp4   - P wave velocity and corresponding 2psi/4psi relative perturnation
@@ -2222,14 +2221,14 @@ class model1d(object):
     
     def layer_aniprop_model_0(self, dArr, nl, dh):
         """
-        Get layrized model for aniprop
+        Get layrized model for aniprop, add 0 to top, deprecated
         ===================================================================================
-        ::: ::: input parameters ::: :::
+        ::: input parameters :::
         dArr            - numpy array of layer thickness (unit - km)
         nl              - number of layers 
         dh              - thickness of each layer (unit - km)
         nl and dh will be used if and only if dArr.size = 0
-        ::: Output :::
+        ::: output :::
         z               - depth array to interfaces (unit - km)
         rho             - density array (unit - g/cm^3)
         vp0, vp2, vp4   - P wave velocity and corresponding 2psi/4psi relative perturnation
@@ -2276,14 +2275,22 @@ class model1d(object):
         return z, rho, vp0, vp2, vp4, vs0, vs2
     
     def angles_aniprop_model(self, zArr):
+        """
+        Get dip/strike arrays given depth arrays
+        ===================================================================================
+        ::: input parameters :::
+        zArr            - depth array (unit - km)
+        ::: output :::
+        dipArr/strikeArr- dip/strike arrays (unit - degree) 
+        ===================================================================================
+        """
         if not self.is_layer_model():
             print ('WARNING: Model is not layerized, unexpected error may occur!')
-        dipLst=[]; strikeLst=[]
+        dipLst  = []; strikeLst = []
         nl      = zArr.size
         for i in xrange(nl):
-            r   = 6371000.-zArr[i]*1000.
-            # # # dip0, strike0  = self.get_dip_strike(r0, True) # bottom point value needs to use left value in radius array
-            dip, strike  = self.get_dip_strike(r, False)
+            r           = 6371000.-zArr[i]*1000.
+            dip, strike = self.get_dip_strike(r, False)
             # Love parameters are converted from Pa to GPa
             dipLst.append(dip)
             strikeLst.append(strike)
@@ -2291,10 +2298,10 @@ class model1d(object):
         dipArr      = np.array(dipLst, dtype=np.float32)
         strikeArr   = np.array(strikeLst, dtype=np.float32)
         return dipArr, strikeArr
-        
-    
     
     def aniprop_check_model(self):
+        """check the model
+        """
         if np.any(self.LArr > self.NArr):
             raise ValueError('aniprop does not accept L > N !')
         return
@@ -2303,7 +2310,7 @@ class model1d(object):
     # functions for tilted hexaganal symmetric model
     ####################################################################################################
     def init_dip_strike(self):
-        """Initialize dip/strike angle array
+        """initialize dip/strike angle array
         """
         self.tilt       = 1
         self.dipArr     = np.zeros(self.rArr.size, np.float32)
@@ -2325,19 +2332,21 @@ class model1d(object):
             L           = self.LArr[i]
             N           = self.NArr[i]
             Cvoigt      = np.zeros((6,6), dtype=np.float32)
-            Cvoigt[0,0] = A; Cvoigt[1,1] =A; Cvoigt[2,2]=C; Cvoigt[3,3]=L; Cvoigt[4,4]=L; Cvoigt[5,5]=N
-            Cvoigt[0,1] = A-2.*N; Cvoigt[1,0] = A-2.*N
-            Cvoigt[0,2] = F; Cvoigt[2,0] = F
-            Cvoigt[1,2] = F; Cvoigt[2,1] = F
+            Cvoigt[0,0] = A; Cvoigt[1,1] = A; Cvoigt[2,2]= C; Cvoigt[3,3]= L; Cvoigt[4,4] = L; Cvoigt[5,5] = N
+            Cvoigt[0,1] = A-2.*N;   Cvoigt[1,0] = A-2.*N
+            Cvoigt[0,2] = F;        Cvoigt[2,0] = F
+            Cvoigt[1,2] = F;        Cvoigt[2,1] = F
             (eigenvalues, eigenvectors) = np.linalg.eig(Cvoigt)
             if not (eigenvalues.min() > 0.0):
-                print self.rArr[i],'m NOT stable!'
+                print self.rArr[i]/1000.,'km NOT stable!'
                 return False
                 # raise ValueError('Elastic tensor is not stable to small strains (Voigt matrix is not positive definite) at r='+rstr+' m')
         # if verbose: print 'Stability checked! Eigenvalues:', eigenvalues
         return True
     
     def init_etensor(self):
+        """initialize elastic tensor arrays
+        """
         # self.CijklArr   = np.zeros((3,3,3,3,self.rArr.size), dtype = np.float32)
         self.CijArr     = np.zeros((6,6,self.rArr.size), dtype = np.float32)
         self.CijAA      = np.zeros((6,6,self.rArr.size), dtype = np.float32)
@@ -2358,6 +2367,8 @@ class model1d(object):
         return
     
     def init_tilt(self):
+        """initialize tilted hexagonal symmetric model
+        """
         self.init_dip_strike(); self.init_etensor()
         return
     
@@ -2509,6 +2520,16 @@ class model1d(object):
         return rho, A, C, F, L, N, dip, strike
     
     def get_dip_strike(self, r, left):
+        """
+        Return dip/strike given a radius
+        ===================================================================================
+        ::: input parameters :::
+        r           - radius (unit - m)
+        left        - yield the LEFT value if repeated radius grid points appear or not
+        ::: output :::
+        dip/strike  - dip/strike (unit - degree) 
+        ===================================================================================
+        """
         self.is_tilt_model(True)
         if not self.is_layer_model():
             print 'WARNING: the model is not layrized!'

@@ -3,7 +3,7 @@
 Module for surface wave dispersion computation using normal mode method by Robert Herrmann
 
 The code is a python wrapper of the f77 code Computer Program in Seismology 
-Numba is NOT used the object tcps_solver
+Numba is NOT used for the object tcps_solver
 
 :Copyright:
     Author: Lili Feng
@@ -69,7 +69,7 @@ class tcps_solver(object):
     """
     An object solving for dispersion curves, eigenfunctions and sensitivity kernels, use tdisp96 and tregn96/tlegn96
     =====================================================================================================================
-    ::: Parameters :::
+    ::: parameters :::
     model           - 1D Earth model object
     nmodes          - number of modes  
     egn96           - solve for eigenfunctions/kernels or not (default - True)
@@ -125,7 +125,7 @@ class tcps_solver(object):
     def love2vel(self):
         """
         Love parameters to velocity parameters
-        ::: Output :::
+        ::: output :::
         ahArr   - vph (unit -km/s)
         avArr   - vpv (unit -km/s)
         bhArr   - vsh (unit -km/s)
@@ -165,7 +165,7 @@ class tcps_solver(object):
         """
         Solve P-SV motion dispersion curves, eigenfunctions and sensitivity kernels
         ===================================================================================================
-        ::: Output :::
+        ::: output :::
         : Model :
         dArr, AArr, CArr, FArr, LArr, NArr, rhoArr  - layerized model
         dsph, Asph, Csph, Fsph, Lsph, Nsph, rhosph  - flattening transformed Earth model
