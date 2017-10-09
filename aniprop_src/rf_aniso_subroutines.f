@@ -82,12 +82,14 @@ c for nfrq=512 and npad = 8192 gainfac= 8
 
 c      print *, 'enter maximum frequency'
 c      read(*,*), frqmax
-c   Maximum frequency
-        frqmax=1.0
-       if (frqmax.gt.1) then
-	        nfrq=1024
-	        gainfac=8
-      endif
+c   Maximum frequency, default 1.0, changed to 1.25 by LF
+        frqmax=1.25
+c   commented by LF, in order to get dt = 0.05
+c       if (frqmax.gt.1) then
+c	        nfrq=1024
+c	        gainfac=8
+c      endif
+
 
 c      print *, 'frqmax', frqmax, 'nfrq', nfrq
 
@@ -168,10 +170,13 @@ c      print *,'minimum phase velocity for S wave (km/sec)',csmin
 c      print *,'minimum phase velocity for P wave (km/sec)',cpmin
 c      print *,'enter phase velocity of incident wave (km/sec)'
 c      read(*,*) cc
-      cc=12.6  
+
+c     phase velocity of incident wave, important! LF 
+      cc=16.6667  
 
       if(cc.le.0.d0) go to 950
       cc=cc*1000./vbar
+c       print *, 'vbar', vbar
 c  calc the eigenvector decomps for the layers
 c  need to identify upgoing P,SV,SH in the halfspace
       call matget(nl,cc)
@@ -337,7 +342,9 @@ c   requires an eigenvector problem be solved
 c  in general, the evanescent vertical wavenumbers have nonzero real parts 
 c   complex exponential fct is used to avoid endless branching
 c  horizontal slowness p_x
+c   LF may need modifying!
       px=1.d0/cc
+c      print *,'cc',cc
       do n=1,nlp
         a=xla(n)
         b=xla2(n)

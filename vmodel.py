@@ -1078,6 +1078,19 @@ class model1d(object):
         self.rmin   = self.rArr.min()
         return
     
+    def is_iso(self):
+        """Check if the model is isotropic at each point.
+        """
+        tol = 1e-5
+        for i in xrange(self.rArr.size):
+            if abs(self.AArr[i] - self.CArr[i])> tol or abs(self.LArr[i] - self.NArr[i])> tol or abs(self.FArr[i] - (self.AArr[i]- 2.*self.LArr[i]) )> tol:
+                return False
+        return True
+        # if np.allclose(self.AArr, self.CArr) and np.allclose(self.LArr, self.NArr) and np.allclose(self.FArr, (self.AArr- 2.*self.LArr)):
+        #     return True
+        # else:
+        #     return False
+    
     def trim_simple(self, zmax):
         """
         Trim the model given a maximum depth(unit - km), keep data points with depth smaller than zmax.

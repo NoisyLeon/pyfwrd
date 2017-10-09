@@ -12,3 +12,5 @@ cd $cdir/tlegn96_src
 cd $cdir/aniprop_src
 ./compile_aniprop.sh
 
+cd $cdir/rftheo_src
+./compile_theo.sh

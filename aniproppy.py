@@ -70,6 +70,38 @@ class aniprop_solver(object):
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
     
+    def solve_ref(self, az=0., t=30.):
+        self.model.aniprop_check_model()
+        z, rho, vp0, vp2, vp4, vs0, vs2 = self.model.layer_aniprop_model(self.dArr, 200, 1.)
+        z       *= 1000.
+        rho     *= 1000.
+        vp0     *= 1000.
+        vs0     *= 1000.
+        if self.model.tilt:
+            self.dip, self.strike = self.model.angles_aniprop_model(z)
+        frqmax  = 1.0;  nfrq = 512;          df = frqmax/nfrq
+        npad    = 8192; dt   = 1./(npad*df)
+        ntimes  = int(t/dt)
+        nl      = z.size - 1
+        if self.model.tilt:
+            theta               = self.dip
+            phig                = np.zeros(nl+1, dtype=np.float32)
+            phig[self.dip>0.]   = self.strike[self.dip>0.] + 270.
+            phig[phig>=360.]    = phig[phig>=360.] - 360.
+        else:
+            theta   = np.zeros(nl+1, dtype=np.float32)
+            phig    = np.zeros(nl+1, dtype=np.float32)
+        Rf,Tf,T     = aniprop.rf_aniso_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,az,ntimes)
+        self.rfr    = Rf
+        self.rft    = Tf
+        self.time   = T
+        return
+    
+    # def plot_rf(self):
+        
+        
+        
+    
     def solve_surf(self, az=0.):
         """
         Solve for Rayleigh and Love dispersion curves using reflectivity method
