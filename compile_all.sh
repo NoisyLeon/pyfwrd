@@ -14,3 +14,6 @@ cd $cdir/aniprop_src
 
 cd $cdir/rftheo_src
 ./compile_theo.sh
+
+cd $cdir/fast_surf_src
+./compile_fast_surf.sh

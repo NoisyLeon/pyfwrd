@@ -60,7 +60,7 @@ tcpsL0.solve_SH()
 
 m.init_tilt()
 
-m.dipArr[-1] = 90; m.dipArr[-2] = 90
+m.dipArr[-1] = 60; m.dipArr[-2] = 60
 m.strikeArr[-1] = 0.; m.strikeArr[-2] = 0.
 
 m.rot_dip_strike()
@@ -110,8 +110,9 @@ CL4 = np.array(CL4)
 
 plt.plot(np.arange(360)*1., CL1, 'ro', ms=5)
 plt.plot(np.arange(360)*1., CL2, 'b^', ms=5)
-plt.plot(np.arange(360)*1., CL3, 'go', ms=5)
-plt.plot(np.arange(360)*1., CL4, 'k^', ms=5)
+# plt.plot(np.arange(360)*1., CL3, 'go', ms=5)
+# plt.plot(np.arange(360)*1., CL4, 'k^', ms=5)
 plt.plot(np.arange(360)*1., tcpsL1.Vph[1]*np.ones(360), 'x', ms=5)
+plt.plot(np.arange(360)*1., tcpsL0.Vph[1]*np.ones(360), '-', ms=5)
 
 plt.show()

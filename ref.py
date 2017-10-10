@@ -1,6 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+Module for synthetic receiver function computation, using aniprop by Jeffrey Park, and theo by T. Shibutani
 
+The code is a python wrapper of the f77 code aniprop and theo
 
-
+:Copyright:
+    Author: Lili Feng
+    Graduate Research Assistant
+    CIEI, Department of Physics, University of Colorado Boulder
+    email: lili.feng@colorado.edu
+"""
 
 import aniprop, theo
 import numba
@@ -13,17 +22,15 @@ model_type = numba.deferred_type()
 model_type.define(vmodel.model1d.class_type.instance_type)
 
 
-
 class ref_solver(object):
     
     """
     An object solving for receiver function using aniprop by Jeffrey Park, and theo by T. Shibutani
     =====================================================================================================================
-    ::: Parameters :::
+    ::: parameters :::
     model           - 1D Earth model object
-
+    dt              - time interval
     dArr            - layer array (unit - km)
-
     =====================================================================================================================
     """
     def __init__(self, inmodel):
@@ -44,7 +51,11 @@ class ref_solver(object):
     def solve_aniprop(self, az=0., t=30.):
         """
         Compute radial and transverse receiver function using aniprop
-        =======================================================================
+        Default maximum velocity is 16.6667, can be changed by modifying the source code
+        
+        c     phase velocity of incident wave, important! LF 
+            cc=16.6667  (line 175)
+        ==============================================================================================
         ::: input parameters :::
         az          - azimuth
         t           - time length of output in sec
@@ -52,7 +63,7 @@ class ref_solver(object):
         self.rfr    - radial receiver function
         self.rft    - transverse receiver function
         self.time   - time array
-        =======================================================================
+        ==============================================================================================
         """
         self.model.aniprop_check_model()
         z, rho, vp0, vp2, vp4, vs0, vs2 = self.model.layer_aniprop_model(self.dArr, 200, 1.)
@@ -86,17 +97,17 @@ class ref_solver(object):
     
     def solve_theo(self, t=30., slowness = 0.06, din = None):
         """
-        Compute radial and transverse receiver function using aniprop
-        =======================================================================
+        Compute radial and transverse receiver function using theo
+        ====================================================================================
         ::: input parameters :::
         t           - time length of output in sec
-        slowness    - reference horizontal slowness (default - 0.06)
+        slowness    - reference horizontal slowness (default - 0.06, 1./0.06=16.6667)
         din         - incident angle(default - None, unit - deg),
                         the value is determined from slowness if not assigned
         ::: output :::
         self.rf     - (radial) receiver function
         self.time   - time array
-        =======================================================================
+        ====================================================================================
         """
         if not self.model.is_iso():
             print 'WARNING: model is anisotropic!'
