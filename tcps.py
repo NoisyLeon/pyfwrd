@@ -372,13 +372,14 @@ class tcps_solver(object):
     def psv_azi_perturb(self, az, theta4=False):
         """
         get azimuthal perturbation for tilted model
-        ======================================================================
+        ==============================================================================================================================
         ::: input parameters :::
-        az          - azimuth
+        az          - azimuth of wave vector (az = 180. - baz, baz is the azimuth look at event from station)
+                    NOTE: the azimuth of wave vector at station is typically NOT the same as the azimuth looking at station from event
         theta4      - compute 4-theta perturbation or not (default - False)  
         ::: output :::
         self.VphA   - azimuthally perturbed phase velocity curves
-        ======================================================================
+        ==============================================================================================================================
         """
         if self.ilvry != 2:
             raise ValueError('Incorrect ilvry value!')
@@ -660,13 +661,14 @@ class tcps_solver(object):
     def sh_azi_perturb(self, az, theta4=False):
         """
         get azimuthal perturbation for tilted model
-        ======================================================================
+        ==============================================================================================================================
         ::: input parameters :::
-        az          - azimuth
+        az          - azimuth of wave vector (az = 180. - baz, baz is the azimuth look at event from station)
+                    NOTE: the azimuth of wave vector at station is typically NOT the same as the azimuth looking at station from event
         theta4      - compute 4-theta perturbation or not (default - False)  
         ::: output :::
         self.VphA   - azimuthally perturbed phase velocity curves
-        ======================================================================
+        ==============================================================================================================================
         """
         if self.ilvry != 1:
             raise ValueError('Incorrect ilvry value!')

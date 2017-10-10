@@ -86,7 +86,8 @@ class aniprop_solver(object):
         if self.model.tilt:
             theta               = self.dip
             phig                = np.zeros(nl+1, dtype=np.float32)
-            phig[self.dip>0.]   = self.strike[self.dip>0.] + 270.
+            # phig[self.dip>0.]   = self.strike[self.dip>0.] + 270.
+            phig[self.dip>0.]   = self.strike[self.dip>0.] + 90.
             phig[phig>=360.]    = phig[phig>=360.] - 360.
         else:
             theta   = np.zeros(nl+1, dtype=np.float32)
@@ -149,15 +150,19 @@ class aniprop_solver(object):
             if self.model.tilt:
                 theta               = self.dip
                 phig                = np.zeros(nl+1, dtype=np.float32)
-                phig[self.dip>0.]   = self.strike[self.dip>0.] + 270.
+                # phig[self.dip>0.]   = self.strike[self.dip>0.] + 270.
+                phig[self.dip>0.]   = self.strike[self.dip>0.] + 90.
                 phig[phig>=360.]    = phig[phig>=360.] - 360.
             else:
                 theta   = np.zeros(nl+1, dtype=np.float32)
                 phig    = np.zeros(nl+1, dtype=np.float32)
             # az     = 0.
+            baz     = 180. + az
+            if baz > 360.:
+                baz -= 360.
             ###########################################
             # print phig
-            Rphase,Rgroup,Lphase,Lgroup,Period = aniprop.aniprop_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,az, self.Nt, self.Tmin, self.Tmax)
+            Rphase,Rgroup,Lphase,Lgroup,Period = aniprop.aniprop_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
         else:
             zl      *= 1000.
             rhol    *= 1000.
@@ -171,12 +176,12 @@ class aniprop_solver(object):
             nl      = zl.size - 1
             theta   = np.zeros(nl+1, dtype=np.float32)
             phig    = np.zeros(nl+1, dtype=np.float32)
-            az     = 0.
+            baz     = 0.
             ###########################################
             Rphase0,Rgroup0,Lphase,Lgroup,Period = aniprop.aniprop_interface(zl,vp0l,vp2l,vp4l,vs0l,vs2l,rhol,\
-                                                theta,phig,nl,az, self.Nt, self.Tmin, self.Tmax)
+                                                theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
             Rphase,Rgroup,Lphase0,Lgroup0,Period = aniprop.aniprop_interface(zr,vp0r,vp2r,vp4r,vs0r,vs2r,rhor,\
-                                                theta,phig,nl,az, self.Nt, self.Tmin, self.Tmax)
+                                                theta,phig,nl,baz, self.Nt, self.Tmin, self.Tmax)
         self.CR = Rphase/1000.
         self.UR = Rgroup/1000.
         self.CL = Lphase/1000.

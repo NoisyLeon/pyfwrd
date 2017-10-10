@@ -16,10 +16,12 @@ import numba
 import numpy as np
 import vmodel
 import copy
+import matplotlib.pyplot as plt
 
 # define type of vmodel.model1d
 model_type = numba.deferred_type()
 model_type.define(vmodel.model1d.class_type.instance_type)
+
 
 
 class ref_solver(object):
@@ -38,6 +40,8 @@ class ref_solver(object):
             raise ValueError('Input model should be type of vmodel.model1d !')
         self.model  = inmodel
         self.dt     = 0.05
+        self.rfrst  = []; self.rftst  = []
+        self.azArr  = np.array([])
         return
     
     def init_default(self, dh=1., nl=100):
@@ -55,15 +59,16 @@ class ref_solver(object):
         
         c     phase velocity of incident wave, important! LF 
             cc=16.6667  (line 175)
-        ==============================================================================================
+        ===================================================================================================================================
         ::: input parameters :::
-        az          - azimuth
+        az          - azimuth of wave vector (az = 180. - baz, baz is the azimuth look at event from station)
+                    NOTE: the azimuth of wave vector at station is typically NOT the same as the azimuth looking at station from event
         t           - time length of output in sec
         ::: output :::
         self.rfr    - radial receiver function
         self.rft    - transverse receiver function
         self.time   - time array
-        ==============================================================================================
+        ===================================================================================================================================
         """
         self.model.aniprop_check_model()
         z, rho, vp0, vp2, vp4, vs0, vs2 = self.model.layer_aniprop_model(self.dArr, 200, 1.)
@@ -80,11 +85,62 @@ class ref_solver(object):
         if self.model.tilt:
             theta               = self.dip
             phig                = np.zeros(nl+1, dtype=np.float32)
-            phig[self.dip>0.]   = self.strike[self.dip>0.] + 270.
+            # phig[self.dip>0.]   = self.strike[self.dip>0.] + 270.
+            phig[self.dip>0.]   = self.strike[self.dip>0.] + 90.
             phig[phig>=360.]    = phig[phig>=360.] - 360.
         else:
             theta   = np.zeros(nl+1, dtype=np.float32)
             phig    = np.zeros(nl+1, dtype=np.float32)
+        baz     = 180. + az
+        if baz > 360.:
+            baz -= 360.
+        # solve for receiver function using aniprop
+        Rf,Tf,T     = aniprop.rf_aniso_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,baz,ntimes)
+        # radial component
+        self.rfr    = Rf
+        # transverse component
+        self.rft    = Tf
+        # time
+        self.time   = T
+        return
+    
+    def solve_aniprop_benchmark(self, az=0., t=30.):
+        """
+        Compute radial and transverse receiver function using aniprop
+        Default maximum velocity is 16.6667, can be changed by modifying the source code
+        
+        c     phase velocity of incident wave, important! LF 
+            cc=16.6667  (line 175)
+        ==============================================================================================
+        ::: input parameters :::
+        az          - azimuth
+        t           - time length of output in sec
+        ::: output :::
+        self.rfr    - radial receiver function
+        self.rft    - transverse receiver function
+        self.time   - time array
+        ==============================================================================================
+        """
+
+        z       = np.array([30., 200.])
+        rho     = np.array([2.7, 3.3])
+        vp0     = np.array([6.5, 8.0])
+        vs0     = np.array([3.6, 4.6])
+        vs2     = np.array([0.05, 0])
+        vp2     = np.array([0.05, 0])
+        vp4     = np.array([0.0, 0])
+        z       *= 1000.
+        rho     *= 1000.
+        vp0     *= 1000.
+        vs0     *= 1000.
+        
+        # frqmax  = 1.0;  nfrq = 512;          df = frqmax/nfrq
+        # npad    = 8192; dt   = 1./(npad*df)
+        ntimes  = int(t/self.dt)
+        nl      = z.size - 1
+        theta   = np.zeros(nl+1, dtype=np.float32)
+        phig    = np.zeros(nl+1, dtype=np.float32)
+        theta[0]= 90.
         # solve for receiver function using aniprop
         Rf,Tf,T     = aniprop.rf_aniso_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,az,ntimes)
         # radial component
@@ -93,6 +149,8 @@ class ref_solver(object):
         self.rft    = Tf
         # time
         self.time   = T
+        self.rfrst.append(Rf); self.rftst.append(Tf)
+        self.azArr  = np.append(self.azArr, az)
         return
     
     def solve_theo(self, t=30., slowness = 0.06, din = None):
@@ -147,6 +205,27 @@ class ref_solver(object):
         dtps    = h* (np.tan(phip0) - np.tan(phis0))*np.sin(phip1)/vp1 + h/np.cos(phis0)/vs0 - h/np.cos(phip0)/vp0
         print dtps
         
+    def plot_az_rf(self, comp='T'):
+        ymax=361.
+        ymin=-1.
+        time    = self.time
+        ax=plt.subplot()
+        for i in xrange(self.azArr.size):
+            if comp=='R':
+                yvalue  = self.rfrst[i]
+            else:
+                yvalue  = self.rftst[i]
+            rfmax   = yvalue.max()
+            yvalue  = -yvalue/rfmax*10.
+            azi     = self.azArr[i]
+            ax.plot(time, yvalue+azi, '-k', lw=0.3)
+            ax.fill_between(time, y2=azi, y1=yvalue+azi, where=yvalue>0, color='red', lw=0.01, interpolate=True)
+            ax.fill_between(time, y2=azi, y1=yvalue+azi, where=yvalue<0, color='blue', lw=0.01, interpolate=True)
+            plt.axis([0., 25., ymin, ymax])
+            plt.xlabel('Time(sec)')
+            plt.title(comp+' component')
+            plt.gca().invert_yaxis()
+        plt.show()
     
     
     
