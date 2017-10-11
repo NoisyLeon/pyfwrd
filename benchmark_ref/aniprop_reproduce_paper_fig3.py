@@ -22,8 +22,8 @@ m.flat=1
 
 rsolver  = ref.ref_solver(m)
 for az in np.arange(12)*30.+15.:
-    rsolver.solve_aniprop_benchmark(az=az)
-rsolver.plot_az_rf()
+    rsolver.solve_aniprop_reproduce(az=az)
+rsolver.plot_az_rf(comp='R')
 # 
 # ax=plt.subplot()
 # ax.plot(rsolver.time, rsolver.rf, 'k-')

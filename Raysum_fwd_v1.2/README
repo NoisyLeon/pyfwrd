@@ -1,0 +1,81 @@
+  -- RAYSUM anisotropic ray theory code, (c) Andrew Frederiksen --
+  -- First distribution version, Aug. 24, 2001                  --
+  -- e-mail: andyf@es.ucsc.edu                                  --
+
+
+This program generates sets of ray-theoretical seismograms for an
+incident plane wave (teleseismic approximation) for models consisting
+of a stack of layers with planar but nonparallel (dipping) interfaces,
+allowing the possibility of anisotropy in the layers. Incident P and S
+waves are supported.
+
+For more information, see the paper:
+
+   Frederiksen, A.W., and Bostock, M.G. (1999) Modelling teleseismic
+   waves in dipping anisotropic structures. Geophysical Journal
+   International 141: 401-412.
+   
+If extensive use of this code is made in published material, a reference
+to the above paper would be appreciated. The latest version of the code
+is available at http://www.es.ucsc.edu/~andyf/Software/ .
+
+
+*** Installation:
+
+This package contains the source code and Solaris/Sparc binaries for
+the forward-modelling component of the RAYSUM package (the inversion
+portion of the package contains code by Malcolm Sambridge which
+requires his permission to use -- e-mail me if interested). If running
+on a Sun, then, it should be sufficient to add the bin/ subdirectory to
+your path (in your .login file).
+
+If running on a non-Sun system, you'll have to recompile; you may also
+want to do this on a Sun to obtain optimum performance on your system.
+To do this, 'cd src', then type 'make all'. If this fails, you
+unfortunately will need to edit 'Makefile' in the 'src' directory; for
+instance, you may need to set 'F77 = g77' and alter the 'FFLAGS =' and
+'LDFLAGS =' lines. Other than those fields, nothing else in the
+Makefile should need changing.
+
+
+*** Use:
+
+The executable is called 'seis-spread'; it reads its input from files
+and is entirely non-interactive. Typing 'seis-spread' on its own
+returns a list of the desired command-line parameters.
+
+A sample run of the code is in the 'Sample' subdirectory. The command
+line used here was:
+
+seis-spread sample.mod sample.geom sample.ph sample.arr sample.tr SV
+
+The input files are:
+
+  sample.mod -- contains the layered Earth model
+  sample.geom -- contains event/receiver geometry
+  
+Input or output file:
+
+  sample.ph -- phases generated. Normally output (phases are generated
+               automatically), but may be read if an option is set in
+               raysum-params (see below)
+               
+Output files:
+
+  sample.arr -- list of arrivals with travel time and amplitude, keyed
+                to the phase list
+                
+  sample.tr -- generated traces
+  
+The 'SV' at the end of the line indicates that the incident wave is SV
+polarized; other options are P and SH. If this field is omitted, P is
+assumed.
+
+Parameter file:
+
+  raysum-params -- automatically generated with default values if not
+                   already present.
+                   
+All of these files are ASCII and may contain comments on lines beginning
+with '#'. The comments in the sample files document their formats.
+

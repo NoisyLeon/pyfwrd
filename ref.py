@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Module for synthetic receiver function computation, using aniprop by Jeffrey Park, and theo by T. Shibutani
+Module for synthetic receiver function computation, using anirec by Vadim Levin, and theo by Takuo Shibutani
 
 The code is a python wrapper of the f77 code aniprop and theo
 
@@ -27,7 +27,7 @@ model_type.define(vmodel.model1d.class_type.instance_type)
 class ref_solver(object):
     
     """
-    An object solving for receiver function using aniprop by Jeffrey Park, and theo by T. Shibutani
+    An object solving for receiver function using anirec by Vadim Levin, and theo by T. Shibutani
     =====================================================================================================================
     ::: parameters :::
     model           - 1D Earth model object
@@ -52,9 +52,9 @@ class ref_solver(object):
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
     
-    def solve_aniprop(self, az=0., t=30.):
+    def solve_anirec(self, az=0., t=20.):
         """
-        Compute radial and transverse receiver function using aniprop
+        Compute radial and transverse receiver function using anirec
         Default maximum velocity is 16.6667, can be changed by modifying the source code
         
         c     phase velocity of incident wave, important! LF 
@@ -104,7 +104,7 @@ class ref_solver(object):
         self.time   = T
         return
     
-    def solve_aniprop_benchmark(self, az=0., t=30.):
+    def solve_aniprop_reproduce(self, az=0., t=20.):
         """
         Compute radial and transverse receiver function using aniprop
         Default maximum velocity is 16.6667, can be changed by modifying the source code
@@ -153,7 +153,7 @@ class ref_solver(object):
         self.azArr  = np.append(self.azArr, az)
         return
     
-    def solve_theo(self, t=30., slowness = 0.06, din = None):
+    def solve_theo(self, t=20., slowness = 0.06, din = None):
         """
         Compute radial and transverse receiver function using theo
         ====================================================================================
@@ -194,7 +194,9 @@ class ref_solver(object):
         self.time   = np.arange(ntimes, dtype=np.float32)*self.dt 
         return
     
-    def compute_Ps_time(self, slowness = 0.06, h=35.):
+    def compute_diff_ps_time(self, slowness = 0.06, h=35.):
+        """Compute the difference in arrival time between P and P-S converted waves.
+        """
         dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 100, 1.)
         vs0     = (np.sqrt(LArr/rhoArr))[0]
         vp0     = (np.sqrt(CArr/rhoArr))[0]
