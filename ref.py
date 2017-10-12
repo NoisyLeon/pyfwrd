@@ -52,7 +52,7 @@ class ref_solver(object):
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
     
-    def solve_anirec(self, az=0., t=20.):
+    def solve_anirec(self, az=0., t=20., savestream=True):
         """
         Compute radial and transverse receiver function using anirec
         Default maximum velocity is 16.6667, can be changed by modifying the source code
@@ -102,7 +102,12 @@ class ref_solver(object):
         self.rft    = Tf
         # time
         self.time   = T
+        if savestream:
+            self.rfrst.append(Rf); self.rftst.append(Tf)
+            self.azArr  = np.append(self.azArr, az)
         return
+    
+    
     
     def solve_aniprop_reproduce(self, az=0., t=20.):
         """
@@ -207,10 +212,11 @@ class ref_solver(object):
         dtps    = h* (np.tan(phip0) - np.tan(phis0))*np.sin(phip1)/vp1 + h/np.cos(phis0)/vs0 - h/np.cos(phip0)/vp0
         print dtps
         
-    def plot_az_rf(self, comp='T'):
+    def plot_az_rf(self, comp='T', showfig=True):
         ymax=361.
         ymin=-1.
         time    = self.time
+        plt.figure()
         ax=plt.subplot()
         for i in xrange(self.azArr.size):
             if comp=='R':
@@ -218,16 +224,17 @@ class ref_solver(object):
             else:
                 yvalue  = self.rftst[i]
             rfmax   = yvalue.max()
-            yvalue  = -yvalue/rfmax*10.
+            yvalue  = -yvalue/rfmax*40.
+            yvalue[(time>1.8)*(time<3.2)] = 2.*yvalue[(time>1.8)*(time<3.2)]
             azi     = self.azArr[i]
             ax.plot(time, yvalue+azi, '-k', lw=0.3)
             ax.fill_between(time, y2=azi, y1=yvalue+azi, where=yvalue>0, color='red', lw=0.01, interpolate=True)
             ax.fill_between(time, y2=azi, y1=yvalue+azi, where=yvalue<0, color='blue', lw=0.01, interpolate=True)
-            plt.axis([0., 25., ymin, ymax])
+            plt.axis([0., 8, ymin, ymax])
             plt.xlabel('Time(sec)')
             plt.title(comp+' component')
             plt.gca().invert_yaxis()
-        plt.show()
+        if showfig: plt.show()
     
     
     

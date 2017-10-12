@@ -1,0 +1,798 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module raysum ! in 
+    interface  ! in :raysum
+        subroutine buildmodel(a,ar,rot,thick,rho,alpha,beta,isoflag,pct_a,pct_b,trend,plunge,strike,dip,nlay) ! in :raysum:buildmodel.f
+            real dimension(3,3,3,3,15) :: a
+            real dimension(3,3,3,3,15,2) :: ar
+            real dimension(3,3,15) :: rot
+            real dimension(15) :: thick
+            real dimension(15) :: rho
+            real dimension(15) :: alpha
+            real dimension(15) :: beta
+            logical dimension(15) :: isoflag
+            real dimension(15) :: pct_a
+            real dimension(15) :: pct_b
+            real dimension(15) :: trend
+            real dimension(15) :: plunge
+            real dimension(15) :: strike
+            real dimension(15) :: dip
+            integer :: nlay
+        end subroutine buildmodel
+        subroutine tritensr(a,aa,cc,ff,ll,nn,rho) ! in :raysum:buildmodel.f
+            real dimension(3,3,3,3) :: a
+            real :: aa
+            real :: cc
+            real :: ff
+            real :: ll
+            real :: nn
+            real :: rho
+        end subroutine tritensr
+        subroutine rot_tensor(cr,cc,r) ! in :raysum:buildmodel.f
+            real dimension(3,3,3,3) :: cr
+            real dimension(3,3,3,3) :: cc
+            real dimension(3,3) :: r
+        end subroutine rot_tensor
+        subroutine make_rotator(r,strike,dip,nlay) ! in :raysum:buildmodel.f
+            real dimension(3,3,15) :: r
+            real dimension(15) :: strike
+            real dimension(15) :: dip
+            integer :: nlay
+        end subroutine make_rotator
+        subroutine isotroc(a,rho,p1,p2,eval,evec) ! in :raysum:eigenvec.f
+            real dimension(3,3,3,3) :: a
+            real :: rho
+            real :: p1
+            real :: p2
+            complex dimension(6) :: eval
+            complex dimension(6,6) :: evec
+        end subroutine isotroc
+        subroutine anisotroc(a,rho,p1,p2,eval,evec) ! in :raysum:eigenvec.f
+            real dimension(3,3,3,3) :: a
+            real :: rho
+            real :: p1
+            real :: p2
+            complex dimension(6) :: eval
+            complex dimension(6,6) :: evec
+        end subroutine anisotroc
+        subroutine sort_evec(evalr,evali,evecr,eveci,eval,evec) ! in :raysum:eigenvec.f
+            real dimension(6) :: evalr
+            real dimension(6) :: evali
+            real dimension(6,6) :: evecr
+            real dimension(6,6) :: eveci
+            complex dimension(6) :: eval
+            complex dimension(6,6) :: evec
+        end subroutine sort_evec
+        subroutine reorder_evec(evalr,evali,evecr,eveci,index_bn,eval,evec) ! in :raysum:eigenvec.f
+            real dimension(6) :: evalr
+            real dimension(6) :: evali
+            real dimension(6,6) :: evecr
+            real dimension(6,6) :: eveci
+            integer dimension(6) :: index_bn
+            complex dimension(6) :: eval
+            complex dimension(6,6) :: evec
+        end subroutine reorder_evec
+        subroutine sort(a,index_bn,m,n) ! in :raysum:eigenvec.f
+            real dimension(m) :: a
+            integer dimension(n) :: index_bn
+            integer, optional,check(len(a)>=m),depend(a) :: m=len(a)
+            integer, optional,check(len(index_bn)>=n),depend(index_bn) :: n=len(index_bn)
+        end subroutine sort
+        subroutine cg(nm,n,ar,ai,wr,wi,matz,zr,zi,fv1,fv2,fv3,ierr) ! in :raysum:eispack-cg.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            real dimension(nm,n) :: ar
+            real dimension(nm,n),depend(nm,n) :: ai
+            real dimension(n),depend(n) :: wr
+            real dimension(n),depend(n) :: wi
+            integer :: matz
+            real dimension(nm,n),depend(nm,n) :: zr
+            real dimension(nm,n),depend(nm,n) :: zi
+            real dimension(n),depend(n) :: fv1
+            real dimension(n),depend(n) :: fv2
+            real dimension(n),depend(n) :: fv3
+            integer :: ierr
+        end subroutine cg
+        subroutine cbabk2(nm,n,low,igh,scale,m,zr,zi) ! in :raysum:eispack-cg.f
+            integer, optional,check(shape(zr,0)==nm),depend(zr) :: nm=shape(zr,0)
+            integer, optional,check(len(scale)>=n),depend(scale) :: n=len(scale)
+            integer :: low
+            integer :: igh
+            real dimension(n) :: scale
+            integer, optional,check(shape(zr,1)==m),depend(zr) :: m=shape(zr,1)
+            real dimension(nm,m) :: zr
+            real dimension(nm,m),depend(nm,m) :: zi
+        end subroutine cbabk2
+        subroutine cbal(nm,n,ar,ai,low,igh,scale) ! in :raysum:eispack-cg.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            real dimension(nm,n) :: ar
+            real dimension(nm,n),depend(nm,n) :: ai
+            integer :: low
+            integer :: igh
+            real dimension(n),depend(n) :: scale
+        end subroutine cbal
+        subroutine comqr(nm,n,low,igh,hr,hi,wr,wi,ierr) ! in :raysum:eispack-cg.f
+            integer, optional,check(shape(hr,0)==nm),depend(hr) :: nm=shape(hr,0)
+            integer, optional,check(shape(hr,1)==n),depend(hr) :: n=shape(hr,1)
+            integer :: low
+            integer :: igh
+            real dimension(nm,n) :: hr
+            real dimension(nm,n),depend(nm,n) :: hi
+            real dimension(n),depend(n) :: wr
+            real dimension(n),depend(n) :: wi
+            integer :: ierr
+        end subroutine comqr
+        subroutine comqr2(nm,n,low,igh,ortr,orti,hr,hi,wr,wi,zr,zi,ierr) ! in :raysum:eispack-cg.f
+            integer, optional,check(shape(hr,0)==nm),depend(hr) :: nm=shape(hr,0)
+            integer, optional,check(shape(hr,1)==n),depend(hr) :: n=shape(hr,1)
+            integer :: low
+            integer, optional,check(len(ortr)>=igh),depend(ortr) :: igh=len(ortr)
+            real dimension(igh) :: ortr
+            real dimension(igh),depend(igh) :: orti
+            real dimension(nm,n) :: hr
+            real dimension(nm,n),depend(nm,n) :: hi
+            real dimension(n),depend(n) :: wr
+            real dimension(n),depend(n) :: wi
+            real dimension(nm,n),depend(nm,n) :: zr
+            real dimension(nm,n),depend(nm,n) :: zi
+            integer :: ierr
+        end subroutine comqr2
+        subroutine corth(nm,n,low,igh,ar,ai,ortr,orti) ! in :raysum:eispack-cg.f
+            integer, optional,check(shape(ar,0)==nm),depend(ar) :: nm=shape(ar,0)
+            integer, optional,check(shape(ar,1)==n),depend(ar) :: n=shape(ar,1)
+            integer :: low
+            integer, optional,check(len(ortr)>=igh),depend(ortr) :: igh=len(ortr)
+            real dimension(nm,n) :: ar
+            real dimension(nm,n),depend(nm,n) :: ai
+            real dimension(igh) :: ortr
+            real dimension(igh),depend(igh) :: orti
+        end subroutine corth
+        subroutine cdiv(ar,ai,br,bi,cr,ci) ! in :raysum:eispack-cg.f
+            real :: ar
+            real :: ai
+            real :: br
+            real :: bi
+            real :: cr
+            real :: ci
+        end subroutine cdiv
+        subroutine csroot(xr,xi,yr,yi) ! in :raysum:eispack-cg.f
+            real :: xr
+            real :: xi
+            real :: yr
+            real :: yi
+        end subroutine csroot
+        function pythag(a,b) ! in :raysum:eispack-cg.f
+            real :: a
+            real :: b
+            real :: pythag
+        end function pythag
+        subroutine rmatlincomb(x,a,y,b,c,m,n) ! in :raysum:matrixops.f
+            real :: x
+            real dimension(m,n) :: a
+            real :: y
+            real dimension(m,n),depend(m,n) :: b
+            real dimension(m,n),depend(m,n) :: c
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine rmatlincomb
+        subroutine cmatlincomb(x,a,y,b,c,m,n) ! in :raysum:matrixops.f
+            complex :: x
+            complex dimension(m,n) :: a
+            complex :: y
+            complex dimension(m,n),depend(m,n) :: b
+            complex dimension(m,n),depend(m,n) :: c
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine cmatlincomb
+        subroutine rmatconst(a,c,m,n) ! in :raysum:matrixops.f
+            real dimension(m,n) :: a
+            real :: c
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine rmatconst
+        subroutine cmatconst(a,c,m,n) ! in :raysum:matrixops.f
+            complex dimension(m,n) :: a
+            complex :: c
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine cmatconst
+        subroutine rmatmul(a,b,c,m,n,o) ! in :raysum:matrixops.f
+            real dimension(m,n) :: a
+            real dimension(n,o),depend(n) :: b
+            real dimension(m,o),depend(m,o) :: c
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            integer, optional,check(shape(b,1)==o),depend(b) :: o=shape(b,1)
+        end subroutine rmatmul
+        subroutine cmatmul(a,b,c,m,n,o) ! in :raysum:matrixops.f
+            complex dimension(m,n) :: a
+            complex dimension(n,o),depend(n) :: b
+            complex dimension(m,o),depend(m,o) :: c
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+            integer, optional,check(shape(b,1)==o),depend(b) :: o=shape(b,1)
+        end subroutine cmatmul
+        subroutine rmatvec(a,x,y,m,n) ! in :raysum:matrixops.f
+            real dimension(m,n) :: a
+            real dimension(n),depend(n) :: x
+            real dimension(m),depend(m) :: y
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine rmatvec
+        subroutine cmatvec(a,x,y,m,n) ! in :raysum:matrixops.f
+            complex dimension(m,n) :: a
+            complex dimension(n),depend(n) :: x
+            complex dimension(m),depend(m) :: y
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine cmatvec
+        subroutine rmatlincomb3(x,a,y,b,c) ! in :raysum:matrixops.f
+            real :: x
+            real dimension(3,3) :: a
+            real :: y
+            real dimension(3,3) :: b
+            real dimension(3,3) :: c
+        end subroutine rmatlincomb3
+        subroutine cmatlincomb3(x,a,y,b,c) ! in :raysum:matrixops.f
+            complex :: x
+            complex dimension(3,3) :: a
+            complex :: y
+            complex dimension(3,3) :: b
+            complex dimension(3,3) :: c
+        end subroutine cmatlincomb3
+        subroutine rmatconst3(a,c) ! in :raysum:matrixops.f
+            real dimension(3,3) :: a
+            real :: c
+        end subroutine rmatconst3
+        subroutine cmatconst3(a,c) ! in :raysum:matrixops.f
+            complex dimension(3,3) :: a
+            complex :: c
+        end subroutine cmatconst3
+        subroutine rmatmul3(a,b,c) ! in :raysum:matrixops.f
+            real dimension(3,3) :: a
+            real dimension(3,3) :: b
+            real dimension(3,3) :: c
+        end subroutine rmatmul3
+        subroutine cmatmul3(a,b,c) ! in :raysum:matrixops.f
+            complex dimension(3,3) :: a
+            complex dimension(3,3) :: b
+            complex dimension(3,3) :: c
+        end subroutine cmatmul3
+        subroutine rmatvec3(a,x,y) ! in :raysum:matrixops.f
+            real dimension(3,3) :: a
+            real dimension(3) :: x
+            real dimension(3) :: y
+        end subroutine rmatvec3
+        subroutine cmatvec3(a,x,y) ! in :raysum:matrixops.f
+            complex dimension(3,3) :: a
+            complex dimension(3) :: x
+            complex dimension(3) :: y
+        end subroutine cmatvec3
+        subroutine rcmatvec3(a,x,y) ! in :raysum:matrixops.f
+            real dimension(3,3) :: a
+            complex dimension(3) :: x
+            complex dimension(3) :: y
+        end subroutine rcmatvec3
+        subroutine crmatvec3(a,x,y) ! in :raysum:matrixops.f
+            complex dimension(3,3) :: a
+            real dimension(3) :: x
+            real dimension(3) :: y
+        end subroutine crmatvec3
+        subroutine rvecmat3(x,a,y) ! in :raysum:matrixops.f
+            real dimension(3) :: x
+            real dimension(3,3) :: a
+            real dimension(3) :: y
+        end subroutine rvecmat3
+        subroutine cvecmat3(x,a,y) ! in :raysum:matrixops.f
+            complex dimension(3) :: x
+            complex dimension(3,3) :: a
+            complex dimension(3) :: y
+        end subroutine cvecmat3
+        function rdot3(x,y) ! in :raysum:matrixops.f
+            real dimension(3) :: x
+            real dimension(3) :: y
+            real :: rdot3
+        end function rdot3
+        function cdot3(x,y) ! in :raysum:matrixops.f
+            complex dimension(3) :: x
+            complex dimension(3) :: y
+            complex :: cdot3
+        end function cdot3
+        subroutine rmatinv3(a,ai) ! in :raysum:matrixops.f
+            real dimension(3,3) :: a
+            real dimension(3,3) :: ai
+        end subroutine rmatinv3
+        subroutine cmatinv3(a,ai) ! in :raysum:matrixops.f
+            complex dimension(3,3) :: a
+            complex dimension(3,3) :: ai
+        end subroutine cmatinv3
+        subroutine rtransp(a,b,m,n) ! in :raysum:matrixops.f
+            real dimension(m,n) :: a
+            real dimension(n,m),depend(n,m) :: b
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine rtransp
+        subroutine ctransp(a,b,m,n) ! in :raysum:matrixops.f
+            complex dimension(m,n) :: a
+            complex dimension(n,m),depend(n,m) :: b
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine ctransp
+        subroutine rtransp3(a,b) ! in :raysum:matrixops.f
+            real dimension(3,3) :: a
+            real dimension(3,3) :: b
+        end subroutine rtransp3
+        subroutine ctransp3(a,b) ! in :raysum:matrixops.f
+            complex dimension(3,3) :: a
+            complex dimension(3,3) :: b
+        end subroutine ctransp3
+        subroutine rmatcopy(a,b,m,n) ! in :raysum:matrixops.f
+            real dimension(m,n) :: a
+            real dimension(m,n),depend(m,n) :: b
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine rmatcopy
+        subroutine cmatcopy(a,b,m,n) ! in :raysum:matrixops.f
+            complex dimension(m,n) :: a
+            complex dimension(m,n),depend(m,n) :: b
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine cmatcopy
+        subroutine rmatcopy3(a,b) ! in :raysum:matrixops.f
+            real dimension(3,3) :: a
+            real dimension(3,3) :: b
+        end subroutine rmatcopy3
+        subroutine cmatcopy3(a,b) ! in :raysum:matrixops.f
+            complex dimension(3,3) :: a
+            complex dimension(3,3) :: b
+        end subroutine cmatcopy3
+        subroutine rveccopy(x,y,n) ! in :raysum:matrixops.f
+            real dimension(n) :: x
+            real dimension(n),depend(n) :: y
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+        end subroutine rveccopy
+        subroutine cveccopy(x,y,n) ! in :raysum:matrixops.f
+            complex dimension(n) :: x
+            complex dimension(n),depend(n) :: y
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+        end subroutine cveccopy
+        subroutine rextractvec(a,v,i1,i2,k,m,n) ! in :raysum:matrixops.f
+            real dimension(m,n) :: a
+            real dimension(i2-i1+1),depend(i1,i2) :: v
+            integer :: i1
+            integer :: i2
+            integer :: k
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine rextractvec
+        subroutine cextractvec(a,v,i1,i2,k,m,n) ! in :raysum:matrixops.f
+            complex dimension(m,n) :: a
+            complex dimension(i2-i1+1),depend(i1,i2) :: v
+            integer :: i1
+            integer :: i2
+            integer :: k
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine cextractvec
+        subroutine rextractblock(a,b,i1,i2,j1,j2,m,n) ! in :raysum:matrixops.f
+            real dimension(m,n) :: a
+            real dimension(i2-i1+1,j2-j1+1),depend(i1,i2,j1,j2) :: b
+            integer :: i1
+            integer :: i2
+            integer :: j1
+            integer :: j2
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine rextractblock
+        subroutine cextractblock(a,b,i1,i2,j1,j2,m,n) ! in :raysum:matrixops.f
+            complex dimension(m,n) :: a
+            complex dimension(i2-i1+1,j2-j1+1),depend(i1,i2,j1,j2) :: b
+            integer :: i1
+            integer :: i2
+            integer :: j1
+            integer :: j2
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine cextractblock
+        subroutine rmax_vec_abs(v,index_bn,value,m) ! in :raysum:matrixops.f
+            real dimension(m) :: v
+            integer :: index_bn
+            real :: value
+            integer, optional,check(len(v)>=m),depend(v) :: m=len(v)
+        end subroutine rmax_vec_abs
+        subroutine cmax_vec_abs(v,index_bn,value,m) ! in :raysum:matrixops.f
+            complex dimension(m) :: v
+            integer :: index_bn
+            real :: value
+            integer, optional,check(len(v)>=m),depend(v) :: m=len(v)
+        end subroutine cmax_vec_abs
+        subroutine rnorm3(x,y) ! in :raysum:matrixops.f
+            real dimension(3) :: x
+            real dimension(3) :: y
+        end subroutine rnorm3
+        subroutine cnorm3(x,y) ! in :raysum:matrixops.f
+            complex dimension(3) :: x
+            complex dimension(3) :: y
+        end subroutine cnorm3
+        subroutine rprintmat(a,m,n) ! in :raysum:matrixops.f
+            real dimension(m,n) :: a
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine rprintmat
+        subroutine cprintmat(a,m,n) ! in :raysum:matrixops.f
+            complex dimension(m,n) :: a
+            integer, optional,check(shape(a,0)==m),depend(a) :: m=shape(a,0)
+            integer, optional,check(shape(a,1)==n),depend(a) :: n=shape(a,1)
+        end subroutine cprintmat
+        function getmisfit(data_tr,syn_tr,weight,ntr,nsamp,m1,m2,m3,mtype) ! in :raysum:misfit.f
+            real dimension(3,2000,200) :: data_tr
+            real dimension(3,2000,200) :: syn_tr
+            real dimension(200) :: weight
+            integer :: ntr
+            integer :: nsamp
+            real :: m1
+            real :: m2
+            real :: m3
+            integer :: mtype
+            real :: getmisfit
+        end function getmisfit
+        function l1_misfit(data_tr,syn_tr,weight,ntr,nsamp,m1,m2,m3) ! in :raysum:misfit.f
+            real dimension(3,2000,200) :: data_tr
+            real dimension(3,2000,200) :: syn_tr
+            real dimension(200) :: weight
+            integer :: ntr
+            integer :: nsamp
+            real :: m1
+            real :: m2
+            real :: m3
+            real :: l1_misfit
+        end function l1_misfit
+        function l1sc_misfit(data_tr,syn_tr,weight,ntr,nsamp,m1,m2,m3) ! in :raysum:misfit.f
+            real dimension(3,2000,200) :: data_tr
+            real dimension(3,2000,200) :: syn_tr
+            real dimension(200) :: weight
+            integer :: ntr
+            integer :: nsamp
+            real :: m1
+            real :: m2
+            real :: m3
+            real :: l1sc_misfit
+        end function l1sc_misfit
+        function l2_misfit(data_tr,syn_tr,weight,ntr,nsamp,m1,m2,m3) ! in :raysum:misfit.f
+            real dimension(3,2000,200) :: data_tr
+            real dimension(3,2000,200) :: syn_tr
+            real dimension(200) :: weight
+            integer :: ntr
+            integer :: nsamp
+            real :: m1
+            real :: m2
+            real :: m3
+            real :: l2_misfit
+        end function l2_misfit
+        function l2sc_misfit(data_tr,syn_tr,weight,ntr,nsamp,m1,m2,m3) ! in :raysum:misfit.f
+            real dimension(3,2000,200) :: data_tr
+            real dimension(3,2000,200) :: syn_tr
+            real dimension(200) :: weight
+            integer :: ntr
+            integer :: nsamp
+            real :: m1
+            real :: m2
+            real :: m3
+            real :: l2sc_misfit
+        end function l2sc_misfit
+        function corr_misfit(data_tr,syn_tr,weight,ntr,nsamp,m1,m2,m3) ! in :raysum:misfit.f
+            real dimension(3,2000,200) :: data_tr
+            real dimension(3,2000,200) :: syn_tr
+            real dimension(200) :: weight
+            integer :: ntr
+            integer :: nsamp
+            real :: m1
+            real :: m2
+            real :: m3
+            real :: corr_misfit
+        end function corr_misfit
+        subroutine scaletr(tr,ntr,nsamp,m,l) ! in :raysum:misfit.f
+            real dimension(3,2000,200) :: tr
+            integer :: ntr
+            integer :: nsamp
+            real dimension(3) :: m
+            integer :: l
+        end subroutine scaletr
+        subroutine ph_direct(phaselist,nseg,numph,nlay,iphase) ! in :raysum:phaselist.f
+            integer dimension(45,2,40000) :: phaselist
+            integer dimension(40000) :: nseg
+            integer :: numph
+            integer :: nlay
+            integer :: iphase
+        end subroutine ph_direct
+        subroutine ph_direct_all(phaselist,nseg,numph,nlay,iphase) ! in :raysum:phaselist.f
+            integer dimension(45,2,40000) :: phaselist
+            integer dimension(40000) :: nseg
+            integer :: numph
+            integer :: nlay
+            integer :: iphase
+        end subroutine ph_direct_all
+        subroutine ph_fsmults(phaselist,nseg,numph,nlay,blay,iphase) ! in :raysum:phaselist.f
+            integer dimension(45,2,40000) :: phaselist
+            integer dimension(40000) :: nseg
+            integer :: numph
+            integer :: nlay
+            integer :: blay
+            integer :: iphase
+        end subroutine ph_fsmults
+        subroutine ph_fsmults_p(phaselist,nseg,numph,nlay,blay) ! in :raysum:phaselist.f
+            integer dimension(45,2,40000) :: phaselist
+            integer dimension(40000) :: nseg
+            integer :: numph
+            integer :: nlay
+            integer :: blay
+        end subroutine ph_fsmults_p
+        subroutine ph_fsmults_s(phaselist,nseg,numph,nlay,blay,iphase) ! in :raysum:phaselist.f
+            integer dimension(45,2,40000) :: phaselist
+            integer dimension(40000) :: nseg
+            integer :: numph
+            integer :: nlay
+            integer :: blay
+            integer :: iphase
+        end subroutine ph_fsmults_s
+        function conv_count(phase,nseg) ! in :raysum:phaselist.f
+            integer dimension(45,2) :: phase
+            integer :: nseg
+            integer :: conv_count
+        end function conv_count
+        subroutine get_arrivals(travel_time,amplitude,thick,rho,isoflag,strike,dip,aa,ar_list,rot,baz,slow,sta_dx,sta_dy,phaselist,ntr,nseg,numph,nlay,amp_in) ! in :raysum:raysum.f
+            real dimension(40000,200) :: travel_time
+            real dimension(3,40000,200) :: amplitude
+            real dimension(15) :: thick
+            real dimension(15) :: rho
+            logical dimension(15) :: isoflag
+            real dimension(15) :: strike
+            real dimension(15) :: dip
+            real dimension(3,3,3,3,15) :: aa
+            real dimension(3,3,3,3,15,2) :: ar_list
+            real dimension(3,3,15) :: rot
+            real dimension(200) :: baz
+            real dimension(200) :: slow
+            real dimension(200) :: sta_dx
+            real dimension(200) :: sta_dy
+            integer dimension(45,2,40000) :: phaselist
+            integer :: ntr
+            integer dimension(40000) :: nseg
+            integer :: numph
+            integer :: nlay
+            real :: amp_in
+        end subroutine get_arrivals
+        subroutine raysum(tt,amp,thick,rho,isoflag,aa,ar_list,rot,baz,slow,phase,nseg,nlay,amp_in,fchg,bailout) ! in :raysum:raysum.f
+            real :: tt
+            real dimension(3) :: amp
+            real dimension(15) :: thick
+            real dimension(15) :: rho
+            logical dimension(15) :: isoflag
+            real dimension(3,3,3,3,15) :: aa
+            real dimension(3,3,3,3,15,2) :: ar_list
+            real dimension(3,3,15) :: rot
+            real :: baz
+            real :: slow
+            integer dimension(45,2) :: phase
+            integer :: nseg
+            integer :: nlay
+            real :: amp_in
+            integer :: fchg
+            logical :: bailout
+        end subroutine raysum
+        subroutine rot_evec(evec,r) ! in :raysum:raysum.f
+            complex dimension(6,6) :: evec
+            real dimension(3,3) :: r
+        end subroutine rot_evec
+        subroutine evec_check(evec,invec,phase1,mult,errflag) ! in :raysum:raysum.f
+            complex dimension(6,6) :: evec
+            complex dimension(3) :: invec
+            integer :: phase1
+            integer :: mult
+            logical :: errflag
+        end subroutine evec_check
+        subroutine eiginv(eig,eig_i) ! in :raysum:raysum.f
+            complex dimension(6,6) :: eig
+            complex dimension(6,6) :: eig_i
+        end subroutine eiginv
+        subroutine raysum_interface(nlay,thick,rho,alpha,beta,pct_a,pct_b,trend,plunge,strike,dip,isoflag,iphase_in,ntr,baz,slow,sta_dx,sta_dy,mults,nsamp,dt,width,align,shift,out_rot,phname_in,travel_time,amplitude,numph,tr_cart,tr_ph) ! in :raysum:raysum_interface.f
+            integer :: nlay
+            real dimension(15) :: thick
+            real dimension(15) :: rho
+            real dimension(15) :: alpha
+            real dimension(15) :: beta
+            real dimension(15) :: pct_a
+            real dimension(15) :: pct_b
+            real dimension(15) :: trend
+            real dimension(15) :: plunge
+            real dimension(15) :: strike
+            real dimension(15) :: dip
+            logical dimension(15) :: isoflag
+            integer :: iphase_in
+            integer :: ntr
+            real dimension(200) :: baz
+            real dimension(200) :: slow
+            real dimension(200) :: sta_dx
+            real dimension(200) :: sta_dy
+            integer :: mults
+            integer :: nsamp
+            real :: dt
+            real :: width
+            integer :: align
+            real :: shift
+            integer :: out_rot
+            character*40 :: phname_in
+            real dimension(40000,200), intent(out) :: travel_time
+            real dimension(3,40000,200), intent(out) :: amplitude
+            integer, intent(out) :: numph
+            real dimension(3,2000,200), intent(out) :: tr_cart
+            real dimension(3,2000,200), intent(out) :: tr_ph
+        end subroutine raysum_interface
+        subroutine readparams(filename,mults,nsamp,dt,width,align,shift,out_rot) ! in :raysum:raysum_interface.f
+            character*40 :: filename
+            integer :: mults
+            integer :: nsamp
+            real :: dt
+            real :: width
+            integer :: align
+            real :: shift
+            integer :: out_rot
+        end subroutine readparams
+        subroutine readmodel(filename,thick,rho,alpha,beta,isoflag,pct_a,pct_b,trend,plunge,strike,dip,nlay) ! in :raysum:readwrite.f
+            character*40 :: filename
+            real dimension(15) :: thick
+            real dimension(15) :: rho
+            real dimension(15) :: alpha
+            real dimension(15) :: beta
+            logical dimension(15) :: isoflag
+            real dimension(15) :: pct_a
+            real dimension(15) :: pct_b
+            real dimension(15) :: trend
+            real dimension(15) :: plunge
+            real dimension(15) :: strike
+            real dimension(15) :: dip
+            integer :: nlay
+        end subroutine readmodel
+        subroutine readgeom(filename,baz,slow,sta_dx,sta_dy,ntr) ! in :raysum:readwrite.f
+            character*40 :: filename
+            real dimension(200) :: baz
+            real dimension(200) :: slow
+            real dimension(200) :: sta_dx
+            real dimension(200) :: sta_dy
+            integer :: ntr
+        end subroutine readgeom
+        subroutine readtraces(filename,traces,ntr,nsamp,dt,align,shift) ! in :raysum:readwrite.f
+            character*40 :: filename
+            real dimension(3,2000,200) :: traces
+            integer :: ntr
+            integer :: nsamp
+            real :: dt
+            integer :: align
+            real :: shift
+        end subroutine readtraces
+        subroutine getline(unit,buffer,eof) ! in :raysum:readwrite.f
+            integer :: unit
+            character*120 :: buffer
+            integer :: eof
+        end subroutine getline
+        function firstnonblank(buffer) ! in :raysum:readwrite.f
+            character*120 :: buffer
+            character :: firstnonblank
+        end function firstnonblank
+        subroutine writemodel(unit,thick,rho,alpha,beta,isoflag,pct_a,pct_b,trend,plunge,strike,dip,nlay) ! in :raysum:readwrite.f
+            integer :: unit
+            real dimension(15) :: thick
+            real dimension(15) :: rho
+            real dimension(15) :: alpha
+            real dimension(15) :: beta
+            logical dimension(15) :: isoflag
+            real dimension(15) :: pct_a
+            real dimension(15) :: pct_b
+            real dimension(15) :: trend
+            real dimension(15) :: plunge
+            real dimension(15) :: strike
+            real dimension(15) :: dip
+            integer :: nlay
+        end subroutine writemodel
+        subroutine writegeom(unit,baz,slow,sta_dx,sta_dy,ntr) ! in :raysum:readwrite.f
+            integer :: unit
+            real dimension(200) :: baz
+            real dimension(200) :: slow
+            real dimension(200) :: sta_dx
+            real dimension(200) :: sta_dy
+            integer :: ntr
+        end subroutine writegeom
+        subroutine printphases(phaselist,nseg,numph) ! in :raysum:readwrite.f
+            integer dimension(45,2,40000) :: phaselist
+            integer dimension(40000) :: nseg
+            integer :: numph
+        end subroutine printphases
+        subroutine readphases(filename,phaselist,nseg,numph) ! in :raysum:readwrite.f
+            character*40 :: filename
+            integer dimension(45,2,40000) :: phaselist
+            integer dimension(40000) :: nseg
+            integer :: numph
+        end subroutine readphases
+        subroutine writephases(unit,phaselist,nseg,numph) ! in :raysum:readwrite.f
+            integer :: unit
+            integer dimension(45,2,40000) :: phaselist
+            integer dimension(40000) :: nseg
+            integer :: numph
+        end subroutine writephases
+        subroutine writearrivals(unit,tt,amp,ntr,nph) ! in :raysum:readwrite.f
+            integer :: unit
+            real dimension(40000,200) :: tt
+            real dimension(3,40000,200) :: amp
+            integer :: ntr
+            integer :: nph
+        end subroutine writearrivals
+        subroutine readweight(filename,weight,ntr) ! in :raysum:readwrite.f
+            character*40 :: filename
+            real dimension(200) :: weight
+            integer :: ntr
+        end subroutine readweight
+        subroutine writetraces(unit,traces,ntr,nsamp,dt,align,shift) ! in :raysum:readwrite.f
+            integer :: unit
+            real dimension(3,2000,200) :: traces
+            integer :: ntr
+            integer :: nsamp
+            real :: dt
+            integer :: align
+            real :: shift
+        end subroutine writetraces
+        subroutine make_traces(tt,amp,ntr,nph,nsamp,dt,gwidth,align,shift,tr_cart) ! in :raysum:trace.f
+            real dimension(40000,200) :: tt
+            real dimension(3,40000,200) :: amp
+            integer :: ntr
+            integer :: nph
+            integer :: nsamp
+            real :: dt
+            real :: gwidth
+            integer :: align
+            real :: shift
+            real dimension(3,2000,200) :: tr_cart
+        end subroutine make_traces
+        subroutine putgauss(traces,sigma,mu,amp,nsamp) ! in :raysum:trace.f
+            real dimension(3,2000) :: traces
+            real :: sigma
+            real :: mu
+            real dimension(3) :: amp
+            integer :: nsamp
+        end subroutine putgauss
+        subroutine rot_traces(tr_cart,baz,ntr,nsamp,tr_ph) ! in :raysum:trace.f
+            real dimension(3,2000,200) :: tr_cart
+            real dimension(200) :: baz
+            integer :: ntr
+            integer :: nsamp
+            real dimension(3,2000,200) :: tr_ph
+        end subroutine rot_traces
+        subroutine fs_traces(tr_cart,baz,slow,alpha,beta,rho,ntr,nsamp,tr_ph) ! in :raysum:trace.f
+            real dimension(3,2000,200) :: tr_cart
+            real dimension(200) :: baz
+            real dimension(200) :: slow
+            real :: alpha
+            real :: beta
+            real :: rho
+            integer :: ntr
+            integer :: nsamp
+            real dimension(3,2000,200) :: tr_ph
+        end subroutine fs_traces
+        subroutine norm_arrivals(amp,baz,slow,alpha,beta,rho,ntr,numph,arr,comp) ! in :raysum:trace.f
+            real dimension(3,40000,200) :: amp
+            real dimension(200) :: baz
+            real dimension(200) :: slow
+            real :: alpha
+            real :: beta
+            real :: rho
+            integer :: ntr
+            integer :: numph
+            integer :: arr
+            integer :: comp
+        end subroutine norm_arrivals
+    end interface 
+end python module raysum
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/

@@ -36,7 +36,7 @@ Spherical Earth:
     m.add_perturb_layer_love(0, 20., 4, 0.3, True), T = 5 sec, aniprop yields seemly wrong result. OTHERS are consistent ( ~ 0.05 %)
     m.add_perturb_layer_love(0, 20., 4, -0.1, True); m.add_perturb_layer_love(0, 20., 3, -0.3, True) T = 5 sec, wrong results ( ~ 0.05 %)
 """
-import eigen, tcps, aniproppy
+import eigen, tcps, aniproppy, ref
 import vmodel
 import numpy as np
 import matplotlib.pyplot as plt
@@ -98,51 +98,22 @@ m2.strikeArr[-1] = 110; m2.strikeArr[-2] = 110
 m2.rot_dip_strike()
 m2.decompose()
 
-# 
-tcpsR1 = tcps.tcps_solver(m1)
-tcpsR1.init_default()
-tcpsR1.solve_PSV()
-
-# 
-tcpsR2 = tcps.tcps_solver(m2)
-tcpsR2.init_default()
-tcpsR2.solve_PSV()
-
-# 
-CR1  = []
-for baz in np.arange(360)*1.:
-    tcpsR1.psv_azi_perturb(baz, True)
-    CR1.append(tcpsR1.CA[1])
-
-CR2  = []
-for baz in np.arange(360)*1.:
-    tcpsR1.psv_azi_perturb(baz)
-    CR2.append(tcpsR1.CA[1])
-    
 
 
-# 
-CR3  = []
-for baz in np.arange(360)*1.:
-    tcpsR2.psv_azi_perturb(baz, True)
-    CR3.append(tcpsR2.CA[1])
-
-CR4  = []
-for baz in np.arange(360)*1.:
-    tcpsR2.psv_azi_perturb(baz)
-    CR4.append(tcpsR2.CA[1])
+rsolver1  = ref.ref_solver(m1)
+rsolver1.init_default_2()
+for az in np.arange(12)*30.:
+    rsolver1.solve_anirec(az=az)
+rsolver1.plot_az_rf(comp='R', showfig=False)
 
 
-CR1 = np.array(CR1)
-CR2 = np.array(CR2)
+rsolver2  = ref.ref_solver(m2)
+rsolver2.init_default_2()
+for az in np.arange(12)*30.:
+    rsolver2.solve_anirec(az=az)
+rsolver2.plot_az_rf(comp='R')
 
-CR3 = np.array(CR3)
-CR4 = np.array(CR4)
 
-# plt.plot(np.arange(360)*1., CR1, 'o', ms=5)
-plt.plot(np.arange(360)*1., CR2, 'ro', ms=10)
-# plt.plot(np.arange(360)*1., CR3, 'o', ms=5)
-plt.plot(np.arange(360)*1., CR4, 'b^', ms=8)
-# plt.plot(np.arange(360)*1., tcpsR2.C[1]*np.ones(360), 'x', ms=5)
 
-plt.show()
+
+

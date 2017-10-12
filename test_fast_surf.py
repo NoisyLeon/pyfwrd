@@ -11,7 +11,8 @@ import matplotlib.pyplot as plt
 
 m=vmodel.model1d()
 m.model_ak135_cps()
-m.earth_flattening()
+m.flat=0
+# m.earth_flattening()
 # 
 
 # # model perturbation: isotropic -> VTI
@@ -30,7 +31,7 @@ m.earth_flattening()
 # m.add_perturb_layer_love(0, 20., 4, 0.02, True)
 
 ssolver  = fsurf.fsurf_solver(m)
-ssolver.init_default_2()
+ssolver.init_default()
 ssolver.solve_surf()
 
 tcpsR = tcps.tcps_solver(m)

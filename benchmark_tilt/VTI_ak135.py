@@ -71,33 +71,33 @@ ani.init_default_2()
 # ani.init_default(nl=100, dh=2.)
 ani.solve_surf()
 
-dcr = (tcpsR.Vph - ani.CR)/tcpsR.Vph*100.
-dur = (tcpsR.Vgr - ani.UR)/tcpsR.Vgr*100.
-dcl = (tcpsL.Vph - ani.CL)/tcpsL.Vph*100.
-dul = (tcpsL.Vgr - ani.UL)/tcpsL.Vgr*100.
+dcr = (tcpsR.C - ani.CR)/tcpsR.C*100.
+dur = (tcpsR.U - ani.UR)/tcpsR.U*100.
+dcl = (tcpsL.C - ani.CL)/tcpsL.C*100.
+dul = (tcpsL.U - ani.UL)/tcpsL.U*100.
 
 plt.figure()
-plt.plot(tcpsR.T, tcpsR.Vph, 'ro', ms=10, label='herrmann: CR VTI')
+plt.plot(tcpsR.T, tcpsR.C, 'ro', ms=10, label='herrmann: CR VTI')
 plt.plot(ani.T, ani.CR, 'b^', ms=10, label='Park: CR VTI')
-plt.plot(tcpsR0.T, tcpsR0.Vph, 'kx', ms=10, label='herrmann: CR iso')
+plt.plot(tcpsR0.T, tcpsR0.C, 'kx', ms=10, label='herrmann: CR iso')
 plt.legend(loc=0, fontsize=15)
 
 plt.figure()
-plt.plot(tcpsR.T, tcpsR.Vgr, 'ro', ms=10, label='herrmann: UR VTI')
+plt.plot(tcpsR.T, tcpsR.U, 'ro', ms=10, label='herrmann: UR VTI')
 plt.plot(ani.T, ani.UR, 'b^', ms=10, label='Park: UR VTI')
-plt.plot(tcpsR0.T, tcpsR0.Vgr, 'kx', ms=10, label='herrmann: UR iso')
+plt.plot(tcpsR0.T, tcpsR0.U, 'kx', ms=10, label='herrmann: UR iso')
 plt.legend(loc=0, fontsize=15)
 
 plt.figure()
-plt.plot(tcpsL.T, tcpsL.Vph, 'ro', ms=10, label='herrmann: CL VTI')
+plt.plot(tcpsL.T, tcpsL.C, 'ro', ms=10, label='herrmann: CL VTI')
 plt.plot(ani.T, ani.CL, 'b^', ms=10, label='Park: CL VTI')
-plt.plot(tcpsL0.T, tcpsL0.Vph, 'kx', ms=10, label='herrmann: CL iso')
+plt.plot(tcpsL0.T, tcpsL0.C, 'kx', ms=10, label='herrmann: CL iso')
 plt.legend(loc=0, fontsize=15)
 
 plt.figure()
-plt.plot(tcpsL.T, tcpsL.Vgr, 'ro', ms=10, label='herrmann: UL VTI')
+plt.plot(tcpsL.T, tcpsL.U, 'ro', ms=10, label='herrmann: UL VTI')
 plt.plot(ani.T, ani.UL, 'b^', ms=10, label='Park: UL VTI')
-plt.plot(tcpsL0.T, tcpsL0.Vgr, 'kx', ms=10, label='herrmann: UL iso')
+plt.plot(tcpsL0.T, tcpsL0.U, 'kx', ms=10, label='herrmann: UL iso')
 plt.legend(loc=0, fontsize=15)
 plt.show()
 

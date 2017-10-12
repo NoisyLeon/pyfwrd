@@ -73,12 +73,12 @@ tcpsR1.solve_PSV()
 CR1  = []
 for baz in np.arange(360)*1.:
     tcpsR1.psv_azi_perturb(baz, True)
-    CR1.append(tcpsR1.VphA[1])
+    CR1.append(tcpsR1.CA[1])
 
 CR2  = []
 for baz in np.arange(360)*1.:
     tcpsR1.psv_azi_perturb(baz)
-    CR2.append(tcpsR1.VphA[1])
+    CR2.append(tcpsR1.CA[1])
     
 m.init_tilt()
 m.dipArr[-1] = 70; m.dipArr[-2] = 70
@@ -94,12 +94,12 @@ tcpsR2.solve_PSV()
 CR3  = []
 for baz in np.arange(360)*1.:
     tcpsR2.psv_azi_perturb(baz, True)
-    CR3.append(tcpsR2.VphA[1])
+    CR3.append(tcpsR2.CA[1])
 
 CR4  = []
 for baz in np.arange(360)*1.:
     tcpsR2.psv_azi_perturb(baz)
-    CR4.append(tcpsR2.VphA[1])
+    CR4.append(tcpsR2.CA[1])
 
 
 CR1 = np.array(CR1)
@@ -112,6 +112,6 @@ plt.plot(np.arange(360)*1., CR1, 'o', ms=5)
 plt.plot(np.arange(360)*1., CR2, '^', ms=5)
 plt.plot(np.arange(360)*1., CR3, 'o', ms=5)
 plt.plot(np.arange(360)*1., CR4, '^', ms=5)
-plt.plot(np.arange(360)*1., tcpsR2.Vph[1]*np.ones(360), 'x', ms=5)
+plt.plot(np.arange(360)*1., tcpsR2.C[1]*np.ones(360), 'x', ms=5)
 
 plt.show()

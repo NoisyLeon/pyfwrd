@@ -511,7 +511,10 @@ spec = [
         # 4-theta azimuthal terms
         ('CcArr', numba.float32[:]),
         ('CsArr', numba.float32[:]),
-        # Dip/strike angles
+        # Dip/strike angles of anisotropy, see Xie et al.(2015) Fig. 1 for details.
+        ('dipArr', numba.float32[:]),
+        ('strikeArr', numba.float32[:]),
+        # Dip/strike angles of interfaces, used for raysum
         ('dipArr', numba.float32[:]),
         ('strikeArr', numba.float32[:]),
         # 4th order elastic tensor for tilted hexagonal symmetric media

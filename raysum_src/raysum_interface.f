@@ -6,7 +6,9 @@ c####&
 
       subroutine raysum_interface(nlay, thick, rho, alpha, beta, 
      x      pct_a, pct_b, trend, plunge, strike, dip, isoflag,
-     x      iphase_in)
+     x      iphase_in, ntr, baz, slow, sta_dx, sta_dy,
+     x      mults,nsamp,dt,width,align,shift,out_rot, phname_in,
+     x      travel_time,amplitude,numph, Tr_cart, Tr_ph)
 
 c Anyone who fails to start a Fortran program with this line
 c should be severely beaten:
@@ -40,7 +42,7 @@ c Traces
         integer align,nsamp,mults,out_rot
 c Input
         integer iphase_in
-        
+        character phname_in*(namelen)
         
 c   aa is a list of rank-4 tensors (a_ijkl = c_ijkl/rho)
 c   rot is a list of rotator matrices, used to rotate into the local
@@ -100,28 +102,39 @@ c        end if
 c       write (*,*) 'Initial phase is ',iphname
       
 c Read in model      
-        call readmodel(modname,thick,rho,alpha,beta,isoflag,
-     &                 pct_a,pct_b,trend,plunge,strike,dip,nlay)
+c        call readmodel(modname,thick,rho,alpha,beta,isoflag,
+c     &                 pct_a,pct_b,trend,plunge,strike,dip,nlay)
+     
+        do i=1,nlay
+          strike(i)=strike(i)/180. * pi
+          dip(i)=dip(i)/180. * pi
+          trend(i)=trend(i)/180. * pi
+          plunge(i)=plunge(i)/180. * pi
+        end do
+     
         call writemodel(6,thick,rho,alpha,beta,isoflag,
      &                  pct_a,pct_b,trend,plunge,strike,dip,nlay)
-          
+     
 c Set up model for calculation, make rotators
         call buildmodel(aa,ar_list,rot,thick,rho,alpha,beta,isoflag,
      &                  pct_a,pct_b,trend,plunge,strike,dip,nlay)
-     
 c Read in geometry (desired traces)
-        call getarg(2,geomname)
-        write (*,*) 'Geometry is ',geomname
-        call readgeom(geomname,baz,slow,sta_dx,sta_dy,ntr)
-c        call writegeom(6,baz,slow,sta_dx,sta_dy,ntr)
-        
+c        call getarg(2,geomname)
+c        write (*,*) 'Geometry is ',geomname
+c        call readgeom(geomname,baz,slow,sta_dx,sta_dy,ntr)
+        do i=1,ntr
+          baz(i)=baz(i)/180. * pi
+        end do
+        call writegeom(6,baz,slow,sta_dx,sta_dy,ntr)
+
 c Read in parameters from file 'raysum-params', if it exists
-        geomname='raysum-params'
-        call readparams(geomname,mults,nsamp,dt,width,align,
-     &                  shift,out_rot)
-        
+c        geomname='raysum-params'
+c        call readparams(geomname,mults,nsamp,dt,width,align,
+c     &                  shift,out_rot)
+
 c Generate phase list
-        call getarg(3,phname)
+c        call getarg(3,phname)
+        phname = phname_in
         numph=0
         if (mults .ne. 3) then
           call ph_direct(phaselist,nseg,numph,nlay,iphase)
@@ -134,62 +147,69 @@ c Generate phase list
             call ph_fsmults(phaselist,nseg,numph,nlay,j,iphase)
           end do
         end if
+c   Read phases from phase list file if mults == 3
         if (mults .eq. 3) then
           write(*,*) 'Reading phases from file ',phname
           call readphases(phname,phaselist,nseg,numph)
         end if
+        
 c        call printphases(phaselist,nseg,numph)
+c   Write phases to phase list file if phname is not ''
         if (mults .ne. 3) then
-          open(unit=iounit1,file=phname,status='unknown')
-          call writephases(iounit1,phaselist,nseg,numph)
-          close(unit=iounit1)
-          write(*,*) 'Phases written to ',phname
+            if (phname.ne.'') then
+                open(unit=iounit1,file=phname,status='unknown')
+                call writephases(iounit1,phaselist,nseg,numph)
+                close(unit=iounit1)
+                write(*,*) 'Phases written to ',phname
+            end if
         end if
 
-        call getarg(4,arrname)
-        write(*,*) 'Arrivals will be written to ',arrname
-        open(unit=iounit1,file=arrname,status='unknown')
+c        call getarg(4,arrname)
+c        write(*,*) 'Arrivals will be written to ',arrname
+c        open(unit=iounit1,file=arrname,status='unknown')
         
-        call getarg(5,tracename)
-        write(*,*) 'Traces will be written to ',tracename
-        open(unit=iounit2,file=tracename,status='unknown')
-        
+c        call getarg(5,tracename)
+c        write(*,*) 'Traces will be written to ',tracename
+c        open(unit=iounit2,file=tracename,status='unknown')
+     
 c        Perform calculation                   
         amp_in=1.
         call get_arrivals(travel_time,amplitude,thick,rho,isoflag,
      &       strike,dip,aa,ar_list,rot,baz,slow,sta_dx,sta_dy,
      &       phaselist,ntr,nseg,numph,nlay,amp_in)
-     
+
 c        Normalize arrivals
         if (iphase .eq. 1) then 
           call norm_arrivals(amplitude,baz,slow,alpha(1),beta(1),
      &                       rho(1),ntr,numph,1,1)
         end if
-         
+
 c        Write out arrivals
-        call writearrivals(iounit1,travel_time,amplitude,ntr,numph)
-        close(unit=iounit1)
-        
+c        call writearrivals(iounit1,travel_time,amplitude,ntr,numph)
+c        close(unit=iounit1)
+
 c        Assemble traces
         call make_traces(travel_time,amplitude,ntr,numph,nsamp,
      &                   dt,width,align,shift,Tr_cart)
      
-        if (out_rot .eq. 0) then
-          call writetraces(iounit2,Tr_cart,ntr,nsamp,dt,align,shift)
-        else
-          if (out_rot .eq. 1) then
+c        if (out_rot .eq. 0) then
+c          call writetraces(iounit2,Tr_cart,ntr,nsamp,dt,align,shift)
+c        else
+
+        if (out_rot .eq. 1) then
 c            Rotate to RTZ
             call rot_traces(Tr_cart,baz,ntr,nsamp,Tr_ph)
-          else
+        else if (out_rot .eq. 2) then
 c            Rotate to wavevector coordinates
             call fs_traces(Tr_cart,baz,slow,alpha(1),beta(1),
      &                     rho(1),ntr,nsamp,Tr_ph)
-          end if
-c          Write results
-          call writetraces(iounit2,Tr_ph,ntr,nsamp,dt,align,shift)
         end if
-        close(unit=iounit2)
-                
+          
+c          Write results
+c          call writetraces(iounit2,Tr_ph,ntr,nsamp,dt,align,shift)
+c        end if
+c        close(unit=iounit2)
+     
       end
       
       

@@ -48,8 +48,8 @@ ani.solve_surf(0.)
 # anif.init_default(nl=50, dh=4)
 # anif.solve_surf()
 
-dcr = (tcpsR.Vph - ani.CR)/tcpsR.Vph*100.
-dur = (tcpsR.Vgr - ani.UR)/tcpsR.Vgr*100.
-dcl = (tcpsL.Vph - ani.CL)/tcpsL.Vph*100.
-dul = (tcpsL.Vgr - ani.UL)/tcpsL.Vgr*100.
+dcr = (tcpsR.C - ani.CR)/tcpsR.C*100.
+dur = (tcpsR.U - ani.UR)/tcpsR.U*100.
+dcl = (tcpsL.C - ani.CL)/tcpsL.C*100.
+dul = (tcpsL.U - ani.UL)/tcpsL.U*100.
 print np.abs(dcr).max(), np.abs(dur).max(), np.abs(dcl).max(), np.abs(dul).max()

@@ -81,12 +81,12 @@ tcpsR.solve_PSV()
 CR1  = []
 for baz in np.arange(36)*10.:
     tcpsR.psv_azi_perturb(baz, True)
-    CR1.append(tcpsR.VphA[1])
+    CR1.append(tcpsR.CA[1])
 CR1 = np.array(CR1)    
 
 # # 
 # plt.plot(np.arange(36)*10., CR1, '^', ms=5)
-# plt.plot(np.arange(36)*10., tcpsR0.Vph[1]*np.ones(36), 'o', ms=5)
+# plt.plot(np.arange(36)*10., tcpsR0.C[1]*np.ones(36), 'o', ms=5)
 # plt.show()
 # # 
 # # tcpsL = tcps.tcps_solver(m)
@@ -117,7 +117,7 @@ except:
 CR3  = []
 for baz in np.arange(36)*10.:
     tcpsR.psv_azi_perturb(baz)
-    CR3.append(tcpsR.VphA[1])
+    CR3.append(tcpsR.CA[1])
 CR3 = np.array(CR3)   
 
 
@@ -126,7 +126,7 @@ plt.plot(np.arange(36)*10., CR2, 'b^', ms=5)
 plt.plot(np.arange(36)*10., CR3, 'kx', ms=5)
 
 
-plt.plot(np.arange(36)*10., tcpsR.Vph[1]*np.ones(36), 'gx', ms=5)
+plt.plot(np.arange(36)*10., tcpsR.C[1]*np.ones(36), 'gx', ms=5)
 
 cc = CR2[CR2<3.4]
 # A = cc.max()-cc.min()

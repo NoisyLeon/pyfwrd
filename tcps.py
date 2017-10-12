@@ -174,7 +174,7 @@ class tcps_solver(object):
         BcArr, BsArr, GcArr, GsArr, HcArr, HsArr    - 2-theta azimuthal terms 
         CcArr, CsArr                                - 4-theta azimuthal terms
         : dispersion :
-        Vph, Vgr    - phase/group velocity
+        C, U        - phase/group velocity
         : eigenfunctions :
         uz, ur      - vertical/radial displacement functions
         tuz, tur    - vertical/radial stress functions
@@ -216,7 +216,7 @@ class tcps_solver(object):
                 np.append(self.freq, np.zeros(2049-nfval)), self.cmin,self.cmax, dArr, AArr,CArr,FArr,LArr,NArr,rhoArr, dArr.size,\
                 iflsph_in, 0., self.nmodes, 0.5, 0.5)
         self.ilvry  = ilvry
-        self.Vph    = c_out[:nfval]
+        self.C    = c_out[:nfval]
         # Save flat transformed model if spherical flag is on
         if not self.model.flat:
             self.dsph   = d_out
@@ -242,7 +242,7 @@ class tcps_solver(object):
             refdep_in   = 0.
             dogam       = False # No attenuation
             nl_in       = dArr.size
-            k           = 2.*np.pi/self.Vph/self.T
+            k           = 2.*np.pi/self.C/self.T
             k2d         = np.tile(k, (nl_in, 1))
             k2d         = k2d.T
             omega       = 2.*np.pi/self.T
@@ -273,11 +273,11 @@ class tcps_solver(object):
             # solve for group velocity, kernels and eigenfunctions
             u_out, ur, tur, uz, tuz, dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr = tregn96.tregn96(hs_in, hr_in, ohr_in, ohs_in,\
                 refdep_in, dogam, nl_in, iflsph_in, d_in, TA_in, TC_in, TF_in, TL_in, TN_in, TRho_in, \
-                qai_in,qbi_in,etapi_in,etasi_in, frefpi_in, frefsi_in, self.T.size, self.T, self.Vph)
+                qai_in,qbi_in,etapi_in,etasi_in, frefpi_in, frefsi_in, self.T.size, self.T, self.C)
             ######################################################
             # store output
             ######################################################
-            self.Vgr    = u_out
+            self.U    = u_out
             # eigenfunctions
             self.uz     = uz[:nfval,:nl_in]
             self.tuz    = tuz[:nfval,:nl_in]
@@ -317,9 +317,9 @@ class tcps_solver(object):
             # # U           = (k*I1+I2)/omega/I0
             # # # I02d        = np.tile(I0, (nl_in, 1))
             # # # I02d        = I02d.T
-            # # # U2d         = np.tile(self.Vgr, (nl_in, 1))
+            # # # U2d         = np.tile(self.U, (nl_in, 1))
             # # # U2d         = U2d.T
-            # # # C2d         = np.tile(self.Vph, (nl_in, 1))
+            # # # C2d         = np.tile(self.C, (nl_in, 1))
             # # # C2d         = C2d.T
             ########################################################################################################################################
             # sensitivity kernels for Love parameters and density, derived from velocity kernels using chain rule
@@ -354,7 +354,7 @@ class tcps_solver(object):
             # # derivative of eigenfunctions
             # self.durdz1 = -(self.ur[:,:-1] - self.ur[:,1:])/self.dArr[0]
             # self.duzdz1 = -(self.uz[:,:-1] - self.uz[:,1:])/self.dArr[0]
-            # self.Vgr1   = (k*I1+I2)/omega/I0
+            # self.U1   = (k*I1+I2)/omega/I0
             # 
             # # derived kernels from eigenfunctions, p 299 in Herrmann's notes
             # self.dcdah1 = eta*rho*np.sqrt(A/rho)*(self.ur**2 - 2.*eta/k2d*self.ur*self.duzdz)/U2d/I02d*d
@@ -378,7 +378,7 @@ class tcps_solver(object):
                     NOTE: the azimuth of wave vector at station is typically NOT the same as the azimuth looking at station from event
         theta4      - compute 4-theta perturbation or not (default - False)  
         ::: output :::
-        self.VphA   - azimuthally perturbed phase velocity curves
+        self.CA   - azimuthally perturbed phase velocity curves
         ==============================================================================================================================
         """
         if self.ilvry != 2:
@@ -398,7 +398,7 @@ class tcps_solver(object):
         if theta4:
             # 4-theta perturbation
             dCrAA   += np.sum( (Cc2d * np.cos(4.*az/180.*np.pi) + Cs2d * np.sin(4.*az/180.*np.pi)) * self.dcdA, axis= 1)
-        self.VphA=self.Vph + dCrAA
+        self.CA=self.C + dCrAA
         return
     
     def psv_perturb_disp_vel(self, insolver):
@@ -429,7 +429,7 @@ class tcps_solver(object):
         if (np.nonzero(dn)[0]).size!=0:
             print 'dn'
             dc  += np.sum( dn*self.dcdn, axis=1)
-        self.Vph_pre    = self.Vph + dc
+        self.C_pre    = self.C + dc
         return
         
     def psv_perturb_disp_love(self, insolver):
@@ -461,7 +461,7 @@ class tcps_solver(object):
         if (np.nonzero(dr)[0]).size!=0:
             print 'dr'
             dc  += np.sum( dr*self.dcdrl, axis=1)
-        self.Vph_pre2    = self.Vph + dc
+        self.C_pre2    = self.C + dc
         return
         
     def solve_SH(self):
@@ -476,7 +476,7 @@ class tcps_solver(object):
         BcArr, BsArr, GcArr, GsArr, HcArr, HsArr    - 2-theta azimuthal terms 
         CcArr, CsArr                                - 4-theta azimuthal terms
         : dispersion :
-        Vph, Vgr    - phase/group velocity
+        C, U    - phase/group velocity
         : eigenfunctions :
         ut, tut     - transverse displacement/stress functions
         dutdz       - derivatives of transverse displacement functions
@@ -517,7 +517,7 @@ class tcps_solver(object):
                 np.append(self.freq, np.zeros(2049-nfval)), self.cmin,self.cmax, dArr, AArr,CArr,FArr,LArr,NArr,rhoArr, dArr.size,\
                 iflsph_in, 0., self.nmodes, 0.5, 0.5)
         self.ilvry  = ilvry
-        self.Vph    = c_out[:nfval]
+        self.C    = c_out[:nfval]
         # Save flat transformed model is spherical flag is on
         if not self.model.flat:
             self.dsph   = d_out
@@ -543,7 +543,7 @@ class tcps_solver(object):
             refdep_in   = 0.
             dogam       = False # No attenuation
             nl_in       = dArr.size
-            k           = 2.*np.pi/self.Vph/self.T
+            k           = 2.*np.pi/self.C/self.T
             k2d         = np.tile(k, (nl_in, 1))
             k2d         = k2d.T
             omega       = 2.*np.pi/self.T
@@ -574,11 +574,11 @@ class tcps_solver(object):
             # solve for group velocity, kernels and eigenfunctions
             u_out, ut, tut, dcdh,dcdav,dcdah,dcdbv,dcdbh,dcdn,dcdr = tlegn96.tlegn96(hs_in, hr_in, ohr_in, ohs_in,\
                 refdep_in, dogam, nl_in, iflsph_in, d_in, TA_in, TC_in, TF_in, TL_in, TN_in, TRho_in, \
-                qai_in,qbi_in,etapi_in,etasi_in, frefpi_in, frefsi_in, self.T.size, self.T, self.Vph)
+                qai_in,qbi_in,etapi_in,etasi_in, frefpi_in, frefsi_in, self.T.size, self.T, self.C)
             ######################################################
             # store output
             ######################################################
-            self.Vgr    = u_out
+            self.U    = u_out
             # eigenfunctions
             self.ut     = ut[:nfval,:nl_in]
             self.tut    = tut[:nfval,:nl_in]
@@ -614,9 +614,9 @@ class tcps_solver(object):
             # # # # U           = (k*I1)/omega/I0
             # # I02d        = np.tile(I0, (nl_in, 1))
             # # I02d        = I02d.T
-            # # U2d         = np.tile(self.Vgr, (nl_in, 1))
+            # # U2d         = np.tile(self.U, (nl_in, 1))
             # # U2d         = U2d.T
-            # # C2d         = np.tile(self.Vph, (nl_in, 1))
+            # # C2d         = np.tile(self.C, (nl_in, 1))
             # # C2d         = C2d.T
             ######################################################################################################################################
             # sensitivity kernels for Love parameters and density, derived from velocity kernels using chain rule
@@ -650,7 +650,7 @@ class tcps_solver(object):
             ##############################################
             # # derivative of eigenfunctions
             # self.dutdz1 = -(self.ut[:,:-1] - self.ut[:,1:])/self.dArr[0]
-            # self.Vgr1   = (k*I1)/omega/I0
+            # self.U1   = (k*I1)/omega/I0
             # # derived kernels from eigenfunctions, p 299 in Herrmann's notes
             # self.dcdbh1 = rho*np.sqrt(N/rho)*(self.ut**2)/U2d/I02d*d
             # self.dcdbv1 = rho*np.sqrt(L/rho)*(1./k2d*self.dutdz)**2/U2d/I02d*d
@@ -667,7 +667,7 @@ class tcps_solver(object):
                     NOTE: the azimuth of wave vector at station is typically NOT the same as the azimuth looking at station from event
         theta4      - compute 4-theta perturbation or not (default - False)  
         ::: output :::
-        self.VphA   - azimuthally perturbed phase velocity curves
+        self.CA   - azimuthally perturbed phase velocity curves
         ==============================================================================================================================
         """
         if self.ilvry != 1:
@@ -681,7 +681,7 @@ class tcps_solver(object):
         dClAA   += np.sum( (- Gc2d * np.cos(2.*az/180.*np.pi) - Gs2d * np.sin(2.*az/180.*np.pi)) * self.dcdL, axis= 1)
         if theta4:
             dClAA   += np.sum( (- Cc2d * np.cos(4.*az/180.*np.pi) - Cs2d * np.sin(4.*az/180.*np.pi)) * self.dcdN, axis= 1)
-        self.VphA=self.Vph + dClAA
+        self.CA=self.C + dClAA
         return
         
     def sh_perturb_disp_vel(self, insolver):
@@ -706,7 +706,7 @@ class tcps_solver(object):
         if (np.nonzero(dr)[0]).size!=0:
             print 'dr'
             dc  += np.sum( dr*self.dcdr, axis=1)
-        self.Vph_pre    = self.Vph + dc
+        self.C_pre    = self.C + dc
         
     def sh_perturb_disp_love(self, insolver):
         """
@@ -740,7 +740,7 @@ class tcps_solver(object):
         if (np.nonzero(dr)[0]).size!=0:
             print 'dr'
             dc  += np.sum( dr*self.dcdrl, axis=1)
-        self.Vph_pre2    = self.Vph + dc
+        self.C_pre2    = self.C + dc
         
         
     

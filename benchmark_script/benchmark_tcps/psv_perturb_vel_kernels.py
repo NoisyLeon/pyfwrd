@@ -64,21 +64,21 @@ tcps2.solve_PSV()
 
 tcps1.psv_perturb_disp_vel(tcps2)
 
-# v1 = tcps1.Vph_pre.copy()
+# v1 = tcps1.C_pre.copy()
 # tcps1.model.flat=1
 # tcps2.model.flat=1
 # tcps1.love2vel()
 # tcps2.love2vel()
 # tcps1.psv_perturb_disp_vel(tcps2)
-# v2 = tcps1.Vph_pre.copy()
+# v2 = tcps1.C_pre.copy()
 
-plt.plot(tcps1.T, tcps1.Vph, 'o', ms=10)
-plt.plot(tcps1.T, tcps1.Vph_pre, 'y^', ms=10)
-plt.plot(tcps2.T, tcps2.Vph, 'kx', ms=15)
+plt.plot(tcps1.T, tcps1.C, 'o', ms=10)
+plt.plot(tcps1.T, tcps1.C_pre, 'y^', ms=10)
+plt.plot(tcps2.T, tcps2.C, 'kx', ms=15)
 
-# plt.plot(tcps1.T, tcps1.Vph, 'o', ms=10)
+# plt.plot(tcps1.T, tcps1.C, 'o', ms=10)
 # plt.plot(tcps1.T, v1, 'y^', ms=10)
-# plt.plot(tcps2.T, tcps2.Vph, 'kx', ms=15)
+# plt.plot(tcps2.T, tcps2.C, 'kx', ms=15)
 
 plt.show()
 

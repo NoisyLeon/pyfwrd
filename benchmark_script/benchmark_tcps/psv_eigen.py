@@ -41,7 +41,7 @@ tcps2.solve_PSV()
 #     plt.plot(tcps2.dArr.cumsum(), tcps2.uz[i, :], 'bo-', ms=10)
 # # # # 
 # # # # plt.figure()
-plt.plot(tcps1.T, tcps1.Vgr, 'ro', ms=10)
-plt.plot(tcps1.T, tcps1.Vgr1, 'b^', ms=10)
+plt.plot(tcps1.T, tcps1.U, 'ro', ms=10)
+plt.plot(tcps1.T, tcps1.U1, 'b^', ms=10)
 plt.show()
 
