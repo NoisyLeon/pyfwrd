@@ -23,28 +23,29 @@ m.flat=1
 
 
 
-rsolver  = ref.ref_solver(m)
-rsolver.init_default_2()
-rsolver.solve_theo()
-rsolver.solve_raysum()
-# rsolver.solve_anirec()
-rsolver.deconvolve_raysum()
+rsolver1  = ref.ref_solver(m)
+rsolver1.init_default_2()
+rsolver1.solve_anirec()
+
+rsolver2  = ref.ref_solver(m)
+rsolver2.init_default_2()
+rsolver2.solve_raysum()
+
 
 ax=plt.subplot()
-ax.plot(rsolver.time, rsolver.rf, 'k-')
-tfill=rsolver.time[rsolver.rf>0]
-yfill=rsolver.rf[rsolver.rf>0]
-ax.fill_between(tfill, 0., yfill, color='red', linestyle='--', lw=0., alpha=0.3)
+rf1 = rsolver1.rfrst[0]
+ax.plot(rsolver1.time, rf1, 'r-', lw=3)
+# tfill=rsolver.time[rsolver.rf>0]
+# yfill=rsolver.rf[rsolver.rf>0]
+# ax.fill_between(tfill, 0., yfill, color='red', linestyle='--', lw=0., alpha=0.3)
 
 # ax.plot(rsolver.time, rsolver.rfr, 'b-')
 
 
-rfr  = rsolver.rfrst[0]
-rfr  = rfr/rfr.max()*rsolver.rf.max()
-ax.plot(rsolver.time, rfr, 'k--')
-tfill=rsolver.time[rfr>0]
-yfill=rfr[rfr>0]
-ax.fill_between(tfill, 0., yfill, color='blue', linestyle='--', lw=0., alpha=0.3)
+rf2  = rsolver2.rfrst[0]
+rf2  = rf2/rf2.max()*rf1.max()
+
+ax.plot(rsolver1.time, rf2, 'b--', lw=3)
 
 # tfill=rsolver.time[rsolver.rf<0]
 # yfill=rsolver.rf[rsolver.rf<0]

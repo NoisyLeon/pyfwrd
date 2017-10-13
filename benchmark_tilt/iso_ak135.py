@@ -23,11 +23,11 @@ m.model_ak135_cps()
 m.flat=1
 
 tcpsR = tcps.tcps_solver(m)
-tcpsR.init_default()
+tcpsR.init_default_2()
 tcpsR.solve_PSV()
 
 tcpsL = tcps.tcps_solver(m)
-tcpsL.init_default()
+tcpsL.init_default_2()
 tcpsL.solve_SH()
 # 
 ani  = aniproppy.aniprop_solver(m)

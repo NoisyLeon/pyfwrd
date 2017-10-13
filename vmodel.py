@@ -1480,7 +1480,7 @@ class model1d(object):
     
     def add_perturb_layer(self, zmin, zmax, dtype, val, rel):
         """
-        Add/perturb a layer given zmin/zmax
+        Add/perturb a layer of velocity/density given zmin/zmax
         ===============================================================================
         ::: input parameters ::::
         zmin/zmax   - min/max depth (unit -km)
@@ -1790,7 +1790,7 @@ class model1d(object):
     
     def add_perturb_layer_love(self, zmin, zmax, dtype, val, rel):
         """
-        Add/perturb a layer given zmin/zmax
+        Add/perturb a layer of Love parameters/density given zmin/zmax
         ===============================================================================
         ::: input parameters ::::
         zmin/zmax   - min/max depth (unit -km)
@@ -2717,7 +2717,7 @@ class model1d(object):
     # functions related to dipping interface
     #########################################################################
     def init_dip_strike_interface(self):
-        """initialize dip/strike angle array
+        """initialize dip/strike angle array for dipping interface
         """
         self.dipping    = True
         self.dipifArr   = np.zeros(self.rArr.size, np.float32)

@@ -22,7 +22,7 @@ m.flat=1
 
 rsolver  = ref.ref_solver(m)
 for az in np.arange(12)*30.+15.:
-    rsolver.solve_aniprop_reproduce(az=az)
+    rsolver.solve_anirec_reproduce(az=az)
 rsolver.plot_az_rf(comp='R')
 # 
 # ax=plt.subplot()

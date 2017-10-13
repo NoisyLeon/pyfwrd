@@ -97,7 +97,7 @@ c            write (*,*) 'iph=',iph,' fchg=',fchg
      &                  nlay,amp_in,fchg,bailout)
           end do
         end do 
-      
+
       end
 
 
@@ -410,7 +410,7 @@ c       check. evecin=evec_out(:,seg+1)=R*evec2(1:3,phase2)
           call rcmatvec3(rot(1,1,rnum),evecin_r,evecin_list(1,seg+1))
                               
         end do
-                
+       
 c      Propagation complete. Now just need to convert amplitude to
 c      displacement, using the free-surface transfer matrix.
 c      MAY BE BUGGY FOR ANISOTROPIC TOPMOST LAYER.
@@ -471,8 +471,7 @@ c        write (*,*)
 c        write (*,*) 'p_list:'
 c        do seg=1,nseg
 c          write (*,'(3(X,F9.7))') p(1,seg),p(2,seg),p(3,seg)
-c        end do
-                
+c        end do 
       end
       
       

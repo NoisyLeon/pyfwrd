@@ -32,5 +32,7 @@ m.flat=1
 
 rsolver  = ref.ref_solver(m)
 rsolver.init_default_2()
+rsolver.solve_raysum()
+rsolver.deconvolve_raysum()
 
 

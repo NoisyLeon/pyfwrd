@@ -17,3 +17,6 @@ cd $cdir/rftheo_src
 
 cd $cdir/fast_surf_src
 ./compile_fast_surf.sh
+
+cd $cdir/raysum_src
+./compile_raysum.sh

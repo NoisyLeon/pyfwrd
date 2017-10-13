@@ -134,6 +134,7 @@ c     &                  shift,out_rot)
 
 c Generate phase list
 c        call getarg(3,phname)
+
         phname = phname_in
         numph=0
         if (mults .ne. 3) then
@@ -152,7 +153,7 @@ c   Read phases from phase list file if mults == 3
           write(*,*) 'Reading phases from file ',phname
           call readphases(phname,phaselist,nseg,numph)
         end if
-        
+
 c        call printphases(phaselist,nseg,numph)
 c   Write phases to phase list file if phname is not ''
         if (mults .ne. 3) then
@@ -187,7 +188,7 @@ c        Normalize arrivals
 c        Write out arrivals
 c        call writearrivals(iounit1,travel_time,amplitude,ntr,numph)
 c        close(unit=iounit1)
-
+        
 c        Assemble traces
         call make_traces(travel_time,amplitude,ntr,numph,nsamp,
      &                   dt,width,align,shift,Tr_cart)

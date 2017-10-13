@@ -72,6 +72,7 @@ c  which are a little peculiar for the crust, but what the hey!
       z0=dcmplx(0.d0,0.d0)
 c     read the frequency you want to work with,
 c     and decide how many frequency points you need.
+c      nfrq=512
       nfrq=512
       gainfac = 16
 c  gainfac above will compensate timeseries values for 
@@ -190,6 +191,7 @@ c  calc 3-comp transfer fct response at surface
       end do
 
       npad=8192
+c      npad=16384
       dt=1.d0/(npad*df)
 
       do i=1,npad
