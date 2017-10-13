@@ -59,11 +59,11 @@ tcpsL0.solve_SH()
 
 m.add_perturb_layer_love(0, 20., 3, -0.3, True)
 tcpsR = tcps.tcps_solver(m)
-tcpsR.init_default()
+tcpsR.init_default_2()
 tcpsR.solve_PSV()
 
 tcpsL = tcps.tcps_solver(m)
-tcpsL.init_default()
+tcpsL.init_default_2()
 tcpsL.solve_SH()
 # 
 ani  = aniproppy.aniprop_solver(m)

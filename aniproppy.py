@@ -70,6 +70,15 @@ class aniprop_solver(object):
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
     
+    def init_default_4(self):
+        self.Tmin   = 10.
+        self.dT     = 5.
+        self.Nt     = 20
+        self.Tmax   = self.Tmin + (self.Nt-1)*self.dT
+        self.T      = np.arange(self.Nt)*self.dT + self.Tmin
+        self.dArr   = np.array([35.,  42.,  43.,  45.,  35.], dtype = np.float32)
+        return
+    
     def solve_ref(self, az=0., t=30.):
         self.model.aniprop_check_model()
         z, rho, vp0, vp2, vp4, vs0, vs2 = self.model.layer_aniprop_model(self.dArr, 200, 1.)

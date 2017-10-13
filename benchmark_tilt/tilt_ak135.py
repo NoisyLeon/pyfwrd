@@ -56,10 +56,10 @@ m.flat=1
 # m.add_perturb_layer_love(0, 20., 3, -0.05, True)
 # m.add_perturb_layer_love(0, 20., 4, 0.05, True)
 
-m.add_perturb_layer_love(0, 20., 0, -0.02, True)
-m.add_perturb_layer_love(0, 20., 1, 0.02, True)
+m.add_perturb_layer_love(0, 35, 0, -0.02, True)
+m.add_perturb_layer_love(0, 35, 1, 0.02, True)
 # m.add_perturb_layer_love(0, 20., 3, -0.05, True)
-m.add_perturb_layer_love(0, 20., 4, 0.02, True)
+m.add_perturb_layer_love(0, 35, 4, 0.02, True)
 tcpsR0 = tcps.tcps_solver(m)
 tcpsR0.init_default()
 tcpsR0.solve_PSV()

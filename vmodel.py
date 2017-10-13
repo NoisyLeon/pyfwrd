@@ -515,8 +515,9 @@ spec = [
         ('dipArr', numba.float32[:]),
         ('strikeArr', numba.float32[:]),
         # Dip/strike angles of interfaces, used for raysum
-        ('dipArr', numba.float32[:]),
-        ('strikeArr', numba.float32[:]),
+        ('dipifArr', numba.float32[:]),
+        ('strikeifArr', numba.float32[:]),
+        ('dipping', numba.boolean),
         # 4th order elastic tensor for tilted hexagonal symmetric media
         ('CijklArr', numba.float32[:, :, :, :, :]),
         # Voigt matrix
@@ -1423,10 +1424,17 @@ class model1d(object):
         N_inv   = self.NArr[::-1]
         dip_inv = self.dipArr[::-1]
         s_inv   = self.strikeArr[::-1]
+        dif_inv = self.dipifArr[::-1]
+        sif_inv = self.strikeifArr[::-1]
         if s_inv.size == r_inv.size:
             tilt    = True
         else:
-            titl    = False
+            tilt    = False
+        if sif_inv.size == r_inv.size:
+            dipping = True
+        else:
+            dipping = False
+        
         for i in xrange(r_inv.size):
             if i == 0:
                 if r_inv[i] != 6371000.:
@@ -1452,13 +1460,22 @@ class model1d(object):
             N0  = N_inv[i-2]; N1 = N_inv[i-1]
             if N0 != N1:
                 return False
-            if not tilt: continue
-            d0  = dip_inv[i-2]; d1 = dip_inv[i-1]
-            if d0 != d1:
-                return False
-            s0  = s_inv[i-2]; s1 = s_inv[i-1]
-            if s0 != s1:
-                return False
+            # check tilted angles of anisotropic axis
+            if tilt: 
+                d0  = dip_inv[i-2]; d1 = dip_inv[i-1]
+                if d0 != d1:
+                    return False
+                s0  = s_inv[i-2]; s1 = s_inv[i-1]
+                if s0 != s1:
+                    return False
+            # check dipping interface angles
+            if dipping:
+                dif0= dif_inv[i-2]; dif1 = dif_inv[i-1]
+                if dif0 != dif1:
+                    return False
+                sif0  = sif_inv[i-2]; sif1 = sif_inv[i-1]
+                if sif0 != sif1:
+                    return False
         return True
     
     def add_perturb_layer(self, zmin, zmax, dtype, val, rel):
@@ -2322,6 +2339,64 @@ class model1d(object):
             raise ValueError('aniprop does not accept L > N !')
         return
     
+    ###############################################################################################
+    # functions for raysum model
+    ###############################################################################################
+    def angles_raysum_model(self, dArr, atype):
+        """
+        Get dip/strike arrays given depth arrays
+        =============================================================================================================
+        ::: input parameters :::
+        zArr            - depth array (unit - km)
+        atype           - angle type (0 - anisotropic axis angles; others - dipping interface angles)
+        ::: output :::
+        dipArr/strikeArr- dip/strike arrays (unit - degree) 
+        =============================================================================================================
+        """
+        zArr    = dArr.cumsum()
+        if atype == 0:
+            return self.angles_aniprop_model(zArr)
+        if not self.is_layer_model():
+            print ('WARNING: Model is not layerized, unexpected error may occur!')
+        dipLst  = []; strikeLst = []
+        nl      = zArr.size
+        for i in xrange(nl):
+            r           = 6371000.-zArr[i]*1000.
+            dip, strike = self.get_dip_strike_interface(r, False)
+            # Love parameters are converted from Pa to GPa
+            dipLst.append(dip)
+            strikeLst.append(strike)
+        # layer thickness is converted from m to km
+        dipArr      = np.array(dipLst, dtype=np.float32)
+        strikeArr   = np.array(strikeLst, dtype=np.float32)
+        return dipArr, strikeArr
+    
+    def layer_raysum_model(self, dArr, nl, dh):
+        """
+        Get layrized model for raysum
+        ===================================================================================
+        ::: input parameters :::
+        dArr            - numpy array of layer thickness (unit - km)
+        nl              - number of layers 
+        dh              - thickness of each layer (unit - km)
+        nl and dh will be used if and only if dArr.size = 0
+        ::: output :::
+        dArr            - thickness array (unit - km)
+        rho             - density array (unit - g/cm^3)
+        vp0, vp2, vp4   - P wave velocity and corresponding 2psi/4psi relative perturnation
+        vs0, vs2        - S wave velocity and corresponding 2psi relative perturnation
+        ===================================================================================
+        """
+        dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.get_layer_model(dArr, nl, dh)
+        vp      = (np.sqrt(CArr/rhoArr) + np.sqrt(AArr/rhoArr))/2.
+        dvp     = (np.sqrt(CArr/rhoArr) - np.sqrt(AArr/rhoArr))/vp
+        
+        vs      = (np.sqrt(LArr/rhoArr) + np.sqrt(NArr/rhoArr))/2.
+        dvs     = (np.sqrt(LArr/rhoArr) - np.sqrt(NArr/rhoArr))/vs
+        iso     = np.zeros(dArr.size, dtype=np.int32)
+        iso[(dvp==0.)*(dvs==0.)] = 1
+        return dArr, rhoArr, vp, vs, dvp, dvs, iso
+    
     ####################################################################################################
     # functions for tilted hexaganal symmetric model
     ####################################################################################################
@@ -2537,7 +2612,7 @@ class model1d(object):
     
     def get_dip_strike(self, r, left):
         """
-        Return dip/strike given a radius
+        Return dip/strike of anisotrpic axis given a radius
         ===================================================================================
         ::: input parameters :::
         r           - radius (unit - m)
@@ -2637,6 +2712,47 @@ class model1d(object):
         Cs      = Csl + (r - r_left)*(Csr-Csl)/(r_right - r_left)
         
         return rho, A, C, F, L, N, Bc, Bs, Gc, Gs, Hc, Hs, Cc, Cs
+    
+    #########################################################################
+    # functions related to dipping interface
+    #########################################################################
+    def init_dip_strike_interface(self):
+        """initialize dip/strike angle array
+        """
+        self.dipping    = True
+        self.dipifArr   = np.zeros(self.rArr.size, np.float32)
+        self.strikeifArr= np.zeros(self.rArr.size, np.float32)
+        return
+    
+    def get_dip_strike_interface(self, r, left):
+        """
+        Return dip/strike of dipping interface given a radius
+        ===================================================================================
+        ::: input parameters :::
+        r           - radius (unit - m)
+        left        - yield the LEFT value if repeated radius grid points appear or not
+        ::: output :::
+        dip/strike  - dip/strike (unit - degree) 
+        ===================================================================================
+        """
+        if not self.is_layer_model():
+            print 'WARNING: the model is not layrized!'
+        # r   = np.float32( (6371.- z)*1000.)
+        ind = np.where(self.rArr == r)[0]
+        if ind.size == 0:
+            if left:
+                indds   = (np.where(self.rArr<r)[0])[-1]
+                dip     = self.dipifArr[indds]; strike     = self.strikeifArr[indds]
+            else:
+                indds   = (np.where(self.rArr>r)[0])[0]
+                dip     = self.dipifArr[indds]; strike     = self.strikeifArr[indds]
+        else:
+            if left:
+                indds   = ind[0]
+            else:
+                indds   = ind[-1]
+            dip     = self.dipifArr[indds]; strike     = self.strikeifArr[indds]
+        return dip, strike
     
     
     

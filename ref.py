@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Module for synthetic receiver function computation, using anirec by Vadim Levin, and theo by Takuo Shibutani
+Module for synthetic receiver function computation,
+    using anirec by Vadim Levin, and theo by Takuo Shibutani, and raysum by Andrew Frederiksen
 
 The code is a python wrapper of the f77 code aniprop and theo
 
@@ -11,7 +12,7 @@ The code is a python wrapper of the f77 code aniprop and theo
     email: lili.feng@colorado.edu
 """
 
-import aniprop, theo
+import aniprop, theo, raysum
 import numba
 import numpy as np
 import vmodel
@@ -41,7 +42,15 @@ class ref_solver(object):
         self.model  = inmodel
         self.dt     = 0.05
         self.rfrst  = []; self.rftst  = []
-        self.azArr  = np.array([])
+        self.bazArr  = np.array([])
+        ##############################
+        # input parameters for raysum
+        ##############################
+        self.mults  = 0 # Multiples: 0 for none, 1 for Moho, 2 for all first-order
+        self.width  = 1 # Gaussian width
+        self.align  = 1 # Alignment: 0 is none, 1 aligns on primary phase (P or S)
+        self.shift  = 0. # Shift of traces -- t=0 at this time (sec)
+        self.outrot = 1  # Rotation to output: 0 is NS/EW/Z, 1 is R/T/Z, 2 is P/SV/SH
         return
     
     def init_default(self, dh=1., nl=100):
@@ -52,7 +61,7 @@ class ref_solver(object):
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
         return
     
-    def solve_anirec(self, az=0., t=20., savestream=True):
+    def solve_anirec(self, baz=0., t=30., savestream=True):
         """
         Compute radial and transverse receiver function using anirec
         Default maximum velocity is 16.6667, can be changed by modifying the source code
@@ -61,8 +70,8 @@ class ref_solver(object):
             cc=16.6667  (line 175)
         ===================================================================================================================================
         ::: input parameters :::
-        az          - azimuth of wave vector (az = 180. - baz, baz is the azimuth look at event from station)
-                    NOTE: the azimuth of wave vector at station is typically NOT the same as the azimuth looking at station from event
+        baz         - azimuth of wave vector 
+                    
         t           - time length of output in sec
         ::: output :::
         self.rfr    - radial receiver function
@@ -91,9 +100,9 @@ class ref_solver(object):
         else:
             theta   = np.zeros(nl+1, dtype=np.float32)
             phig    = np.zeros(nl+1, dtype=np.float32)
-        baz     = 180. + az
-        if baz > 360.:
-            baz -= 360.
+        # # baz     = 180. + az
+        # # if baz > 360.:
+        # #     baz -= 360.
         # solve for receiver function using aniprop
         Rf,Tf,T     = aniprop.rf_aniso_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,baz,ntimes)
         # radial component
@@ -104,12 +113,12 @@ class ref_solver(object):
         self.time   = T
         if savestream:
             self.rfrst.append(Rf); self.rftst.append(Tf)
-            self.azArr  = np.append(self.azArr, az)
+            self.bazArr  = np.append(self.bazArr, baz)
         return
     
     
     
-    def solve_aniprop_reproduce(self, az=0., t=20.):
+    def solve_aniprop_reproduce(self, baz=0., t=20.):
         """
         Compute radial and transverse receiver function using aniprop
         Default maximum velocity is 16.6667, can be changed by modifying the source code
@@ -118,7 +127,7 @@ class ref_solver(object):
             cc=16.6667  (line 175)
         ==============================================================================================
         ::: input parameters :::
-        az          - azimuth
+        baz         - back-azimuth
         t           - time length of output in sec
         ::: output :::
         self.rfr    - radial receiver function
@@ -147,7 +156,7 @@ class ref_solver(object):
         phig    = np.zeros(nl+1, dtype=np.float32)
         theta[0]= 90.
         # solve for receiver function using aniprop
-        Rf,Tf,T     = aniprop.rf_aniso_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,az,ntimes)
+        Rf,Tf,T     = aniprop.rf_aniso_interface(z,vp0,vp2,vp4,vs0,vs2,rho,theta,phig,nl,baz,ntimes)
         # radial component
         self.rfr    = Rf
         # transverse component
@@ -155,10 +164,10 @@ class ref_solver(object):
         # time
         self.time   = T
         self.rfrst.append(Rf); self.rftst.append(Tf)
-        self.azArr  = np.append(self.azArr, az)
+        self.bazArr  = np.append(self.bazArr, baz)
         return
     
-    def solve_theo(self, t=20., slowness = 0.06, din = None):
+    def solve_theo(self, t=30., slowness = 0.06, din = None):
         """
         Compute radial and transverse receiver function using theo
         ====================================================================================
@@ -199,6 +208,71 @@ class ref_solver(object):
         self.time   = np.arange(ntimes, dtype=np.float32)*self.dt 
         return
     
+    def solve_raysum(self, t=30., iphase=1, slowness=0.06, phfname='', bazin=np.array([0.])):
+        """
+        Compute radial and transverse receiver function using raysum
+        ===================================================================================================================================
+        ::: input parameters :::
+        az          - azimuth of wave vector (az = 180. - baz, baz is the azimuth look at event from station)
+                    NOTE: the azimuth of wave vector at station is typically NOT the same as the azimuth looking at station from event
+        t           - time length of output in sec
+        ::: output :::
+        self.rfr    - radial receiver function
+        self.rft    - transverse receiver function
+        self.time   - time array
+        ===================================================================================================================================
+        """
+        din, rhoin, alphain, betain, dvpin, dvsin, isoin = self.model.layer_raysum_model(self.dArr, 200, 1.)
+        nl      = din.size
+        if nl > 15:
+            raise ValueError('Maximum allowed number of layers is 15!')
+        # initialize model arrays
+        d       = np.zeros(15, dtype=np.float32)
+        rho     = np.zeros(15, dtype=np.float32)
+        alpha   = np.zeros(15, dtype=np.float32)
+        beta    = np.zeros(15, dtype=np.float32)
+        iso     = np.zeros(15, dtype=np.int32)
+        dvp     = np.zeros(15, dtype=np.float32)
+        dvs     = np.zeros(15, dtype=np.float32)
+        trend   = np.zeros(15, dtype=np.float32)
+        plunge  = np.zeros(15, dtype=np.float32)
+        strike  = np.zeros(15, dtype=np.float32)
+        dip     = np.zeros(15, dtype=np.float32)
+        #
+        d[:nl]      = din[:]*1000.
+        rho[:nl]    = rhoin[:]*1000.
+        alpha[:nl]  = alphain[:]*1000.
+        beta[:nl]   = betain[:]*1000.
+        iso[:nl]    = isoin[:]
+        dvp[:nl]    = dvpin[:]
+        dvs[:nl]    = dvsin[:]
+        
+        if self.model.tilt:
+            self.dip, self.strike = self.model.angles_raysum_model(d, atype=0)
+            trend[:nl]   = self.strike[:]; plunge[:nl] = self.dip[:] # double check
+        if self.model.dipping:
+            self.dipif, self.strikeif = self.model.angles_raysum_model(d, atype=1)
+            dip[:nl] = self.dipif[:]; strike[:nl] = self.strikeif[:]
+        bazin   = np.asarray(bazin)
+        ntr     = bazin.size
+        baz     = np.zeros(200, dtype=np.float32); baz[:ntr] = bazin[:]
+        slow    = np.zeros(200, dtype=np.float32); slow[:ntr]= slowness/1000. # s/km to s/m
+        sta_dx  = np.zeros(200, dtype=np.float32)
+        sta_dy  = np.zeros(200, dtype=np.float32)
+        
+        npts    = int(t/self.dt)
+        tt, amp, nphase, tr_cart, tr_ph = raysum.raysum_interface(nl, d, rho, alpha, beta, dvp, dvs, \
+                    trend, plunge, strike, dip, iso, iphase,   ntr, baz, slow, sta_dx, sta_dy, \
+                        self.mults, npts, self.dt, self.width, self.align, self.shift, self.outrot, phfname)
+        self.tt     = tt[:nphase, :ntr]
+        self.amp    = amp[:nphase, :ntr]
+        self.trENZ  = tr_cart[:, :npts, :ntr]
+        if self.outrot != 0:
+            self.trROT  = tr_ph[:, :npts, :ntr]
+        self.nphase = nphase
+        self.time   = np.arange(npts, dtype=np.float32)*self.dt
+        return
+    
     def compute_diff_ps_time(self, slowness = 0.06, h=35.):
         """Compute the difference in arrival time between P and P-S converted waves.
         """
@@ -212,13 +286,13 @@ class ref_solver(object):
         dtps    = h* (np.tan(phip0) - np.tan(phis0))*np.sin(phip1)/vp1 + h/np.cos(phis0)/vs0 - h/np.cos(phip0)/vp0
         print dtps
         
-    def plot_az_rf(self, comp='T', showfig=True):
+    def plot_baz_rf(self, comp='T', showfig=True):
         ymax=361.
         ymin=-1.
         time    = self.time
         plt.figure()
         ax=plt.subplot()
-        for i in xrange(self.azArr.size):
+        for i in xrange(self.bazArr.size):
             if comp=='R':
                 yvalue  = self.rfrst[i]
             else:
@@ -226,10 +300,10 @@ class ref_solver(object):
             rfmax   = yvalue.max()
             yvalue  = -yvalue/rfmax*40.
             yvalue[(time>1.8)*(time<3.2)] = 2.*yvalue[(time>1.8)*(time<3.2)]
-            azi     = self.azArr[i]
-            ax.plot(time, yvalue+azi, '-k', lw=0.3)
-            ax.fill_between(time, y2=azi, y1=yvalue+azi, where=yvalue>0, color='red', lw=0.01, interpolate=True)
-            ax.fill_between(time, y2=azi, y1=yvalue+azi, where=yvalue<0, color='blue', lw=0.01, interpolate=True)
+            baz     = self.bazArr[i]
+            ax.plot(time, yvalue+baz, '-k', lw=0.3)
+            ax.fill_between(time, y2=baz, y1=yvalue+baz, where=yvalue>0, color='red', lw=0.01, interpolate=True)
+            ax.fill_between(time, y2=baz, y1=yvalue+baz, where=yvalue<0, color='blue', lw=0.01, interpolate=True)
             plt.axis([0., 8, ymin, ymax])
             plt.xlabel('Time(sec)')
             plt.title(comp+' component')
