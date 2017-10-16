@@ -148,14 +148,14 @@ class ref_solver(object):
         if not isinstance(inmodel, vmodel.model1d):
             raise ValueError('Input model should be type of vmodel.model1d !')
         self.model  = inmodel
-        self.dt     = 0.05
+        self.dt     = 0.025
         self.rfrst  = []; self.rftst  = []
         self.bazArr  = np.array([])
         ##############################
         # input parameters for raysum
         ##############################
         self.mults  = 2 # Multiples: 0 for none, 1 for Moho, 2 for all first-order
-        self.width  = 1./2.5 # Gaussian width
+        self.width  = 0.4 # Gaussian width
         self.align  = 1 # Alignment: 0 is none, 1 aligns on primary phase (P or S)
         self.shift  = 5. # Shift of traces -- t=0 at this time (sec)
         self.outrot = 1  # Rotation to output: 0 is NS/EW/Z, 1 is R/T/Z, 2 is P/SV/SH
@@ -173,7 +173,7 @@ class ref_solver(object):
         self.dArr   = np.array([30.,  170.], dtype = np.float32)
         return
     
-    def solve_theo(self, t=30., slowness = 0.06, din = None):
+    def solve_theo(self, t=25., slowness = 0.06, din = None):
         """
         Compute radial and transverse receiver function using theo
         ====================================================================================
@@ -190,35 +190,33 @@ class ref_solver(object):
         if not self.model.is_iso():
             print 'WARNING: model is anisotropic!'
         dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 100, 1.)
-        hin = np.zeros(100, dtype=np.float32)
-        vsin= np.zeros(100, dtype=np.float32)
-        vpvs= np.zeros(100, dtype=np.float32)
-        qsin= 1400.*np.ones(100, dtype=np.float32)
-        qpin= 600.*np.ones(100, dtype=np.float32)
+        hin         = np.zeros(100, dtype=np.float32)
+        vsin        = np.zeros(100, dtype=np.float32)
+        vpvs        = np.zeros(100, dtype=np.float32)
+        qsin        = 1400.*np.ones(100, dtype=np.float32)
+        qpin        = 600.*np.ones(100, dtype=np.float32)
         if dArr.size<100:
-            nl          = dArr.size
+            nl      = dArr.size
         else:
-            nl  = 100
-        hin[:nl]  = dArr[:nl]
-        vsin[:nl] = (np.sqrt(LArr/rhoArr))[:nl]
-        vpvs[:nl] = (np.sqrt(CArr/LArr))[:nl]
-        fs      = 1./self.dt
-        ntimes  = int(t*fs)
-        # # nd      = 1000
+            nl      = 100
+        hin[:nl]    = dArr[:nl]
+        vsin[:nl]   = (np.sqrt(LArr/rhoArr))[:nl]
+        vpvs[:nl]   = (np.sqrt(CArr/LArr))[:nl]
+        fs          = 1./self.dt
+        ntimes      = int(t*fs)
         if din is None:
-            din = 180.*np.arcsin(vsin[nl-1]*vpvs[nl-1]*slowness)/np.pi
+            din     = 180.*np.arcsin(vsin[nl-1]*vpvs[nl-1]*slowness)/np.pi
         # solve for receiver function using theo
-        rx 	= theo.theo(nl, vsin, hin, vpvs, qpin, qsin, fs, din, 2.5, 0.005, 0, ntimes)
+        rx 	        = theo.theo(nl, vsin, hin, vpvs, qpin, qsin, fs, din, 2.5, 0.005, 0, ntimes)
         # receiver function (ONLY radial component)
         self.rf     = rx[:ntimes]
         self.time   = np.arange(ntimes, dtype=np.float32)*self.dt 
         return
     
-    def solve_anirec(self, t=30., baz=0., savestream=True):
+    def solve_anirec(self, t=25., baz=0., savestream=True):
         """
         Compute radial and transverse receiver function using anirec
         Default maximum velocity is 16.6667, can be changed by modifying the source code
-        
         c     phase velocity of incident wave, important! LF 
             cc=16.6667  (line 175)
         ===================================================================================================================================
@@ -263,6 +261,9 @@ class ref_solver(object):
         self.rft    = Tf
         # time
         self.time   = T
+        dt2         = T[1] - T[0]
+        if self.dt  != dt2:
+            raise ValueError('Incompatible time interval from anirec, change the source code!')
         if savestream:
             self.rfrst.append(Rf); self.rftst.append(Tf)
             self.bazArr  = np.append(self.bazArr, baz)
@@ -319,7 +320,7 @@ class ref_solver(object):
         self.bazArr  = np.append(self.bazArr, baz)
         return
     
-    def solve_raysum(self, bazin=np.array([0.]), t=30., iphase=1, slowness=0.06, phfname='', ref=True):
+    def solve_raysum(self, bazin=np.array([0.]), t=25., iphase=1, slowness=0.06, phfname='', ref=True):
         """
         Compute radial and transverse receiver function using raysum
         ===================================================================================================================================
@@ -337,7 +338,7 @@ class ref_solver(object):
         ===================================================================================================================================
         """
         dArr    = np.zeros(self.dArr.size+1, dtype=np.float32)
-        dArr[1:]= self.dArr
+        dArr[1:]= self.dArr # first layer is zero
         din, rhoin, alphain, betain, dvpin, dvsin, isoin = self.model.layer_raysum_model(dArr, 15, 1.)
         nl      = din.size
         if nl > 14:
@@ -362,40 +363,37 @@ class ref_solver(object):
         iso[:nl]    = isoin[:]
         dvp[:nl]    = dvpin[:]*100.
         dvs[:nl]    = dvsin[:]*100.
-        
+        # bottom half space
         nl          += 1
         d[nl-1]     = 0.
         rho[nl-1]   = rho[nl-2]
         alpha[nl-1] = alpha[nl-2]
         beta[nl-1]  = beta[nl-2]
         iso[nl-1]   = 1
-        
+        # topmost layer
         iso[0]      = 1
         dvp[0]      = 0.
         dvs[0]      = 0.
-        # 
-        # iso[1:nl]   = isoin[:]
-        # dvp[1:nl]   = dvpin[:]*100.
-        # dvs[1:nl]   = dvsin[:]*100.
         
         if self.model.tilt:
             self.dip, self.strike = self.model.angles_raysum_model(din, 0)
-            # trend[1:nl]   = self.strike[:]+270.; plunge[1:nl] = 90. - self.dip[:] # double check
             trend[:nl-1]   = self.strike[:]+270.; plunge[:nl-1] = 90. - self.dip[:] # double check
         if self.model.dipping:
             self.dipif, self.strikeif = self.model.angles_raysum_model(din, 1)
             dip[1:nl] = self.dipif[:]; strike[1:nl] = self.strikeif[:]
-            
-        trend[0]= 0.; plunge[0]=0.
-        bazin   = np.asarray(bazin)
-        ntr     = bazin.size
-        baz     = np.zeros(200, dtype=np.float32); baz[:ntr] = bazin[:]
-        slow    = np.zeros(200, dtype=np.float32); slow[:ntr]= slowness/1000. # s/km to s/m
-        sta_dx  = np.zeros(200, dtype=np.float32)
-        sta_dy  = np.zeros(200, dtype=np.float32)
-        
-        npts    = int(t/self.dt)
-        
+        # top most layer
+        trend[0]    = 0.; plunge[0]=0.
+        bazin       = np.asarray(bazin)
+        ntr         = bazin.size
+        baz         = np.zeros(200, dtype=np.float32);  baz[:ntr]   = bazin[:]
+        slow        = np.zeros(200, dtype=np.float32);  slow[:ntr]  = slowness/1000. # s/km to s/m
+        sta_dx      = np.zeros(200, dtype=np.float32)
+        sta_dy      = np.zeros(200, dtype=np.float32)
+        self.npts   = int(t/self.dt)
+        t           += self.shift
+        npts        = int(t/self.dt)
+        self.nptsraysum = npts
+        # Compute synthetics using raysum
         tt, amp, nphase, tr_cart, tr_ph = raysum.raysum_interface(nl, d, rho, alpha, beta, dvp, dvs, \
                     trend, plunge, strike, dip, iso, iphase,   ntr, baz, slow, sta_dx, sta_dy, \
                         self.mults, npts, self.dt, self.width, self.align, self.shift, self.outrot, phfname)
@@ -405,7 +403,7 @@ class ref_solver(object):
         if self.outrot != 0:
             self.trROT  = tr_ph[:, :npts, :ntr]
         self.nphase = nphase; self.ntr = ntr
-        self.time   = np.arange(npts, dtype=np.float32)*self.dt
+        self.time   = np.arange(self.npts, dtype=np.float32)*self.dt
         self.bazArr = bazin
         if ref: self.deconvolve_raysum()
         return
@@ -493,7 +491,7 @@ class ref_solver(object):
         if ref: self.deconvolve_raysum()
         return
     
-    def deconvolve_raysum(self, tdel=0., f0 = 2.5, niter=400, minderr=0.00001):
+    def deconvolve_raysum(self, tdel=0., f0 = 2.5, niter=200, minderr=0.0001):
         """
         Compute receiver function from raysum synthetics with iterative deconvolution algorithmn
         ========================================================================================================================
@@ -510,31 +508,44 @@ class ref_solver(object):
         if self.outrot != 1:
             print 'No RTZ synthetics from raysum!'
             return
-        npts = self.time.size
+        nptsraysum      = self.nptsraysum
         for i in xrange(self.ntr):
             Ztr         = self.trROT[2,:,i]
             Rtr         = self.trROT[0,:,i]
             Ttr         = self.trROT[1,:,i]
-            rfr, fitness= _iter_deconvolve(Ztr, Rtr, self.dt, npts, niter, tdel, f0, minderr)
+            rfr, fitness= _iter_deconvolve(Ztr, Rtr, self.dt, nptsraysum, niter, tdel, f0, minderr)
             if fitness < 95.:
                 print 'WARNING: fittness is',fitness,'for trace id:',i
             if np.all(Ttr == 0.):
                 rft     = np.zeros(Ztr.size, np.float32)
             else:
-                rft, fitness    = _iter_deconvolve(Ztr, Ttr, self.dt, npts, niter, tdel, f0, minderr)
+                rft, fitness    = _iter_deconvolve(Ztr, Ttr, self.dt, nptsraysum, niter, tdel, f0, minderr)
                 if fitness < 95.:
                     print 'WARNING: fittness is',fitness,'for trace id:',i
-            self.rfrst.append(rfr); self.rftst.append(rft)
+            self.rfrst.append(rfr[:self.npts]); self.rftst.append(rft[:self.npts])
         return
 
     
-    def compute_diff_ps_time(self, slowness = 0.06, h=35.):
+    def compute_diff_ps_time(self, slowness = 0.06, h=35., ptype='v', stype='v', vs0=None, vp0=None, vp1=None):
         """Compute the difference in arrival time between P and P-S converted waves.
         """
         dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.model.get_layer_model(self.dArr, 100, 1.)
-        vs0     = (np.sqrt(LArr/rhoArr))[0]
-        vp0     = (np.sqrt(CArr/rhoArr))[0]
-        vp1     = (np.sqrt(CArr/rhoArr))[1]
+        if vs0 == None:
+            if stype == 'v':
+                vs0     = (np.sqrt(LArr/rhoArr))[0]
+            elif stype == 'h':
+                vs0     = (np.sqrt(NArr/rhoArr))[0]
+            else:
+                raise ValueError('Unexpected stype!')
+        if vp0 == None or vp1 == None:
+            if ptype == 'v':
+                vp0     = (np.sqrt(CArr/rhoArr))[0]
+                vp1     = (np.sqrt(CArr/rhoArr))[1]
+            elif ptype == 'h':
+                vp0     = (np.sqrt(AArr/rhoArr))[0]
+                vp1     = (np.sqrt(AArr/rhoArr))[1]
+            else:
+                raise ValueError('Unexpected ptype!')
         phis0   = np.arcsin(vs0*slowness)
         phip0   = np.arcsin(vp0*slowness)
         phip1   = np.arcsin(vp1*slowness)

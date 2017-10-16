@@ -153,6 +153,8 @@ c  therefore, e=0.02 is 2% pert to mu from slowest to fastest
         dz(i)=z(i)-z(i-1)
       end do
       dz(1)=z(1)
+c print model      
+
 c  print the organ-pipe mode count for 1Hz
 c  the lowest layer (nl+1) is taken as evanescent region.
       sn=0.

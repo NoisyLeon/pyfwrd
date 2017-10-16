@@ -73,7 +73,8 @@ c  which are a little peculiar for the crust, but what the hey!
 c     read the frequency you want to work with,
 c     and decide how many frequency points you need.
 c      nfrq=512
-      nfrq=512
+c  making dt = 0.025 LF
+      nfrq=256 
       gainfac = 16
 c  gainfac above will compensate timeseries values for 
 c the effects of spectral smoothing.
@@ -147,6 +148,9 @@ c  therefore, e=0.02 is 2% pert to mu from slowest to fastest
         dz(i)=z(i)-z(i-1)
       end do
       dz(1)=z(1)
+      
+
+
 c  print the organ-pipe mode count for 1Hz
 c  the lowest layer (nl+1) is taken as evanescent region.
       sn=0.
@@ -1188,33 +1192,5 @@ c  TEST - mult xee by zero, see if it is important --- it IS important
       end
 
                                                                  
-c  program to test solve
-c      implicit real*8 (a-h,o-z)
-c      dimension a(100),x(10),y(10),aa(10,10)
-c      call tnoua('n= ')
-c      read(5,*) n
-c      do 100 i=1,n
-c      do 100 j=1,n
-c      print 101, i,j
-c  101 format('$enter a(',2i2,') ')
-c      read(5,*) a(i+n*(j-1))
-c      aa(i,j)=a(i+n*(j-1))
-c  100 continue
-c      do 200 i=1,n
-c      print 102,i
-c  102 format('$enter y(',i2,') ')
-c      read(5,*) y(i)
-c  200 continue
-c      call solve(n,a,x,y)
-c      print 103, (i,x(i),i=1,n)
-c  103 format(' x(',i2,')=',e15.4)
-cc  check by substitution
-c      do 300 i=1,n
-c      y(i)=0.d0
-c      do 300 j=1,n
-c  300 y(i)=y(i)+aa(i,j)*x(j)
-c      call tnou('substitute')
-c      print 103,(i,y(i),i=1,n)
-c      stop
-c      end
+
 

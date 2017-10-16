@@ -56,7 +56,6 @@ rsolver1.solve_anirec(baz=90.)
 
 rsolver2  = ref.ref_solver(m)
 rsolver2.init_default_3()
-# rsolver2.dt = 0.025
 rsolver2.solve_raysum(bazin=[0., 90.])
 # 
 #
@@ -97,22 +96,25 @@ ax=plt.subplot()
 rf1 = rsolver1.rfrst[0]
 ax.plot(rsolver1.time, rf1, 'r-', lw=3)
 
-
-rf2  = rsolver2.rfrst[0]
+rf2  = rsolver1.rfrst[1]
 rf2  = rf2/rf2.max()*rf1.max()
-ax.plot(rsolver2.time, rf2, 'b--', lw=3)
+ax.plot(rsolver1.time, rf2, 'b-', lw=3)
+
+rf3  = rsolver2.rfrst[0]
+rf3  = rf3/rf3.max()*rf1.max()
+ax.plot(rsolver2.time, rf3, 'y--', lw=3)
 
 rf4  = rsolver2.rfrst[1]
 rf4  = rf4/rf4.max()*rf1.max()
-ax.plot(rsolver2.time, rf4, 'go', lw=3)
+ax.plot(rsolver2.time, rf4, 'g--', lw=3)
 
-rf3  = rsolver3.rfrst[0]
-rf3  = rf3/rf3.max()*rf1.max()
-ax.plot(rsolver1.time, rf3, 'ko', lw=3)
-
-rf5  = rsolver1.rfrst[1]
+rf5  = rsolver3.rfrst[0]
 rf5  = rf5/rf5.max()*rf1.max()
-ax.plot(rsolver1.time, rf5, 'yo', lw=3)
+ax.plot(rsolver1.time, rf5, 'ko', lw=3)
+
+time = rsolver1.time
+ind = (time>2.5) * (time<7.5)
+
 
 plt.xlim([0., 20.])
 plt.show()
