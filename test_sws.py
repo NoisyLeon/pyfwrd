@@ -36,10 +36,26 @@ ssolver.init_default_2()
 ssolver.solve_raysum(bazin=[45.])
 
 time = ssolver.time
-plt.plot(time, ssolver.trROT[0,:,0], 'b')
-plt.plot(time, ssolver.trROT[1,:,0], 'r')
-plt.plot(time, ssolver.trROT[2,:,0], 'k')
+# plt.plot(time, ssolver.trROT[0,:,0], 'b')
+# plt.plot(time, ssolver.trROT[1,:,0], 'r')
+# plt.plot(time, ssolver.trROT[2,:,0], 'k')
+# c1, c2 = ssolver.rotate(trid=0, angle=45)
+# plt.plot(time, c1, 'y')
+# plt.plot(time, c2, 'g')
+# plt.show()
+
+
+ssolver.convolve()
+
+plt.plot(np.arange(ssolver.stf.size)*ssolver.dt, ssolver.stf, 'b')
+plt.plot(time, ssolver.trSYN[0,:,0], 'r')
+plt.plot(time, ssolver.trSYN[1,:,0], 'k')
 c1, c2 = ssolver.rotate(trid=0, angle=45)
+c3, c4 = ssolver.rotate(trid=0, angle=45, dtype=2)
 plt.plot(time, c1, 'y')
 plt.plot(time, c2, 'g')
+
+plt.plot(time, c3, 'y--')
+plt.plot(time, c4, 'g--')
+
 plt.show()

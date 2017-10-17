@@ -24,6 +24,18 @@ from obspy.signal.rotate import rotate_ne_rt
 model_type = numba.deferred_type()
 model_type.define(vmodel.model1d.class_type.instance_type)
 
+def RickerIntSignal(dt, npts, fc, t0=None):
+    """RickerInt signal defined in sw4 manual(p 18)
+    """
+    time    = np.arange(npts)*dt
+    if t0 == None:
+        Nshift  = np.int(1.35/fc/dt) - 1
+        t0      = Nshift *dt
+    else:
+        Nshift  = np.int(t0/dt) - 1
+        t0      = Nshift *dt
+    return -(time - t0) *np.exp(- (np.pi*fc*(time-t0) )**2 )
+
 class sws_solver(object):
     """
     An object solving for shear wave splitting using raysum
@@ -46,9 +58,9 @@ class sws_solver(object):
         # input parameters for raysum
         ##############################
         self.mults  = 0 # Multiples: 0 for none, 1 for Moho, 2 for all first-order
-        self.width  = 0.4 # Gaussian width
+        self.width  = .4 # Gaussian width
         self.align  = 1 # Alignment: 0 is none, 1 aligns on primary phase (P or S)
-        self.shift  = 5. # Shift of traces -- t=0 at this time (sec)
+        self.shift  = 10. # Shift of traces -- t=0 at this time (sec)
         self.outrot = 1  # Rotation to output: 0 is NS/EW/Z, 1 is R/T/Z, 2 is P/SV/SH
         return
     
@@ -65,7 +77,7 @@ class sws_solver(object):
         self.dArr   = np.array([30.,  170.], dtype = np.float32)
         return
     
-    def solve_raysum(self, bazin=np.array([0.]), t=30., iphase=2, slowness=0.06, phfname='', sws=True):
+    def solve_raysum(self, bazin=np.array([0.]), t=50., iphase=2, slowness=0.06, phfname='', sws=True):
         """
         Compute radial and transverse receiver function using raysum
         ===================================================================================================================================
@@ -89,17 +101,17 @@ class sws_solver(object):
         if nl > 14:
             raise ValueError('Maximum allowed number of layers is 15!')
         # initialize model arrays
-        d       = np.zeros(15, dtype=np.float32)
-        rho     = np.zeros(15, dtype=np.float32)
-        alpha   = np.zeros(15, dtype=np.float32)
-        beta    = np.zeros(15, dtype=np.float32)
-        iso     = np.ones(15, dtype=np.int32)
-        dvp     = np.zeros(15, dtype=np.float32)
-        dvs     = np.zeros(15, dtype=np.float32)
-        trend   = np.zeros(15, dtype=np.float32)
-        plunge  = np.zeros(15, dtype=np.float32)
-        strike  = np.zeros(15, dtype=np.float32)
-        dip     = np.zeros(15, dtype=np.float32)
+        d           = np.zeros(15, dtype=np.float32)
+        rho         = np.zeros(15, dtype=np.float32)
+        alpha       = np.zeros(15, dtype=np.float32)
+        beta        = np.zeros(15, dtype=np.float32)
+        iso         = np.ones(15, dtype=np.int32)
+        dvp         = np.zeros(15, dtype=np.float32)
+        dvs         = np.zeros(15, dtype=np.float32)
+        trend       = np.zeros(15, dtype=np.float32)
+        plunge      = np.zeros(15, dtype=np.float32)
+        strike      = np.zeros(15, dtype=np.float32)
+        dip         = np.zeros(15, dtype=np.float32)
         #
         d[:nl]      = din[:]*1000.
         rho[:nl]    = rhoin[:]*1000.
@@ -149,49 +161,40 @@ class sws_solver(object):
         self.nphase = nphase; self.ntr = ntr
         self.time   = np.arange(self.npts, dtype=np.float32)*self.dt
         self.bazArr = bazin
-
+        ###
+        # store model parameters
+        ###
+        self.d          = d[:nl-1]
+        self.beta       = beta[:nl-1]
+        self.alpha      = alpha[:nl-1]
+        self.slowness   = slowness
         return
     
-    def rotate(self, trid, angle):
+    def rotate(self, trid, angle, dtype=1):
         angle   = -angle/180.*np.pi
-        x       = self.trROT[1, :, trid]
-        y       = self.trROT[0, :, trid]
+        if dtype == 1:
+            x       = self.trROT[1, :, trid]
+            y       = self.trROT[0, :, trid]
+        else:
+            x       = self.trSYN[1, :, trid]
+            y       = self.trSYN[0, :, trid]
         
         compx   = x*np.cos(angle) - y* np.sin(angle)
         compy   = x*np.sin(angle) + y* np.cos(angle)
         return compx, compy
 
-    
-    def deconvolve_raysum(self, tdel=0., f0 = 2.5, niter=200, minderr=0.0001):
-        """
-        Compute receiver function from raysum synthetics with iterative deconvolution algorithmn
-        ========================================================================================================================
-        ::: input parameters :::
-        tdel        - phase delay
-        f0          - Gaussian width factor
-        niter       - number of maximum iteration
-        minderr     - minimum misfit improvement, iteration will stop if improvement between two steps is smaller than minderr
-        ::: output :::
-        self.rfrst  - list for radial receiver functions
-        self.rftst  - list for transverse receiver functions
-        ========================================================================================================================
-        """
-        if self.outrot != 1:
-            print 'No RTZ synthetics from raysum!'
-            return
-        nptsraysum      = self.nptsraysum
+    def convolve(self, fc=2.5):
+        fs          = 1./self.dt
+        npts        = min(fs/fc*8, self.npts)
+        Nshift      = np.int(1.35/fc/self.dt) - 1
+        t0          = Nshift *self.dt
+        stf         = RickerIntSignal(dt=self.dt, npts = npts, fc=fc, t0=t0)
+        self.trSYN  = np.zeros(self.trROT.shape) 
         for i in xrange(self.ntr):
-            Ztr         = self.trROT[2,:,i]
-            Rtr         = self.trROT[0,:,i]
-            Ttr         = self.trROT[1,:,i]
-            rfr, fitness= _iter_deconvolve(Ztr, Rtr, self.dt, nptsraysum, niter, tdel, f0, minderr)
-            if fitness < 95.:
-                print 'WARNING: fittness is',fitness,'for trace id:',i
-            if np.all(Ttr == 0.):
-                rft     = np.zeros(Ztr.size, np.float32)
-            else:
-                rft, fitness    = _iter_deconvolve(Ztr, Ttr, self.dt, nptsraysum, niter, tdel, f0, minderr)
-                if fitness < 95.:
-                    print 'WARNING: fittness is',fitness,'for trace id:',i
-            self.rfrst.append(rfr[:self.npts]); self.rftst.append(rft[:self.npts])
+            self.trSYN[0, :, i]     = np.convolve(stf, self.trROT[0, :, i])[Nshift:self.npts+Nshift]
+            self.trSYN[1, :, i]     = np.convolve(stf, self.trROT[1, :, i])[Nshift:self.npts+Nshift]
+            self.trSYN[2, :, i]     = np.convolve(stf, self.trROT[2, :, i])[Nshift:self.npts+Nshift]
+        self.stf    = stf
         return
+    
+    
