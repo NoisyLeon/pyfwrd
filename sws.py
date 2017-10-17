@@ -197,4 +197,12 @@ class sws_solver(object):
         self.stf    = stf
         return
     
+    def rotcorr(self, maxtime = 1.0, twin=3.0, dphi=0.1):
+        """
+            shear wave splitting using the Rotation-Correlation method
+            (e.g. Bowman and Ando,1987)
+        """
+        maxlags = np.ceil(maxtime/self.dt) # only +-4 seconds relevant
+        zerolag = np.ceil(twin/self.dt)
+    
     
