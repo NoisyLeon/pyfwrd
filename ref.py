@@ -3,8 +3,6 @@
 Module for synthetic receiver function computation,
     using anirec by Vadim Levin, theo by Takuo Shibutani, and raysum by Andrew Frederiksen
 
-The code is a python wrapper of the f77 code aniprop and theo
-
 :Copyright:
     Author: Lili Feng
     Graduate Research Assistant
@@ -322,7 +320,7 @@ class ref_solver(object):
     
     def solve_raysum(self, bazin=np.array([0.]), t=25., iphase=1, slowness=0.06, phfname='', ref=True):
         """
-        Compute radial and transverse receiver function using raysum
+        Compute synthetics/receiver functions using raysum
         ===================================================================================================================================
         ::: input parameters :::
         bazin       - bazimuth array of wave vector

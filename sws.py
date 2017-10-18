@@ -3,8 +3,6 @@
 Module for synthetic shear wave splitting computation,
     using raysum by Andrew Frederiksen
 
-The code is a python wrapper of the f77 code aniprop and theo
-
 :Copyright:
     Author: Lili Feng
     Graduate Research Assistant
@@ -18,11 +16,7 @@ import numpy as np
 import vmodel
 import copy
 import matplotlib.pyplot as plt
-from obspy.signal.rotate import rotate_ne_rt 
 
-# define type of vmodel.model1d
-model_type = numba.deferred_type()
-model_type.define(vmodel.model1d.class_type.instance_type)
 
 def RickerIntSignal(dt, npts, fc, t0=None):
     """RickerInt signal defined in sw4 manual(p 18)
@@ -36,6 +30,45 @@ def RickerIntSignal(dt, npts, fc, t0=None):
         t0      = Nshift *dt
     return -(time - t0) *np.exp(- (np.pi*fc*(time-t0) )**2 )
 
+# @numba.jit( numba.types.UniTuple(numba.float64[:,:], 3)(numba.int64[:], numba.float64[:], numba.float64[:], numba.float64[:], numba.float64[:] ))
+# def _silverchan_mat(ind, SG, SH, phi_test, dt_test):
+#     Ematrix = np.zeros([phi_test.size, dt_test.size], dtype=np.float64) # energy matrix
+#     l1      = np.zeros([phi_test.size, dt_test.size], dtype=np.float64) # lambda 1
+#     l2      = np.zeros([phi_test.size, dt_test.size], dtype=np.float64) # lambda 2
+#     Nphi    = phi_test.size
+#     Nt      = dt_test.size
+#     for iphi in xrange(Nphi):
+#         phi     = phi_test[iphi]
+#         xphi    = SH*np.cos(phi) - SG* np.sin(phi)
+#         yphi    = SH*np.sin(phi) + SG* np.cos(phi)
+#         tmpfast = yphi[ind]
+#         for idt  in xrange(Nt):
+#             dt      = dt_test[idt]
+#             tmpslow = np.take(xphi, ind+idt) # xphi[ind+idt]
+#             SHc     = tmpslow*np.cos(-phi) - tmpfast* np.sin(-phi)
+#             SGc     = tmpslow*np.sin(-phi) + tmpfast* np.cos(-phi)
+#             Ematrix[iphi, idt] = np.linalg.norm(SHc) # Energy on transverse component
+#             # Etr     = SHc**2
+#             # ELst.append(np.linalg.norm(SHc))
+#             # ELst.append(Etr.sum()/Etr.size)
+#             SHe     = SHc - SHc.mean()
+#             SGe     = SGc - SGc.mean()
+#             # construct covariance matrix
+#             covar   = np.cov(SHe, SGe)
+#             # eigenvalue estimation
+#             w, v    = np.linalg.eig(covar)
+#             l1[iphi, idt]   = w[1]
+#             l2[iphi, idt]   = w[0]
+#     #         l1.append(w[1])
+#     #         l2.append(w[0])
+#     # Ematrix = np.array(ELst)
+#     # l1      = np.array(l1)
+#     # l2      = np.array(l2)
+#     return Ematrix, l1, l2
+# 
+# fast_silverchan_mat= numba.jit( numba.types.UniTuple(numba.float32[:,:], 3)(numba.float32[:],\
+#                     numba.float32[:], numba.float32[:], numba.float32[:], numba.float32[:] )) (_silverchan_mat)
+
 class sws_solver(object):
     """
     An object solving for shear wave splitting using raysum
@@ -44,6 +77,11 @@ class sws_solver(object):
     model           - 1D Earth model object
     dt              - time interval
     dArr            - layer array (unit - km)
+    bazArr          - back-azimuth array (unit - deg)
+    delayt          - delay time
+    phi             - fast axis angle relative to RTZ system
+    fa_phi          - fast axis angle relative to ENZ system
+    Crc, Cev, Cme   - matrix storing correlation coefficients/eigenvalues/transverse energy
     =====================================================================================================================
     """
     def __init__(self, inmodel):
@@ -60,12 +98,6 @@ class sws_solver(object):
         self.align  = 1 # Alignment: 0 is none, 1 aligns on primary phase (P or S)
         self.shift  = 10. # Shift of traces -- t=0 at this time (sec)
         self.outrot = 1  # Rotation to output: 0 is NS/EW/Z, 1 is R/T/Z, 2 is P/SV/SH
-        ############################################################
-        # parameters for shear wave splitting analysis
-        ############################################################
-        self.delayt = np.array([])
-        self.phi    = np.array([])
-        # # self.Crc    = np.array([])
         return
     
     def init_default(self, dh=1., nl=100):
@@ -83,7 +115,7 @@ class sws_solver(object):
     
     def solve_raysum(self, bazin=np.array([0.]), t=50., iphase=2, slowness=0.06, phfname='', sws=True):
         """
-        Compute radial and transverse receiver function using raysum
+        Compute synthetics using raysum
         ===================================================================================================================================
         ::: input parameters :::
         bazin       - back-azimuth array of wave vector
@@ -125,12 +157,12 @@ class sws_solver(object):
         dvp[:nl]    = dvpin[:]*100.
         dvs[:nl]    = dvsin[:]*100.
         # bottom half space
-        # nl          += 1
-        # d[nl-1]     = 0.
-        # rho[nl-1]   = rho[nl-2]
-        # alpha[nl-1] = alpha[nl-2]
-        # beta[nl-1]  = beta[nl-2]
-        # iso[nl-1]   = 1
+        nl          += 1
+        d[nl-1]     = 0.
+        rho[nl-1]   = rho[nl-2]
+        alpha[nl-1] = alpha[nl-2]
+        beta[nl-1]  = beta[nl-2]
+        iso[nl-1]   = 1
         # topmost layer
         iso[0]      = 1
         dvp[0]      = 0.
@@ -138,14 +170,13 @@ class sws_solver(object):
         
         if self.model.tilt:
             self.dip, self.strike = self.model.angles_raysum_model(din, 0)
-            # trend[:nl-1]   = self.strike[:]+270.; plunge[:nl-1] = 90. - self.dip[:] # double check
-            trend[:nl]   = self.strike[:]+270.; plunge[:nl] = 90. - self.dip[:] # double check
+            trend[:nl-1]   = self.strike[:]+270.; plunge[:nl-1] = 90. - self.dip[:] # double check
+            # trend[:nl]   = self.strike[:]+270.; plunge[:nl] = 90. - self.dip[:] # double check
         if self.model.dipping:
             self.dipif, self.strikeif = self.model.angles_raysum_model(din, 1)
             dip[1:nl] = self.dipif[:]; strike[1:nl] = self.strikeif[:]
         # top most layer
         trend[0]    = 0.; plunge[0]=0.
-        
         bazin       = np.asarray(bazin)
         ntr         = bazin.size
         baz         = np.zeros(200, dtype=np.float32);  baz[:ntr]   = bazin[:]
@@ -192,6 +223,18 @@ class sws_solver(object):
         return compx, compy
 
     def convolve(self, fc=2.5, rot=True):
+        """
+        Convolve synthetics from raysum with a Ricker integral signal
+        ====================================================================================
+        ::: input parameters :::
+        fc              - central frequency of the Ricker integral signal
+        rot             - convolve with RTZ (True) or NEZ (false) components
+        ::: output :::
+        self.trSYNROT   - convolved synthetic seismograms for RTZ system
+        self.trSYN      - convolved synthetic seismograms for NEZ system
+        self.stf        - source time function used for convolution
+        ====================================================================================
+        """
         fs          = 1./self.dt
         npts        = min(fs/fc*8, self.npts)
         Nshift      = np.int(1.35/fc/self.dt) - 1
@@ -200,30 +243,31 @@ class sws_solver(object):
         self.trSYN  = np.zeros(self.trROT.shape)
         if rot:     self.trSYNROT  = np.zeros(self.trROT.shape)
         for i in xrange(self.ntr):
-            self.trSYN[0, :, i]     = np.convolve(stf, self.trNEZ[0, :, i])[Nshift:self.npts+Nshift]
-            self.trSYN[1, :, i]     = np.convolve(stf, self.trNEZ[1, :, i])[Nshift:self.npts+Nshift]
-            self.trSYN[2, :, i]     = np.convolve(stf, self.trNEZ[2, :, i])[Nshift:self.npts+Nshift]
             if rot:
-                self.trSYNROT[0, :, i]     = np.convolve(stf, self.trROT[0, :, i])[Nshift:self.npts+Nshift]
-                self.trSYNROT[1, :, i]     = np.convolve(stf, self.trROT[1, :, i])[Nshift:self.npts+Nshift]
-                self.trSYNROT[2, :, i]     = np.convolve(stf, self.trROT[2, :, i])[Nshift:self.npts+Nshift]
+                self.trSYNROT[0, :, i]  = np.convolve(stf, self.trROT[0, :, i])[Nshift:self.npts+Nshift]
+                self.trSYNROT[1, :, i]  = np.convolve(stf, self.trROT[1, :, i])[Nshift:self.npts+Nshift]
+                self.trSYNROT[2, :, i]  = np.convolve(stf, self.trROT[2, :, i])[Nshift:self.npts+Nshift]
+            else:
+                self.trSYN[0, :, i]     = np.convolve(stf, self.trNEZ[0, :, i])[Nshift:self.npts+Nshift]
+                self.trSYN[1, :, i]     = np.convolve(stf, self.trNEZ[1, :, i])[Nshift:self.npts+Nshift]
+                self.trSYN[2, :, i]     = np.convolve(stf, self.trNEZ[2, :, i])[Nshift:self.npts+Nshift]
         self.stf    = stf
         return
     
-    def rotcorr(self, trid, maxtime = 1.0, twin=3.0, dphi=.1):
+    def rotcorr(self, trid, maxtime = 1.0, twin=1.5, dphi=.1):
         """
             shear wave splitting using the Rotation-Correlation method
             (e.g. Bowman and Ando,1987)
         """
-        maxlags = np.ceil(maxtime/self.dt) # only +-4 seconds relevant
-        zerolag = np.ceil(twin/self.dt)
+        maxlags = int(np.ceil(maxtime/self.dt)) # only +-4 seconds relevant
+        zerolag = int(np.ceil(twin/self.dt))
         phi_test= (np.mgrid[-90:90-dphi:dphi])/180*np.pi
         ind     = (self.time > (self.shift-twin))*(self.time < (self.shift+twin))
-        Cmatrix = np.zeros([phi_test.size, 2*maxlags+1])
+        Cmatrix = np.zeros([int(phi_test.size), int(2*maxlags+1)])
         SG      = self.trSYNROT[0, :, trid] # R component
         SH      = self.trSYNROT[1, :, trid] # T component
         for iphi in xrange(phi_test.size):
-            phi     = -phi_test[iphi]
+            phi     = phi_test[iphi]
             # test slow-fast seismograms
             xphi    = SH*np.cos(phi) - SG* np.sin(phi)
             yphi    = SH*np.sin(phi) + SG* np.cos(phi)
@@ -231,79 +275,177 @@ class sws_solver(object):
             L       = int((corTr.size - 1)/2)
             Cmatrix[iphi, :] = corTr[L-maxlags:L+maxlags+1]
         indmax  = Cmatrix.argmax()
-        pmax    = np.floor(indmax/(2*maxlags+1))
+        pmax    = int(np.floor(indmax/(2*maxlags+1)))
         tmax    = indmax - pmax*(2*maxlags+1)
         delayt  = (tmax-maxlags)*self.dt
         fa_phi  = phi_test[pmax]/np.pi*180.
-        # if delayt < 0.:
-        #     print 'neg delay time'
-        #     delayt  = -delayt
-        #     fa_phi  += 90.
-        #     if fa_phi > 90.:
-        #         fa_phi -= 180.
+        if delayt < 0.:
+            print 'neg delay time'
+            delayt  = -delayt
+            fa_phi  += 90.
+            if fa_phi > 90.:
+                fa_phi -= 180.
         return delayt, fa_phi, Cmatrix
     
-    def rotcorr_st(self, maxtime = 1.0, twin=3.0, dphi=.1):
+    def rotcorr_st(self, maxtime = 1.0, twin=1.5, dphi=.1):
         """
             shear wave splitting using the Rotation-Correlation method for the stream (all the traces)
         """
+        self.delayt = np.array([])
+        self.phi    = np.array([])
         Crc         = []
         for trid in xrange(self.ntr):
-            delayt, fa_phi, Cmatrix = self.rotcorr(trid=trid, maxtime = maxtime, twin=twin, dphi=dphi)
+            delayt, phi, Cmatrix = self.rotcorr(trid=trid, maxtime = maxtime, twin=twin, dphi=dphi)
             self.delayt = np.append(self.delayt, delayt)
-            self.phi    = np.append(self.phi, fa_phi)
+            self.phi    = np.append(self.phi, phi)
             Crc.append(Cmatrix)
-        # self.fa_phi = self.bazArr + 180. 
+        # fast axis angle
+        self.fa_phi                     = self.bazArr + self.phi
+        self.fa_phi[self.fa_phi<0.]     = self.fa_phi[self.fa_phi<0.] + 180.
+        self.fa_phi[self.fa_phi>180.]   = self.fa_phi[self.fa_phi>180.] - 180.
         self.Crc    = np.array(Crc)
         return
     
-    def silverchan(self, trid, maxtime = 1.0, twin=3.0, dphi=.1):
+    def eigenvalue(self, trid, maxtime = 1.0, twin=1.5, dphi=.5, mtype=1):
         """
-            shear wave splitting using the Silver & Chan method (1991)
+            shear wave splitting using the eigenvalue method Silver & Chan (1991)
         """
         maxlags = np.ceil(maxtime/self.dt) # only +-4 seconds relevant
         zerolag = np.ceil(twin/self.dt)
         phi_test= (np.mgrid[-90:90-dphi:dphi])/180*np.pi
-        dt_test = np.mgrid[0:maxtime:self.dt]
+        dt_test = np.mgrid[0.:maxtime:self.dt]
         ind     = np.where((self.time > (self.shift-twin))*(self.time < (self.shift+twin)))[0]
-        SG      = self.trSYNROT[0, :, trid] # N component
-        SH      = self.trSYNROT[1, :, trid] # E component
-        Ematrix = np.zeros([phi_test.size, dt_test.size])
-        l1      = np.zeros([phi_test.size, dt_test.size])
-        l2      = np.zeros([phi_test.size, dt_test.size])
+        SG      = self.trSYNROT[0, :, trid] # R component
+        SH      = self.trSYNROT[1, :, trid] # T component
+        l1      = np.zeros([phi_test.size, dt_test.size]) # lambda 1
+        l2      = np.zeros([phi_test.size, dt_test.size]) # lambda 2
         for iphi in xrange(phi_test.size):
-            phi     = -phi_test[iphi]
+            phi     = phi_test[iphi]
             xphi    = SH*np.cos(phi) - SG* np.sin(phi)
             yphi    = SH*np.sin(phi) + SG* np.cos(phi)
-            tmpfast = xphi[ind]
+            tmpfast = yphi[ind]
             for idt  in xrange(dt_test.size):
                 dt      = dt_test[idt]
-                tmpslow = yphi[ind+idt]
-                SHc     = tmpfast*np.cos(-phi) - tmpslow* np.sin(-phi)
-                SGc     = tmpfast*np.sin(-phi) + tmpslow* np.cos(-phi)
-                Ematrix[iphi, idt] = np.linalg.norm(SHc) # Energy on transverse component
-                SHe     = SHc - SHc.mean()
-                SGe     = SGc - SGc.mean()
+                tmpslow = xphi[ind+idt]
+                SHc     = tmpslow*np.cos(-phi) - tmpfast* np.sin(-phi)
+                SGc     = tmpslow*np.sin(-phi) + tmpfast* np.cos(-phi)
+                # SHe     = SHc - SHc.mean()
+                # SGe     = SGc - SGc.mean()
                 # construct covariance matrix
-                covar   = np.cov(SHe, SGe)
+                covar   = np.cov(SHc, SGc)
                 # eigenvalue estimation
                 w, v    = np.linalg.eig(covar)
-                # print w
-                # print v
-                # return
-                l1[iphi, idt]   = w[0]
-                l2[iphi, idt]   = w[1]
-        indmin  = Ematrix.argmin()
-        pmin    = np.floor(indmin/(dt_test.size))
-        tmin    = indmin - pmin*(dt_test.size)
+                l1[iphi, idt]   = w[1]
+                l2[iphi, idt]   = w[0]
+        # if mtype == 0:
+        #     print 'minimum energy'
+        #     C               = Ematrix
+        #     ind0            = C.argmin()
+        #     self.maplabel   = 'transverse energy'
+        #     print ind0
+        if mtype == 1:
+            print 'Eigenvalue: max(lambda1 / lambda2)'
+            C               = l1/l2
+            ind0            = C.argmax()
+            self.maplabel   = r'$\lambda_1/\lambda_2$'
+            print ind0
+        elif mtype == 2:
+            print 'Eigenvalue: min(lambda2)'
+            C               = l2
+            ind0            = C.argmin()
+            self.maplabel   = r'$\lambda_2$'
+            print ind0
+        elif mtype == 3:
+            print 'Eigenvalue: max(lambda1)'
+            C               = l1
+            ind0            = C.argmax()
+            self.maplabel   = r'$\lambda_1$'
+            print ind0
+        elif mtype == 4:
+            print 'Eigenvalue: min(lambda1 * lambda2)'
+            C               = l1*l2
+            ind0            = C.argmin()
+            self.maplabel   = r'$\lambda_1*\lambda_2$'
+            print ind0
+        elif mtype == 5:
+            print 'Eigenvalue: min(lambda2 / lambda1)'
+            C               = l2/l1
+            ind0            = C.argmin()
+            self.maplabel   = r'$\lambda_2/\lambda_1$'
+            print ind0
+        else:
+            raise ValueError('Unexpected value of mtype')
+        pind    = int(np.floor(ind0/(dt_test.size)))
+        tind    = int(ind0 - pind*(dt_test.size))
+        delayt  = dt_test[tind]
+        phi     = phi_test[pind]/np.pi*180.
+        return delayt, phi, C
+    
+    def ev_st(self, maxtime = 1.0, twin=1.5, dphi=.1, mtype=1):
+        """
+            shear wave splitting using the eigenvalue method for the stream (all the traces)
+        """
+        self.delayt = np.array([])
+        self.phi    = np.array([])
+        Cev         = []
+        for trid in xrange(self.ntr):
+            delayt, phi, Cmatrix = self.eigenvalue(trid=trid, maxtime = maxtime, twin=twin, dphi=dphi, mtype=mtype)
+            self.delayt = np.append(self.delayt, delayt)
+            self.phi    = np.append(self.phi, phi)
+            Cev.append(Cmatrix)
+        # fast axis angle
+        self.fa_phi                     = self.bazArr + self.phi
+        self.fa_phi[self.fa_phi<0.]     = self.fa_phi[self.fa_phi<0.] + 180.
+        self.fa_phi[self.fa_phi>180.]   = self.fa_phi[self.fa_phi>180.] - 180.
+        self.Cev    = np.array(Cev)
+        return
+    
+    def minimum_energy(self, trid, maxtime = 1.0, twin=1.5, dphi=.1):
+        """
+            shear wave splitting using the minimum energy method by Silver & Chan (1991)
+        """
+        maxlags = np.ceil(maxtime/self.dt) # only +-4 seconds relevant
+        zerolag = np.ceil(twin/self.dt)
+        phi_test= (np.mgrid[-90:90-dphi:dphi])/180*np.pi
+        dt_test = np.mgrid[0.:maxtime:self.dt]
+        ind     = np.where((self.time > (self.shift-twin))*(self.time < (self.shift+twin)))[0]
+        SG      = self.trSYNROT[0, :, trid] # R component
+        SH      = self.trSYNROT[1, :, trid] # T component
+        Ematrix = np.zeros([phi_test.size, dt_test.size]) # energy matrix
+        xphi    = np.outer(SH, np.cos(phi_test)) - np.outer(SG, np.sin(phi_test) )
+        yphi    = np.outer(SH, np.sin(phi_test)) + np.outer(SG, np.cos(phi_test) )
+        tmpfast = yphi[ind, :]
+        for idt  in xrange(dt_test.size):
+            dt      = dt_test[idt]
+            tmpslow = xphi[ind+idt, :]
+            SHc     = tmpslow*np.cos(-phi_test) - tmpfast * np.sin(-phi_test)
+            SGc     = tmpslow*np.sin(-phi_test) + tmpfast* np.cos(-phi_test)
+            Ematrix[:, idt] = np.linalg.norm(SHc, axis=0) # Energy on transverse component
+        ind0            = Ematrix.argmin()
+        self.maplabel   = 'transverse energy'
+        pind    = int(np.floor(ind0/(dt_test.size)))
+        tind    = int(ind0 - pind*(dt_test.size))
+        delayt  = dt_test[tind]
+        phi     = phi_test[pind]/np.pi*180.
+        return delayt, phi, Ematrix
         
-        delayt  = dt_test[tmin]
-        fa_phi  = phi_test[pmin]/np.pi*180.
-        
-        # print delayt, fa_phi
-        # return Ematrix, l1, l2
-                
-                
-        
+    def me_st(self, maxtime = 1.0, twin=1.5, dphi=.1):
+        """
+            shear wave splitting using the minimum energy method for the stream (all the traces)
+        """
+        self.delayt = np.array([])
+        self.phi    = np.array([])
+        Cme         = []
+        for trid in xrange(self.ntr):
+            delayt, fa_phi, Cmatrix = self.minimum_energy(trid=trid, maxtime = maxtime, twin=twin, dphi=dphi)
+            self.delayt = np.append(self.delayt, delayt)
+            self.phi    = np.append(self.phi, fa_phi)
+            Cme.append(Cmatrix)
+        # fast axis angle
+        self.fa_phi                     = self.bazArr + self.phi
+        self.fa_phi[self.fa_phi<0.]     = self.fa_phi[self.fa_phi<0.] + 180.
+        self.fa_phi[self.fa_phi>180.]   = self.fa_phi[self.fa_phi>180.] - 180.
+        self.Cme    = np.array(Cme)
+        return
     
     
