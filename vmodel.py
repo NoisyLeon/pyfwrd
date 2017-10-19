@@ -366,13 +366,19 @@ def plot(model, dtype='vsv', unit='km', showfig=True):
                     'vph': 'vph (m/s)', 'eta': r'$\eta$' }
     data = data/factor
     ax=plt.subplot()
-    plt.plot(data, depth, 'o-', ms=10, lw=3)
+    plt.plot(data, depth, '-', ms=10, lw=5, label=dtype)
     plt.xlabel(dunitdict[dtype], fontsize=30)
     plt.ylabel('Depth ('+unit+')', fontsize=30)
-    plt.gca().invert_yaxis()
+    
     ax.tick_params(axis='x', labelsize=20)
     ax.tick_params(axis='y', labelsize=20)
-    if showfig: plt.show()
+    if showfig:
+        plt.ylim([0, 200.])
+        # plt.xlim([2.5, 4.])
+        plt.gca().invert_yaxis()
+        # plt.xlabel('Velocity(km/s)', fontsize=30)
+        plt.legend(fontsize=20)
+        plt.show()
     return
     
     

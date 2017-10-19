@@ -59,6 +59,7 @@ class aniprop_solver(object):
         self.Tmax   = self.Tmin + (self.Nt-1)*self.dT
         self.T      = np.arange(self.Nt)*self.dT + self.Tmin
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
+        # self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  45., 50., 50.], dtype = np.float32)
         return
     
     def init_default_3(self):

@@ -177,6 +177,7 @@ class sws_solver(object):
             dip[1:nl] = self.dipif[:]; strike[1:nl] = self.strikeif[:]
         # top most layer
         trend[0]    = 0.; plunge[0]=0.
+        trend[trend>360.] = trend[trend>360.] - 360.
         bazin       = np.asarray(bazin)
         ntr         = bazin.size
         baz         = np.zeros(200, dtype=np.float32);  baz[:ntr]   = bazin[:]
@@ -219,11 +220,11 @@ class sws_solver(object):
         """
         angle   = angle/180.*np.pi
         if dtype == 1:
-            x       = self.trROT[1, :, trid]
-            y       = self.trROT[0, :, trid]
-        else:
             x       = self.trSYNROT[1, :, trid]
             y       = self.trSYNROT[0, :, trid]
+        else:
+            x       = self.trROT[1, :, trid]
+            y       = self.trROT[0, :, trid]
         # NOTE: Rotation matrix for a vector counter-clockwise with an angle
         # It is equivalent to rotate the coordinate system clockwise with the same angle
         compx   = x*np.cos(angle) - y* np.sin(angle)

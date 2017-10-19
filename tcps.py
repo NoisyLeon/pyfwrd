@@ -121,6 +121,7 @@ class tcps_solver(object):
         self.T      = _get_array(Tmin, Tmax, dT)
         self.freq   = _value_divide_array(1., self.T)
         self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  35.], dtype = np.float32)
+        # self.dArr   = np.array([20.,  15.,  42.,  43.,  45.,  45., 50., 50.], dtype = np.float32)
         return
     
     def init_default_4(self):

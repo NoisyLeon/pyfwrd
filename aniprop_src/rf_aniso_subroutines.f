@@ -72,9 +72,9 @@ c  which are a little peculiar for the crust, but what the hey!
       z0=dcmplx(0.d0,0.d0)
 c     read the frequency you want to work with,
 c     and decide how many frequency points you need.
-c      nfrq=512
+      nfrq=512
 c  making dt = 0.025 LF
-      nfrq=256 
+c      nfrq=256 
       gainfac = 16
 c  gainfac above will compensate timeseries values for 
 c the effects of spectral smoothing.

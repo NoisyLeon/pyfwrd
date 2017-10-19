@@ -146,7 +146,7 @@ class ref_solver(object):
         if not isinstance(inmodel, vmodel.model1d):
             raise ValueError('Input model should be type of vmodel.model1d !')
         self.model  = inmodel
-        self.dt     = 0.025
+        self.dt     = 0.05
         self.rfrst  = []; self.rftst  = []
         self.bazArr  = np.array([])
         ##############################
@@ -562,13 +562,13 @@ class ref_solver(object):
             else:
                 yvalue  = self.rftst[i]
             rfmax   = yvalue.max()
-            yvalue  = -yvalue/rfmax*40.
-            yvalue[(time>1.8)*(time<3.2)] = 2.*yvalue[(time>1.8)*(time<3.2)]
+            yvalue  = -yvalue/rfmax*10.
+            # yvalue[(time>1.8)*(time<3.2)] = 2.*yvalue[(time>1.8)*(time<3.2)]
             baz     = self.bazArr[i]
             ax.plot(time, yvalue+baz, '-k', lw=0.3)
             ax.fill_between(time, y2=baz, y1=yvalue+baz, where=yvalue>0, color='red', lw=0.01, interpolate=True)
             ax.fill_between(time, y2=baz, y1=yvalue+baz, where=yvalue<0, color='blue', lw=0.01, interpolate=True)
-            plt.axis([0., 8, ymin, ymax])
+            plt.axis([0., 6, ymin, ymax])
             plt.xlabel('Time(sec)')
             plt.title(comp+' component')
             plt.gca().invert_yaxis()
