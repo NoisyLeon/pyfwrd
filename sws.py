@@ -208,6 +208,14 @@ class sws_solver(object):
     def rotate(self, trid, angle, dtype=1):
         """
         Rotate the synthetics clockwise by a given angle
+        ======================================================================================================
+        ::: input parameters :::
+        trid        - trace index
+        angle       - angle for rotation 
+        dtype       - datatype for rotation (1 - RTZ before convolution; other - RTZ after convolution)
+        ::: output :::
+        compx, compy- rotated x/y components
+        ======================================================================================================
         """
         angle   = angle/180.*np.pi
         if dtype == 1:
@@ -258,6 +266,17 @@ class sws_solver(object):
         """
             shear wave splitting using the Rotation-Correlation method
             (e.g. Bowman and Ando,1987)
+        ====================================================================================
+        ::: input parameters :::
+        trid        - trace index
+        maxtime     - maximum delay time (sec)
+        twin        - time length for selected window +/- twin (sec)
+        dphi        - fast angle interval (deg)
+        ::: output :::
+        delayt      - delay time (sec)
+        fa_phi      - fast axis angle (deg)
+        Cmatrix     - correlation coefficient matrix
+        ====================================================================================
         """
         maxlags = int(np.ceil(maxtime/self.dt)) # only +-4 seconds relevant
         zerolag = int(np.ceil(twin/self.dt))
@@ -289,7 +308,13 @@ class sws_solver(object):
     
     def rotcorr_st(self, maxtime = 1.0, twin=1.5, dphi=.1):
         """
-            shear wave splitting using the Rotation-Correlation method for the stream (all the traces)
+        shear wave splitting using the Rotation-Correlation method for the stream (all the traces)
+        ============================================================================================
+        ::: input parameters :::
+        maxtime     - maximum delay time (sec)
+        twin        - time length for selected window +/- twin (sec)
+        dphi        - fast angle interval (deg)
+        ============================================================================================
         """
         self.delayt = np.array([])
         self.phi    = np.array([])
@@ -309,6 +334,23 @@ class sws_solver(object):
     def eigenvalue(self, trid, maxtime = 1.0, twin=1.5, dphi=.5, mtype=1):
         """
             shear wave splitting using the eigenvalue method Silver & Chan (1991)
+        ====================================================================================
+        ::: input parameters :::
+        trid        - trace index
+        maxtime     - maximum delay time (sec)
+        twin        - time length for selected window +/- twin (sec)
+        dphi        - fast angle interval (deg)
+        mtype       - method type
+                        1 - max(lambda1 / lambda2)
+                        2 - min(lambda2)
+                        3 - max(lambda1)
+                        4 - min(lambda1 * lambda2)
+                        5 - min(lambda2 / lambda1)
+        ::: output :::
+        delayt      - delay time (sec)
+        phi         - fast axis angle (deg)
+        C           - eigenvalue matrix
+        ====================================================================================
         """
         maxlags = np.ceil(maxtime/self.dt) # only +-4 seconds relevant
         zerolag = np.ceil(twin/self.dt)
@@ -383,7 +425,19 @@ class sws_solver(object):
     
     def ev_st(self, maxtime = 1.0, twin=1.5, dphi=.1, mtype=1):
         """
-            shear wave splitting using the eigenvalue method for the stream (all the traces)
+        shear wave splitting using the eigenvalue method for the stream (all the traces)
+        ====================================================================================
+        ::: input parameters :::
+        maxtime     - maximum delay time (sec)
+        twin        - time length for selected window +/- twin (sec)
+        dphi        - fast angle interval (deg)
+        mtype       - method type
+                        1 - max(lambda1 / lambda2)
+                        2 - min(lambda2)
+                        3 - max(lambda1)
+                        4 - min(lambda1 * lambda2)
+                        5 - min(lambda2 / lambda1)
+        ====================================================================================
         """
         self.delayt = np.array([])
         self.phi    = np.array([])
@@ -402,7 +456,18 @@ class sws_solver(object):
     
     def minimum_energy(self, trid, maxtime = 1.0, twin=1.5, dphi=.1):
         """
-            shear wave splitting using the minimum energy method by Silver & Chan (1991)
+        shear wave splitting using the minimum energy method by Silver & Chan (1991)
+        ====================================================================================
+        ::: input parameters :::
+        trid        - trace index
+        maxtime     - maximum delay time (sec)
+        twin        - time length for selected window +/- twin (sec)
+        dphi        - fast angle interval (deg)
+        ::: output :::
+        delayt      - delay time (sec)
+        phi         - fast axis angle (deg)
+        Ematrix     - energy matrix
+        ====================================================================================
         """
         maxlags = np.ceil(maxtime/self.dt) # only +-4 seconds relevant
         zerolag = np.ceil(twin/self.dt)
@@ -431,7 +496,13 @@ class sws_solver(object):
         
     def me_st(self, maxtime = 1.0, twin=1.5, dphi=.1):
         """
-            shear wave splitting using the minimum energy method for the stream (all the traces)
+        shear wave splitting using the minimum energy method for the stream (all the traces)
+        ====================================================================================
+        ::: input parameters :::
+        maxtime     - maximum delay time (sec)
+        twin        - time length for selected window +/- twin (sec)
+        dphi        - fast angle interval (deg)
+        ====================================================================================
         """
         self.delayt = np.array([])
         self.phi    = np.array([])
