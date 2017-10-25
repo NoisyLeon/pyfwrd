@@ -132,7 +132,7 @@ class sws_solver(object):
         """
         dArr    = np.zeros(self.dArr.size+1, dtype=np.float32)
         dArr[1:]= self.dArr # first layer is zero
-        din, rhoin, alphain, betain, dvpin, dvsin, isoin = self.model.layer_raysum_model(dArr, 15, 1.)
+        din, rhoin, alphain, betain, dvpin, dvsin, isoin, etain = self.model.layer_raysum_model(dArr, 15, 1.)
         nl      = din.size
         if nl > 14:
             raise ValueError('Maximum allowed number of layers is 15!')
@@ -141,6 +141,7 @@ class sws_solver(object):
         rho         = np.zeros(15, dtype=np.float32)
         alpha       = np.zeros(15, dtype=np.float32)
         beta        = np.zeros(15, dtype=np.float32)
+        eta         = np.zeros(15, dtype=np.float32)
         iso         = np.ones(15, dtype=np.int32)
         dvp         = np.zeros(15, dtype=np.float32)
         dvs         = np.zeros(15, dtype=np.float32)
@@ -153,6 +154,7 @@ class sws_solver(object):
         rho[:nl]    = rhoin[:]*1000.
         alpha[:nl]  = alphain[:]*1000.
         beta[:nl]   = betain[:]*1000.
+        eta[:nl]    = etain[:]
         iso[:nl]    = isoin[:]
         dvp[:nl]    = dvpin[:]*100.
         dvs[:nl]    = dvsin[:]*100.
@@ -162,6 +164,7 @@ class sws_solver(object):
         rho[nl-1]   = rho[nl-2]
         alpha[nl-1] = alpha[nl-2]
         beta[nl-1]  = beta[nl-2]
+        eta[nl-1]   = eta[nl-2]
         iso[nl-1]   = 1
         # topmost layer
         iso[0]      = 1
@@ -186,9 +189,13 @@ class sws_solver(object):
         sta_dy      = np.zeros(200, dtype=np.float32)
         self.npts   = int(t/self.dt)
         # Compute synthetics using raysum
-        tt, amp, nphase, tr_cart, tr_ph = raysum.raysum_interface(nl, d, rho, alpha, beta, dvp, dvs, \
+        tt, amp, nphase, tr_cart, tr_ph = raysum.raysum_interface(nl, d, rho, alpha, beta, eta, dvp, dvs, \
                     trend, plunge, strike, dip, iso, iphase,   ntr, baz, slow, sta_dx, sta_dy, \
                         self.mults, self.npts, self.dt, self.width, self.align, self.shift, self.outrot, phfname)
+        # constant eta
+        # # # tt, amp, nphase, tr_cart, tr_ph = raysum.raysum_interface(nl, d, rho, alpha, beta, dvp, dvs, \
+        # # #             trend, plunge, strike, dip, iso, iphase,   ntr, baz, slow, sta_dx, sta_dy, \
+        # # #                 self.mults, self.npts, self.dt, self.width, self.align, self.shift, self.outrot, phfname)
         self.tt     = tt[:nphase, :ntr]
         self.amp    = amp[:, :nphase, :ntr]
         self.trNEZ  = tr_cart[:, :self.npts, :ntr]

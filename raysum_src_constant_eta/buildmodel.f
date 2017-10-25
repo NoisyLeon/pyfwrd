@@ -1,6 +1,6 @@
 c####&
 
-      subroutine buildmodel(a,ar,rot,thick,rho,alpha,beta,eta,isoflag,
+      subroutine buildmodel(a,ar,rot,thick,rho,alpha,beta,isoflag,
      &                      pct_a,pct_b,trend,plunge,strike,dip,nlay)
 c Set up model for use.
      
@@ -24,10 +24,9 @@ c Scratch variables:
 c Parameter eta, combined with percentages of P and S anisotropy,
 c is sufficient to obtain all coefficients for a hexagonally-symmetric
 c medium. Fixed from Farra et al., 1991
-c   changed by LF s.t. eta can be non-constant!
-        real eta(maxlay)
+        real eta
 c       change eta
-c        parameter (eta=1.03)
+        parameter (eta=1.03)
                 
         do ilay=1,nlay
         
@@ -44,8 +43,7 @@ c after Farra et al, 1991
             CC=rho(ilay)*(alpha(ilay) + d_a/2.)**2.
             LL=rho(ilay)*(beta(ilay) + d_b/2.)**2.
             NN=rho(ilay)*(beta(ilay) - d_b/2.)**2.
-c           FF=eta*(AA-2.*LL), changed by LF
-            FF=eta(ilay)*(AA-2.*LL)
+            FF=eta*(AA-2.*LL)
 c            write (*,*) 'Anis. params are:',AA,CC,FF,LL,NN
 c Get tensor with unrotated axes
             call tritensr(a_temp,AA,CC,FF,LL,NN,rho(ilay))

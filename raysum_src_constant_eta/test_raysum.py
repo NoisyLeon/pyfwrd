@@ -52,10 +52,8 @@ out_rot=0
 
 phname_in=''
 
-eta = np.ones(15)
-
 # tt[:nphase, :ntr]     
-tt, amp, nphase, tr_cart, tr_ph = raysum.raysum_interface(3, thick, rho, alpha, beta, eta, dp, ds, trend, plunge, strike, dip, iso, iphase_in,\
+tt, amp, nphase, tr_cart, tr_ph = raysum.raysum_interface(3, thick, rho, alpha, beta, dp, ds, trend, plunge, strike, dip, iso, iphase_in,\
         ntr, baz, slow, sta_dx, sta_dy,\
         mults,nsamp,dt,width,align,shift,out_rot, phname_in)
 

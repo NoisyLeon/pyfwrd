@@ -2391,6 +2391,8 @@ class model1d(object):
         rho             - density array (unit - g/cm^3)
         vp0, vp2, vp4   - P wave velocity and corresponding 2psi/4psi relative perturnation
         vs0, vs2        - S wave velocity and corresponding 2psi relative perturnation
+        eta             - eta = F/(A-2L), added on Oct 25, 2017.
+                            raysum_src is also modified (buildmodel.f, raysum_interface.f)
         ===================================================================================
         """
         dArr, rhoArr, AArr, CArr, FArr, LArr, NArr = self.get_layer_model(dArr, nl, dh)
@@ -2401,7 +2403,9 @@ class model1d(object):
         dvs     = (np.sqrt(LArr/rhoArr) - np.sqrt(NArr/rhoArr))/vs
         iso     = np.zeros(dArr.size, dtype=np.int32)
         iso[(dvp==0.)*(dvs==0.)] = 1
-        return dArr, rhoArr, vp, vs, dvp, dvs, iso
+        # for modified raysum by LF
+        eta     = FArr/(AArr-2.*LArr)
+        return dArr, rhoArr, vp, vs, dvp, dvs, iso, eta
     
     ####################################################################################################
     # functions for tilted hexaganal symmetric model

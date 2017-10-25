@@ -50,7 +50,7 @@ m.flat=1
 
 m.add_perturb_layer_love(0, 20., 0, -0.02, True)
 m.add_perturb_layer_love(0, 20., 1, +0.02, True)
-# m.add_perturb_layer_love(0, 20., 3, -0.02, True)
+m.add_perturb_layer_love(0, 20., 3, -0.02, True)
 m.add_perturb_layer_love(0, 20., 4, +0.02, True)
 
 
@@ -104,10 +104,15 @@ ax=plt.subplot()
 plt.plot(np.arange(36)*10., CL1, 'ro', ms=10, label='Montagner & Nataf, both theta-2 and theta-4 term')
 plt.plot(np.arange(36)*10., CL2, 'b^', ms=8, label='J.Park')
 plt.plot(np.arange(36)*10., CL3, 'kx', ms=10, label='Montagner & Nataf, only theta-2 term')
+# plt.plot(np.arange(36)*10., tcpsL.C[1]*np.ones(36, dtype=np.float32), 'g-', ms=8, label='Montagner & Nataf, average')
+# plt.plot(np.arange(36)*10., CL2.mean()*np.ones(36, dtype=np.float32), 'y-', ms=8, label='J.Park, average')
+# plt.plot(np.arange(36)*10., CL3, 'kx', ms=10, label='Montagner & Nataf, only theta-2 term')
 plt.xlabel('Azimuth (deg)', fontsize=30)
 plt.ylabel('C (km/s)', fontsize=30)
 ax.tick_params(axis='x', labelsize=20)
 ax.tick_params(axis='y', labelsize=20)
 plt.legend(loc=0, fontsize=20)
 plt.title('Love wave', fontsize=35)
+
+
 plt.show()

@@ -82,13 +82,13 @@ m2.decompose()
 # 
 ssolver1 = sws.sws_solver(m1)
 ssolver1.init_default_2()
-ssolver1.solve_raysum(bazin=[45.])
+ssolver1.solve_raysum(bazin=[45])
 ssolver1.convolve()
 
 # 
 ssolver2 = sws.sws_solver(m2)
 ssolver2.init_default_2()
-ssolver2.solve_raysum(bazin=[45.])
+ssolver2.solve_raysum(bazin=[45])
 ssolver2.convolve()
 
 
@@ -98,7 +98,7 @@ plt.figure()
 ax=plt.subplot()
 plt.plot(time, ssolver1.trSYNROT[0,:,0], 'b', label='Radial')
 plt.plot(time, ssolver1.trSYNROT[1,:,0], 'b--', label='Transverse')
-c1, c2 = ssolver1.rotate(trid=0, angle=20)
+c1, c2 = ssolver1.rotate(trid=0, angle=-25)
 plt.plot(time, c1, 'r--', label='slow axis')
 plt.plot(time, c2, 'r-', label='fast axis')
 
@@ -116,7 +116,7 @@ plt.figure()
 ax=plt.subplot()
 plt.plot(time, ssolver2.trSYNROT[0,:,0], 'b', label='Radial')
 plt.plot(time, ssolver2.trSYNROT[1,:,0], 'b--', label='Transverse')
-c1, c2 = ssolver2.rotate(trid=0, angle=-70)
+c1, c2 = ssolver2.rotate(trid=0, angle=-35)
 plt.plot(time, c1, 'r--', label='slow axis')
 plt.plot(time, c2, 'r-', label='fast axis')
 

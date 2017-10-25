@@ -4,7 +4,7 @@ c Usage: seis-spread modelfile geometryfile phasefile arrivalfile
 
 c####&
 
-      subroutine raysum_interface(nlay, thick, rho, alpha, beta, eta, 
+      subroutine raysum_interface(nlay, thick, rho, alpha, beta, 
      x      pct_a, pct_b, trend, plunge, strike, dip, isoflag,
      x      iphase_in, ntr, baz, slow, sta_dx, sta_dy,
      x      mults,nsamp,dt,width,align,shift,out_rot, phname_in,
@@ -26,7 +26,6 @@ c Scratch variables:
 c Model parameters:
         integer nlay
         real thick(maxlay),rho(maxlay),alpha(maxlay),beta(maxlay)
-        real eta(maxlay)
         real pct_a(maxlay),pct_b(maxlay),trend(maxlay),plunge(maxlay)
         real strike(maxlay),dip(maxlay)
         logical isoflag(maxlay)
@@ -117,7 +116,7 @@ c     &                 pct_a,pct_b,trend,plunge,strike,dip,nlay)
      &                  pct_a,pct_b,trend,plunge,strike,dip,nlay)
      
 c Set up model for calculation, make rotators
-        call buildmodel(aa,ar_list,rot,thick,rho,alpha,beta,eta,isoflag,
+        call buildmodel(aa,ar_list,rot,thick,rho,alpha,beta,isoflag,
      &                  pct_a,pct_b,trend,plunge,strike,dip,nlay)
 c Read in geometry (desired traces)
 c        call getarg(2,geomname)

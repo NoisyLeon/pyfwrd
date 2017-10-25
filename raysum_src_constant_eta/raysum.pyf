@@ -3,7 +3,7 @@
 
 python module raysum ! in 
     interface  ! in :raysum
-        subroutine buildmodel(a,ar,rot,thick,rho,alpha,beta,eta,isoflag,pct_a,pct_b,trend,plunge,strike,dip,nlay) ! in :raysum:buildmodel.f
+        subroutine buildmodel(a,ar,rot,thick,rho,alpha,beta,isoflag,pct_a,pct_b,trend,plunge,strike,dip,nlay) ! in :raysum:buildmodel.f
             real dimension(3,3,3,3,15) :: a
             real dimension(3,3,3,3,15,2) :: ar
             real dimension(3,3,15) :: rot
@@ -11,7 +11,6 @@ python module raysum ! in
             real dimension(15) :: rho
             real dimension(15) :: alpha
             real dimension(15) :: beta
-            real dimension(15) :: eta
             logical dimension(15) :: isoflag
             real dimension(15) :: pct_a
             real dimension(15) :: pct_b
@@ -598,13 +597,12 @@ python module raysum ! in
             complex dimension(6,6) :: eig
             complex dimension(6,6) :: eig_i
         end subroutine eiginv
-        subroutine raysum_interface(nlay,thick,rho,alpha,beta,eta,pct_a,pct_b,trend,plunge,strike,dip,isoflag,iphase_in,ntr,baz,slow,sta_dx,sta_dy,mults,nsamp,dt,width,align,shift,out_rot,phname_in,travel_time,amplitude,numph,tr_cart,tr_ph) ! in :raysum:raysum_interface.f
+        subroutine raysum_interface(nlay,thick,rho,alpha,beta,pct_a,pct_b,trend,plunge,strike,dip,isoflag,iphase_in,ntr,baz,slow,sta_dx,sta_dy,mults,nsamp,dt,width,align,shift,out_rot,phname_in,travel_time,amplitude,numph,tr_cart,tr_ph) ! in :raysum:raysum_interface.f
             integer :: nlay
             real dimension(15) :: thick
             real dimension(15) :: rho
             real dimension(15) :: alpha
             real dimension(15) :: beta
-            real dimension(15) :: eta
             real dimension(15) :: pct_a
             real dimension(15) :: pct_b
             real dimension(15) :: trend
