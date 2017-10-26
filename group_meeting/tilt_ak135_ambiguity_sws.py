@@ -116,9 +116,9 @@ plt.figure()
 ax=plt.subplot()
 plt.plot(time, ssolver2.trSYNROT[0,:,0], 'b', label='Radial')
 plt.plot(time, ssolver2.trSYNROT[1,:,0], 'b--', label='Transverse')
-c1, c2 = ssolver2.rotate(trid=0, angle=-35)
-plt.plot(time, c1, 'r--', label='slow axis')
-plt.plot(time, c2, 'r-', label='fast axis')
+c3, c4 = ssolver2.rotate(trid=0, angle=-25)
+plt.plot(time, c3, 'r--', label='slow axis')
+plt.plot(time, c4, 'r-', label='fast axis')
 
 
 plt.xlabel('Time (sec)', fontsize=30)
