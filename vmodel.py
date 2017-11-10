@@ -22,8 +22,8 @@ def _get_array(xmin, xmax, dx):
     for i in xrange(Nx): xlst.append(dx*i+xmin)
     return np.array(xlst, dtype=np.float32)
 
-def read_model(model, infname, unit=1000., isotropic=True,
-        indz=0, indvpv=1, indvsv=2, indrho=3, indvph=4, indvsh=5, indeta=6, reverse=True):
+def read_model(model, infname, unit=1000., isotropic=True, tilt=False,
+        indz=0, indvpv=1, indvsv=2, indrho=3, indvph=4, indvsh=5, indeta=6, inddip=7, indstrike=8, reverse=True):
     """
     Read model in txt format
     ===========================================================================================================
@@ -50,6 +50,10 @@ def read_model(model, infname, unit=1000., isotropic=True,
     else:
         vph     = inArr[:, indvph]*unit
         vsh     = inArr[:, indvsh]*unit
+    if tilt:
+        dip     = inArr[:, inddip]
+        strike  = inArr[:, indstrike]
+    
     if reverse:
         vsv     = vsv[::-1]
         vsh     = vsh[::-1]
@@ -58,6 +62,9 @@ def read_model(model, infname, unit=1000., isotropic=True,
         eta     = eta[::-1]
         rho     = rho[::-1]
         radius  = radius[::-1]
+        if tilt:
+            dip     = dip[::-1]
+            strike  = strike[::-1]
     ind     = radius > 3700000.
     vsv     = vsv[ind]
     vsh     = vsh[ind]
@@ -67,6 +74,10 @@ def read_model(model, infname, unit=1000., isotropic=True,
     rho     = rho[ind]
     radius  = radius[ind]
     model.get_data_vel(vsv, vsh, vpv, vph, eta, rho, radius)
+    if tilt:
+        model.init_tilt()
+        model.dipArr    = dip
+        model.strikeArr  = strike
     return model
 
 def read_axisem_bm(model, infname):

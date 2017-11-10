@@ -113,7 +113,7 @@ class sws_solver(object):
         self.dArr   = np.array([30.,  170.], dtype = np.float32)
         return
     
-    def solve_raysum(self, bazin=np.array([0.]), t=50., iphase=2, slowness=0.06, phfname='', sws=True):
+    def solve_raysum(self, bazin=np.array([0.]), t=50., iphase=2, slowness=0.001, phfname='', sws=True):
         """
         Compute synthetics using raysum
         ===================================================================================================================================
@@ -121,7 +121,7 @@ class sws_solver(object):
         bazin       - back-azimuth array of wave vector
         t           - time length of output in sec
         iphase      - initial phase index (1 - P; 2 - SV; 3 - SH)
-        slowness    - reference horizontal slowness (default - 0.06 s/km, 1./0.06=16.6667)
+        slowness    - reference horizontal slowness (default - 0.001 s/km)
         phfname     - phase list file name for output(or input if self.mults == 3)
         ::: output :::
         self.tt     - travel time array (shape - (nphase, ntrace))
